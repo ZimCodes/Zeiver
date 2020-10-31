@@ -1,0 +1,25 @@
+[package]
+name = "zeiver"
+version = "0.1.0"
+authors = ["ZimCodes <23222943+ZimCodes@users.noreply.github.com>"]
+edition = "2018"
+description = "Web crawler designed for downloading content from ODs"
+readme = "README.md"
+repository = "https://github.com/ZimCodes/Zeiver"
+keywords = ["crawler","downloader","tool","utility","web"]
+categories = ["command-line-utilities"]
+license = "MIT OR Apache-2.0"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = "0.10.8"
+tokio = { version = "0.2", features = ["full"] }
+select = "0.5.0"
+regex = "1.4.1"
+mime = "0.3.16"
+url = "2.1.1"
+bytes = "0.5.6"
+lazy_static = "1.4.0"
+structopt = "0.3.20"
+crossbeam = "0.8.0"
+rand = "0.7.3"
