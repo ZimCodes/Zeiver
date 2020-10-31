@@ -1,4 +1,4 @@
-#Zeiver
+# Zeiver
 **Zeiver** is designed to scrape and download content recursively from ODs _(open directories)_.
 It also provides a means of retrieving links to them as well.
 
@@ -6,14 +6,15 @@ __*Zeiver does not download the entire OD itself, only the files.__
 
 ## Table of Contents
 * [Features](https://github.com/ZimCodes/Zeiver#features)
+* [Unsupported ODs](https://github.com/ZimCodes/Zeiver#unsupported-ods)
 * [Installation](https://github.com/ZimCodes/Zeiver#installation)
 * [Sample](https://github.com/ZimCodes/Zeiver#sample)
-* [Commands](https://github.com/ZimCodes/Zeiver#command)
+* [Commands](https://github.com/ZimCodes/Zeiver#commands)
     * [Positionals](https://github.com/ZimCodes/Zeiver#positionals) 
     * [Options](https://github.com/ZimCodes/Zeiver#options)
         * [General](https://github.com/ZimCodes/Zeiver#general)
         * [Download](https://github.com/ZimCodes/Zeiver#download)
-        * [File/Directory](https://github.com/ZimCodes/Zeiver#file/directory)
+        * [File/Directory](https://github.com/ZimCodes/Zeiver#file/filedirectory)
         * [HTTP](https://github.com/ZimCodes/Zeiver#http)
 * [License](https://github.com/ZimCodes/Zeiver#license)
 
@@ -60,6 +61,7 @@ __URL*s*...__
 
 Link(*s*) to the OD(*s*) you would like to download content from. 
 *_This is not needed if you are using the `-i, --input-file` option_
+
 ---
 ### Options
 #### General
@@ -106,6 +108,7 @@ Save the links only
 
 After scraping, instead of downloading the files, save the links to them. *_The downloader will be disabled when 
 this option is active. Enables Recorder instead._
+
 ---
 #### File/Directory
 
