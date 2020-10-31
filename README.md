@@ -14,7 +14,7 @@ __*Zeiver does not download the entire OD itself, only the files.__
     * [Options](https://github.com/ZimCodes/Zeiver#options)
         * [General](https://github.com/ZimCodes/Zeiver#general)
         * [Download](https://github.com/ZimCodes/Zeiver#download)
-        * [File/Directory](https://github.com/ZimCodes/Zeiver#file/filedirectory)
+        * [File/Directory](https://github.com/ZimCodes/Zeiver#filedirectory)
         * [HTTP](https://github.com/ZimCodes/Zeiver#http)
 * [License](https://github.com/ZimCodes/Zeiver#license)
 
