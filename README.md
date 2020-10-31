@@ -43,7 +43,7 @@ List of currently unsupported ODs:
 1. Install Rust. 
     * If Rust is not installed, please follow the instructions [here](https://www.rust-lang.org/tools/install)
     
-2.  Once Rust is installed, open a CLI & type `cargo install --git https://github.com/ZimCodes/Zeiver`
+2.  Once Rust is installed, open a CLI & type `cargo install --branch main --git https://github.com/ZimCodes/Zeiver`
     
     * _This will install Zeiver from Github_
     
