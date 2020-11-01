@@ -13,7 +13,6 @@ impl Zeiver{
     pub fn crawl(){
         let web_crawler = Arc::new(crawler::WebCrawler::new());
         let opts = cmd_opts::Opts::new();
-
         if !opts.urls.is_empty(){
             Zeiver::multi_thread(web_crawler,opts.urls,opts.links_only);
         }else{

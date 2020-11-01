@@ -23,7 +23,12 @@ impl WebCrawler {
             None=> panic!("No path was specified!")
         };
         let path = path.to_str().expect("Cannot parse PathBuf into a &str in task.");
-        WebCrawler::run_scraper(client, path, &self.opts.accept, &self.opts.reject, self.opts.depth,
+        let depth = if self.opts.depth == 0 {
+            1usize
+        }else{
+          self.opts.depth
+        };
+        WebCrawler::run_scraper(client, path, &self.opts.accept, &self.opts.reject, depth,
                                 self.opts.tries, self.opts.wait, self.opts.retry_wait, self.opts.random_wait, self.opts.verbose)
     }
     /// Performs task given to the Downloader
