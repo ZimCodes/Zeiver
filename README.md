@@ -128,9 +128,8 @@ Ex: `zeiver -o "./downloads/images/dir"`
 
 ***-c,--cuts***
 
-Ignores a specified number of directories from the remote URL of a 
-downloaded file from being created. *_Only available when downloading.
-Default: `0`_
+Ignores a specified number of remote directories from being created.
+*_Only available when downloading. Default: `0`_
 
 Ex: URL: `example.org/pub/xempcs/other/pics`
 
@@ -148,7 +147,7 @@ All files will be saved to the current output directory instead.
 *_Only available when downloading._
 
 ---
-### HTTP
+#### HTTP
 ***-H, --headers***
 
 Sets the default headers to use for every request. *_Must use the __'header$value'__ format. Each header must also be

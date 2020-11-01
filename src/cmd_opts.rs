@@ -20,8 +20,8 @@ pub struct Opts{
     pub no_dirs:bool,
     /// Ignores a set of remote directories from being created
     ///
-    /// Ignores the specified number of directories from the remote URL of a
-    /// downloaded file from being created. *Only available when downloading.
+    /// Ignores a specified number of remote directories from being created.
+    /// *Only available when downloading.
     /// Ex:
     /// URL: www.example.org/pub/xempcs/other/pics
     /// Original Save: ./pub/xempcs/other/pics
