@@ -4,6 +4,8 @@ It also provides a means of retrieving links to them as well.
 
 __*Zeiver does not download the entire OD itself, only the files.__
 
+For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver).
+
 ## Table of Contents
 * [Features](https://github.com/ZimCodes/Zeiver#features)
 * [Unsupported ODs](https://github.com/ZimCodes/Zeiver#unsupported-ods)

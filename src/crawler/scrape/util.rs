@@ -4,8 +4,8 @@ use url::Url;
 
 lazy_static!{
     static ref BACK_REG:Regex = Regex::new(r"(?:\.\./)").unwrap();
-    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.[\w]{2,4}/?$").unwrap();
-    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.[\w]{2,4}/?$").unwrap();
+    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.[\w]{2,9}/?$").unwrap();
+    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.[\w]{2,9}/?$").unwrap();
     static ref PREVIEW_REG:Regex = Regex::new(r"\?preview$").unwrap();
     static ref SYMBOLS_REG:Regex = Regex::new(r"/?[a-zA-Z0-9\*~\+\-%\?\[\]\$_\.!‘\(\)=]+/").unwrap();
     static ref QUERY_PATH_REG:Regex = Regex::new(r"/\?/").unwrap();
