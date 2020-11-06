@@ -8,6 +8,8 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
 
 ## Table of Contents
 * [Features](https://github.com/ZimCodes/Zeiver#features)
+   * [Workflow](https://github.com/ZimCodes/Zeiver#workflow)
+   * [More](https://github.com/ZimCodes/Zeiver#more)
 * [Unsupported ODs](https://github.com/ZimCodes/Zeiver#unsupported-ods)
 * [Installation](https://github.com/ZimCodes/Zeiver#installation)
 * [Sample](https://github.com/ZimCodes/Zeiver#sample)
@@ -29,6 +31,13 @@ Zeiver currently has 3 components:
 * Recorder
     * Saves a record of all files that were found in the OD
     
+### Workflow
+The **Scraper** recursively grabs links from the OD. Afterwards, the links are either sent to the
+**Recorder** (*which will save the links to a file.* Specify with `--links-only` command) **OR** **Downloader** (*which will download the files.* Enabled by default.).
+
+
+
+### More
 1. Uses Multithreading
     * Dependent on the amount of URLs provided.
 
@@ -88,18 +97,18 @@ Specify the maximum depth for recursive scraping. _Default: `20`_
 
 ***-A, --accept***
 
-Files to accept for download
+Files to accept for scraping
 
-Using Regex, specify which files to accept for downloading. Only the files that matches the regex will be
+Using Regex, specify which files to accept for scraping. Only the files that matches the regex will be
 acceptable for download. _*This option takes precedence over `--reject, -r`_.
 
 Ex: `zeiver -A "(mov|mp3|lunchbox_pic1\.jpg|(pic_of_me.gif))"`
 
 ***-R, --reject***
 
-Files to reject for download
+Files to reject for scraping
 
-Using Regex, specify which files to reject for downloading. Only the files that match the regex will be
+Using Regex, specify which files to reject for scraping. Only the files that match the regex will be
 rejected for download. *_`--accept, -a` takes precedence over this option_.
 
 Ex: `zeiver -R "(jpg|png|3gp|(pic_of_me.gif))"`
