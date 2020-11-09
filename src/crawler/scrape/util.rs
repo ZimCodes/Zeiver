@@ -123,11 +123,23 @@ pub fn remove_preview_query(url:&str) -> String{
 /// Removes the '?preview' query & adds a `/` to the end of the URL
 pub fn add_last_slash(url: &str) -> String {
     let mut url = remove_preview_query(url);
+    url = add_scheme(url);
     if !url.ends_with("/") {
         url.push('/');
         url
     }else{
         url.to_string()
+    }
+
+}
+/// Adds the http scheme to a URL
+fn add_scheme(url:String) -> String{
+    let scheme:&str = "http://";
+    if !url.starts_with("http://")
+        && !url.starts_with("https://"){
+        format!("{}{}",scheme,url)
+    }else{
+        url
     }
 
 }

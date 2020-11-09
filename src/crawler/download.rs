@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use mime::Mime;
+use std::rc::Rc;
 use crate::crawler::scrape::Scraper;
 use crate::crawler::{asset,http};
 use crate::crawler::record::Recorder;
@@ -25,7 +26,7 @@ impl Downloader {
         }
     }
     /// Start downloading files from the scraper
-    pub fn start(&self,client:&reqwest::Client,scraper:Box<Scraper>){
+    pub fn start(&self,client:&reqwest::Client,scraper:Rc<Scraper>){
         let pages = &scraper.pages;
         for page in pages{
             if !page.files.is_empty(){

@@ -14,7 +14,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
 * [Installation](https://github.com/ZimCodes/Zeiver#installation)
 * [Sample](https://github.com/ZimCodes/Zeiver#sample)
 * [Commands](https://github.com/ZimCodes/Zeiver#commands)
-    * [Positionals](https://github.com/ZimCodes/Zeiver#positionals) 
+    * [Positional](https://github.com/ZimCodes/Zeiver#positional) 
     * [Options](https://github.com/ZimCodes/Zeiver#options)
         * [General](https://github.com/ZimCodes/Zeiver#general)
         * [Download](https://github.com/ZimCodes/Zeiver#download)
@@ -33,9 +33,13 @@ Zeiver currently has 3 components:
     
 ### Workflow
 The **Scraper** recursively grabs links from the OD. Afterwards, the links are either sent to the
-**Recorder** (*which will save the links to a file.* Specify with `--links-only` command) **OR** **Downloader** (*which will download the files.* Enabled by default.).
-
-
+**Recorder** (_Disabled by default_), specified with:
+* `--record-only`
+* `--record`
+ 
+*AND/OR*
+ 
+**Downloader** (_Enabled by default_)
 
 ### More
 1. Uses Multithreading
@@ -47,8 +51,10 @@ The **Scraper** recursively grabs links from the OD. Afterwards, the links are e
 
 ## Unsupported ODs
 List of currently unsupported ODs:
-* Some __h5ai__
-* __ZFile__
+* __Dynamic ODs__ (_JavaScript influenced_)
+    * Some __h5ai__
+    * __ZFile__
+* robots.txt or robots metadata
 
 ## Installation
 1. Install Rust. 
@@ -67,7 +73,7 @@ The following code downloads files from _example.com/xms/imgs_, saves them in a 
 `zeiver -o -h "accept-language$fr-CH, en;q=0.8, de;q=0.7" "./Cool_Content" example.com/xms/imgs`
 
 ## Commands 
-### Positionals
+### Positional
 __URL*s*...__
 
 Link(*s*) to the OD(*s*) you would like to download content from. 
@@ -87,6 +93,10 @@ Prints version information
 ***-v, --verbose***
 
 Enable verbose output
+
+***--test***
+
+Run a scrape test without downloading or recording
 
 ---
 #### Download
@@ -113,7 +123,14 @@ rejected for download. *_`--accept, -a` takes precedence over this option_.
 
 Ex: `zeiver -R "(jpg|png|3gp|(pic_of_me.gif))"`
 
-***--links-only***
+***--record***
+
+Activates the Recorder
+
+Enables the Recorder which saves the scraped links to a file.
+*_Option cannot be used with `--record-only`_.
+
+***--record-only***
 
 Save the links only
 

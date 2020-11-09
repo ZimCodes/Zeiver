@@ -1,17 +1,18 @@
 use std::fs;
 use std::env;
 use super::scrape::Scraper;
+use std::rc::Rc;
 use std::io::Write;
 
 
 pub struct Recorder{
-    scraper:Box<Scraper>,
+    scraper:Rc<Scraper>,
     verbose:bool
 }
 
 impl Recorder{
     /// Creates a new Recorder
-    pub fn new(save:&str,scraper:Box<Scraper>,verbose:bool) -> Recorder{
+    pub fn new(save:&str,scraper:Rc<Scraper>,verbose:bool) -> Recorder{
         Recorder::save_dir(save);
         Recorder{
             scraper,

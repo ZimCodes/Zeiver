@@ -46,7 +46,13 @@ pub struct Opts{
     /// *The downloader will be disabled when this option is active. Enables
     /// Recorder instead.
     #[structopt(long)]
-    pub links_only:bool,
+    pub record_only:bool,
+    /// Activates the Recorder
+    ///
+    /// Enables the Recorder which saves the scraped links to a file.
+    /// *Option cannot be used with `--record-only`.
+    #[structopt(long,conflicts_with = "record-only")]
+    pub record:bool,
     /// The wait between each failed request (secs)
     ///
     /// Whenever a request fails, Zeiver will wait the specified
@@ -114,6 +120,12 @@ pub struct Opts{
     /// The URLs to download content from
     #[structopt(name = "URLS",required_unless("input-file"))]
     pub urls:Vec<PathBuf>,
+
+    /// Run a quick scrape test
+    ///
+    /// Use the Scraper without activating the Recorder and Downloader
+    #[structopt(long,conflicts_with_all(&["record-only","record","cuts","no-dirs","output"]))]
+    pub test:bool
 }
 impl Opts{
     pub fn new() -> Opts{

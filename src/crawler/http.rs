@@ -36,6 +36,9 @@ impl Http{
             match client.get(url).send().await {
                 Ok(response) => return Ok(response),
                 Err(e) => {
+                    if e.is_request(){
+                        panic!("Error found with request: {}",e);
+                    }
                     eprintln!("{}. Retrying connection!", e.to_string());
                     error = Some(e);
                 }

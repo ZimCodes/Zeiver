@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::rc::Rc;
 use std::path::PathBuf;
 use std::str::FromStr;
 use tokio::time::Duration;
@@ -14,16 +15,16 @@ impl Zeiver{
         let web_crawler = Arc::new(crawler::WebCrawler::new());
         let opts = cmd_opts::Opts::new();
         if !opts.urls.is_empty(){
-            Zeiver::multi_thread(web_crawler,opts.urls,opts.links_only);
+            Zeiver::multi_thread(web_crawler,opts.urls,opts.record_only,opts.record,opts.test);
         }else{
             let urls = crawler::WebCrawler::get_links(opts.input_file);
-            Zeiver::multi_thread(web_crawler,urls,opts.links_only);
+            Zeiver::multi_thread(web_crawler,urls,opts.record_only,opts.record,opts.test);
         }
     }
     /// Performs tasks given to the WebCrawler under multi-threading
     /// NOTE: The amount of threads depends on the amount of URLs specified
     /// by the user.
-    fn multi_thread(web_crawler:Arc<crawler::WebCrawler>,urls:Vec<PathBuf>,links_only:bool){
+    fn multi_thread(web_crawler:Arc<crawler::WebCrawler>, urls:Vec<PathBuf>,record_only:bool,record:bool,debug:bool){
         thread::scope(|s|{
             let client_builder = reqwest::Client::builder();
             let client = Arc::new(Zeiver::client_creator(client_builder).unwrap());
@@ -33,11 +34,20 @@ impl Zeiver{
                 let client_clone = client.clone();
                 s.spawn(move |_| {
                     let scraper = web_clone.scraper_task(&client_clone,Some(url));
-                    if links_only{
-                        web_clone.recorder_task(scraper);
-                    }else{
-                        web_clone.downloader_task(&client_clone,scraper);
+                    let rc_scraper = Rc::new(scraper);
+                    if !debug{
+                        if record_only{
+                            web_clone.recorder_task(rc_scraper);
+                        }else{
+                            let rc_scraper_clone= Rc::clone(&rc_scraper);
+                            web_clone.downloader_task(&client_clone,rc_scraper);
+                            if record{
+                                web_clone.recorder_task(rc_scraper_clone);
+                            }
+                        }
                     }
+
+
 
                 });
             }
