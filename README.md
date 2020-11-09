@@ -30,7 +30,9 @@ Zeiver currently has 3 components:
     * Downloads content retrieved from Scraper (_or from a file_)
 * Recorder
     * Saves a record of all files that were found in the OD
-    
+
+***All components can be used independently**
+
 ### Workflow
 The **Scraper** recursively grabs links from the OD. Afterwards, the links are either sent to the
 **Recorder** (_Disabled by default_), specified with:
