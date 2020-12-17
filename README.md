@@ -72,7 +72,7 @@ List of currently unsupported ODs:
 The following code downloads files from _example.com/xms/imgs_, saves them in a local directory called _Cool_Content_,
 & sends a request with the ACCEPT-LANGUAGE header.
 
-`zeiver -o -h "accept-language$fr-CH, en;q=0.8, de;q=0.7" "./Cool_Content" example.com/xms/imgs`
+`zeiver -h "accept-language$fr-CH, en;q=0.8, de;q=0.7" -o "./Cool_Content" example.com/xms/imgs`
 
 ## Commands 
 ### Positional
