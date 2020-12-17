@@ -1,6 +1,6 @@
 # Zeiver
 **Zeiver** is designed to scrape and download content recursively from ODs _(open directories)_.
-It also provides a means of retrieving links to them as well.
+It also provides a means of retrieving links to the content as well.
 
 __*Zeiver does not download the entire OD itself, only the files.__
 
