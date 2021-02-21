@@ -56,7 +56,6 @@ List of currently unsupported ODs:
 * __Dynamic ODs__ (_JavaScript influenced_)
     * Some __h5ai__
     * __ZFile__
-* robots.txt or robots metadata
 
 ## Installation
 1. Install Rust. 
