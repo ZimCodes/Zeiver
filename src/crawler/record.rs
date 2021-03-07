@@ -2,7 +2,7 @@ use std::fs;
 use std::env;
 use super::scrape::Scraper;
 use std::rc::Rc;
-use std::io::Write;
+use std::io::{Write, ErrorKind};
 
 
 pub struct Recorder{
@@ -12,17 +12,17 @@ pub struct Recorder{
 
 impl Recorder{
     /// Creates a new Recorder
-    pub fn new(save:&str,scraper:Rc<Scraper>,verbose:bool) -> Recorder{
-        Recorder::save_dir(save);
+    pub fn new(save_dir:&str,scraper:Rc<Scraper>,verbose:bool) -> Recorder{
+        Recorder::save_dir(&save_dir);
         Recorder{
             scraper,
             verbose
         }
     }
     /// Create a file and place the corresponding links from each page.
-    pub fn run(&self){
+    pub fn run(&self,record_file:&String){
         println!("-----Recording Links From Scraper-----");
-        let record_file = "URL_Records.txt";
+        let record_file = record_file.as_str();
         let mut f = fs::File::create(record_file).expect("Recorder file cannot be created!");
         for page in &self.scraper.pages{
             for file in &page.files{
@@ -47,11 +47,20 @@ impl Recorder{
     }
     /// Set the directory to save downloaded files
     pub fn save_dir(path:&str){
-        let is_save_set = env::current_dir().unwrap().as_path().ends_with(path);
+        let is_save_set:bool;
+        if path.starts_with("./"){
+            is_save_set = env::current_dir().unwrap().as_path().ends_with(&path[2..]);
+        }else{
+            is_save_set = env::current_dir().unwrap().as_path().ends_with(path);
+        }
 
         if !is_save_set{
             if let Err(e) = env::set_current_dir(path){
-                eprintln!("{}",e.to_string());
+                if e.kind() == ErrorKind::NotFound {
+                    println!("Creating Directory: \"{}\"",path);
+                }else{
+                    println!("{}",e);
+                }
                 fs::create_dir_all(path).expect(&*format!("directory for path, '{}', cannot be created!",path));
                 env::set_current_dir(path).unwrap_or_else(|_e|{
                     env::set_current_dir(".").expect("Cannot set path as a save location!");

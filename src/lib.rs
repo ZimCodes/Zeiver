@@ -13,7 +13,8 @@ impl Zeiver{
     /// Activates Zeiver
     pub fn crawl(){
         let web_crawler = Arc::new(crawler::WebCrawler::new());
-        let opts = cmd_opts::Opts::new();
+        let mut opts = cmd_opts::Opts::new();
+        Zeiver::clean_urls_list(& mut opts);
         if !opts.urls.is_empty(){
             Zeiver::multi_thread(web_crawler,opts.urls,opts.record_only,opts.record,opts.test);
         }else{
@@ -40,15 +41,12 @@ impl Zeiver{
                             web_clone.recorder_task(rc_scraper);
                         }else{
                             let rc_scraper_clone= Rc::clone(&rc_scraper);
-                            web_clone.downloader_task(&client_clone,rc_scraper);
                             if record{
                                 web_clone.recorder_task(rc_scraper_clone);
                             }
+                            web_clone.downloader_task(&client_clone,rc_scraper);
                         }
                     }
-
-
-
                 });
             }
 
@@ -117,6 +115,12 @@ impl Zeiver{
         builder = builder.user_agent(user_agent);
         let policy = reqwest::redirect::Policy::limited(opts.redirects);
         builder.redirect(policy).build()
+    }
+    // Removes 'zeiver' from the collection of URLs
+    fn clean_urls_list(opts: & mut cmd_opts::Opts){
+        if let true = opts.urls.contains(&PathBuf::from("zeiver")){
+            opts.urls.remove(0);
+        }
     }
 }
 

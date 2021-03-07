@@ -11,10 +11,11 @@ pub struct Downloader{
     tries:u32,
     wait:Option<f32>,
     retry_wait:f32,
-    is_random:bool
+    is_random:bool,
+    verbose:bool
 }
 impl Downloader {
-    pub fn new(save:&str,cuts:u32,tries:u32,wait:Option<f32>,retry_wait:f32,use_dir:bool,is_random:bool) ->Downloader{
+    pub fn new(save:&str,cuts:u32,tries:u32,wait:Option<f32>,retry_wait:f32,use_dir:bool,is_random:bool,verbose:bool) ->Downloader{
         Recorder::save_dir(save);
         Downloader{
             use_dir,
@@ -22,7 +23,8 @@ impl Downloader {
             tries,
             wait,
             retry_wait,
-            is_random
+            is_random,
+            verbose
         }
     }
     /// Start downloading files from the scraper
@@ -42,7 +44,7 @@ impl Downloader {
     /// Downloads a File
     #[tokio::main]
     pub async fn run(&self,client:&reqwest::Client, file:&asset::File) -> Result<(),reqwest::Error>{
-        let res = http::Http::get_response(client,&file.link,self.tries,self.wait,self.retry_wait,self.is_random).await?;
+        let res = http::Http::get_response(client,&file.link,self.tries,self.wait,self.retry_wait,self.is_random,self.verbose).await?;
         let headers = res.headers();
         let content_type = headers.get(reqwest::header::CONTENT_TYPE);
         match content_type {

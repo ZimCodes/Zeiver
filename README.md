@@ -30,9 +30,12 @@ Zeiver currently has 3 components:
     * Downloads content retrieved from Scraper (_or from a file_)
 * Recorder
     * Saves a record of all files that were found in the OD
+    * Records are saved to a file called *URL_Records.txt*. Name can be 
+      changed using `--record-file`
 
 ***All components can be used independently**
 
+**All *
 ### Workflow
 The **Scraper** recursively grabs links from the OD. Afterwards, the links are either sent to the
 **Recorder** (_Disabled by default_), specified with:
@@ -174,6 +177,10 @@ Do not create a hierarchy of directories structured the same as the URL the file
 All files will be saved to the current output directory instead. 
 
 *_Only available when downloading._
+
+***--record-file***
+
+Changes the name of the record file. This file is where the recorder will store the links. *Default: `URL_Records.txt`*
 
 ---
 #### HTTP

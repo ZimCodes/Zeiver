@@ -8,13 +8,14 @@ pub struct Http;
 
 impl Http{
     /// Establish a connection to the URL
-    pub async fn connect(client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool)
+    pub async fn connect(client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,verbose:bool)
         -> Result<String,reqwest::Error> {
-        let res = Http::get_response(client,url,tries,wait,retry_wait,is_random).await?;
+        let res = Http::get_response(client,url,tries,wait,retry_wait,is_random,verbose).await?;
         res.text().await
     }
     /// Sends a request to the server
-    pub async fn get_response(client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool) -> Result<Response,reqwest::Error>{
+    pub async fn get_response(client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
+                              verbose:bool) -> Result<Response,reqwest::Error>{
         // Wait between HTTP requests
 
         if let Some(sec) = wait{
@@ -22,9 +23,9 @@ impl Http{
             let mut wait_sec = sec;
             if is_random{
                 let mut rng = rand::thread_rng();
-                wait_sec = rng.gen_range(0.5 * wait_sec, 1.5 * wait_sec);
+                wait_sec = rng.gen_range((0.5 * wait_sec)..= (1.5 * wait_sec));
             }
-            Http::pause_thread(wait_sec);
+            Http::pause_thread(wait_sec,verbose);
 
         }
 
@@ -45,15 +46,21 @@ impl Http{
             }
 
             // Wait before sending another request after failing
-            Http::pause_thread(retry_wait);
+            Http::pause_thread(retry_wait,verbose);
         }
         Err(error.unwrap())
     }
     /// Pauses the thread
-    fn pause_thread(wait:f32){
-        println!("Sleeping!");
+    fn pause_thread(wait:f32,verbose:bool){
+        if verbose{
+            println!("Sleeping!");
+        }
+
         let wait_dur = Duration::from_secs_f32(wait);
         thread::sleep(wait_dur);
-        println!("Awake!");
+
+        if verbose{
+            println!("Awake!");
+        }
     }
 }

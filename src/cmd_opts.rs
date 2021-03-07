@@ -116,7 +116,12 @@ pub struct Opts{
     /// Ex: ./downloads/images/dir
     #[structopt(short,long,default_value = "./")]
     pub output:PathBuf,
-
+    /// Name of record file
+    ///
+    /// The name of the file to record the links received by the Recorder
+    /// Ex: Link-file.txt
+    #[structopt(long,default_value = "URL_Records.txt")]
+    pub record_file:String,
     /// The URLs to download content from
     #[structopt(name = "URLS",required_unless("input-file"))]
     pub urls:Vec<PathBuf>,

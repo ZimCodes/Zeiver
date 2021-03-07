@@ -144,7 +144,7 @@ impl Scraper{
             return Ok(());
         }
         //Init
-        let res = http::Http::connect(client,url,tries,wait,retry_wait,is_random).await?;
+        let res = http::Http::connect(client,url,tries,wait,retry_wait,is_random,verbose).await?;
 
         let dirs_of_dirs = vec![Scraper::scrape_dirs(res.as_str(),url,verbose)];
 
@@ -185,7 +185,7 @@ impl Scraper{
                     }
                     //Connect to Directory link
                     url = dir.link.as_str();
-                    res = http::Http::connect(client,url,tries,wait,retry_wait,is_random).await?;
+                    res = http::Http::connect(client,url,tries,wait,retry_wait,is_random,verbose).await?;
                     //Retrieve Files from Directory Link
                     let files = Scraper::scrape_files(res.as_str(),url,&accept,&reject,verbose);
                     if !files.is_empty(){
