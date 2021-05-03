@@ -71,7 +71,7 @@ impl File{
                     mut_url.set_query(None);
                     mut_url.set_path(query);
                 }else{
-                    panic!("There was trouble parsing the URL: {}!", mut_url);
+                    return Some(String::from("untitled"));
                 }
             }
         }

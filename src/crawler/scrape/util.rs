@@ -102,6 +102,7 @@ fn no_query_path(url:&str) -> Url {
     let url = Url::parse(&*url_no_query).expect("Cannot parse &str into an URL type");
     url
 }
+/// Removes the last slash from the URL
 pub fn remove_last_slash(url:&str) -> String{
     if url.ends_with("/") {
         let new_url = LAST_SLASH_REG.replace(url,"");

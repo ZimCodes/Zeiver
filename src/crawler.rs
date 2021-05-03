@@ -22,7 +22,7 @@ impl WebCrawler {
             Some(pathbuf)=> pathbuf,
             None=> panic!("No path was specified!")
         };
-        let path = path.to_str().expect("Cannot parse PathBuf into a &str in task.");
+        let path = path.to_str().expect("Cannot parse PathBuf into a &str in scraper_task.");
         let depth = if self.opts.depth == 0 {
             1usize
         }else{

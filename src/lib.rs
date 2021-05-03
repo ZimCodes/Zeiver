@@ -4,7 +4,6 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use tokio::time::Duration;
 use crossbeam::thread;
-
 mod crawler;
 pub mod cmd_opts;
 
