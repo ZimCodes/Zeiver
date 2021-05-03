@@ -35,7 +35,6 @@ Zeiver currently has 3 components:
 
 ***All components can be used independently**
 
-**All *
 ### Workflow
 The **Scraper** recursively grabs links from the OD. Afterwards, the links are either sent to the
 **Recorder** (_Disabled by default_), specified with:
