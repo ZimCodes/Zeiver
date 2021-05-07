@@ -36,12 +36,13 @@ impl Zeiver{
                     let scraper = web_clone.scraper_task(&client_clone,Some(url));
                     let rc_scraper = Rc::new(scraper);
                     if !debug{
+                        let arc_count = Arc::strong_count(&web_clone)-1;//Total amount of web crawlers sharing a pointer
                         if record_only{
-                            web_clone.recorder_task(rc_scraper);
+                            web_clone.recorder_task(rc_scraper, arc_count);
                         }else{
                             let rc_scraper_clone= Rc::clone(&rc_scraper);
                             if record{
-                                web_clone.recorder_task(rc_scraper_clone);
+                                web_clone.recorder_task(rc_scraper_clone, arc_count);
                             }
                             web_clone.downloader_task(&client_clone,rc_scraper);
                         }

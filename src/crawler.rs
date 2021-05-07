@@ -37,10 +37,10 @@ impl WebCrawler {
         WebCrawler::run_downloader(&client, scraper, save, self.opts.cut_dirs, self.opts.tries,self.opts.wait,self.opts.retry_wait,self.opts.no_dirs,
                                    self.opts.random_wait,self.opts.verbose);
     }
-    pub fn recorder_task(&self,scraper:Rc<scrape::Scraper>){
+    pub fn recorder_task(&self,scraper:Rc<scrape::Scraper>,recorder_id:usize){
         let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
-        let recorder = record::Recorder::new(save,scraper,self.opts.verbose);
-        recorder.run(&self.opts.record_file);
+        let mut recorder = record::Recorder::new(save, scraper, self.opts.verbose);
+        recorder.run(&self.opts.record_file,recorder_id,self.opts.no_stats);
     }
     //Activates the Scraper
     fn run_scraper(client:&reqwest::Client,path:&str,accept:&Option<String>,reject:&Option<String>,depth:usize,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,verbose:bool)

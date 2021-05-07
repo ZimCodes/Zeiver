@@ -181,8 +181,8 @@ pub fn is_url_path(url:&str,rel_url:&str) -> bool{
         None => true
     }
 }
-/// Sets the accept/reject regex
-pub fn acc_rej_regex(acc_rej:&Option<String>) -> Regex{
-        let acc_rej_pat = acc_rej.as_ref().unwrap();
-        Regex::new(&*format!(r"{}",acc_rej_pat)).unwrap()
+/// Create a new Regex struct
+pub fn set_regex(regex:&Option<String>) -> Regex{
+        let regex_pat = regex.as_ref().unwrap();
+        Regex::new(&*format!(r"{}",regex_pat)).unwrap()
 }

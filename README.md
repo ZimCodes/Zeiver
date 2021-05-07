@@ -18,6 +18,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
     * [Options](https://github.com/ZimCodes/Zeiver#options)
         * [General](https://github.com/ZimCodes/Zeiver#general)
         * [Download](https://github.com/ZimCodes/Zeiver#download)
+        * [Recorder](https://github.com/ZimCodes/Zeiver#recorder)
         * [File/Directory](https://github.com/ZimCodes/Zeiver#filedirectory)
         * [HTTP](https://github.com/ZimCodes/Zeiver#http)
 * [License](https://github.com/ZimCodes/Zeiver#license)
@@ -126,6 +127,9 @@ rejected for download. *_`--accept, -a` takes precedence over this option_.
 
 Ex: `zeiver -R "(jpg|png|3gp|(pic_of_me.gif))"`
 
+---
+#### Recorder
+
 ***--record***
 
 Activates the Recorder
@@ -137,9 +141,19 @@ Enables the Recorder which saves the scraped links to a file.
 
 Save the links only
 
-After scraping, instead of downloading the files, save the links to them. *_The downloader will be disabled when 
+After scraping, instead of downloading the files, save the links to them. *_The downloader will be disabled when
 this option is active. Enables Recorder instead._
 
+***--record-file***
+
+Changes the name of the record file. This file is where the recorder will store the links. *Default: `URL_Records.txt`*
+
+***--no-stats***
+
+Prevents Recorder from creating `_stat_` files.
+
+The Recorder will no longer create `_stat_` files when saving scraped links to a file. *Default: `false`*
+Ex: `stat_URL_Record.txt`
 ---
 #### File/Directory
 
@@ -153,7 +167,8 @@ Ex: `zeiver -i "./dir/urls.txt"`
 
 Save file location.
 
-The local file path to save downloading files. _Default: `./`_
+The local file path to save downloading files. Files saved by the Recorder are also stored here.
+_Default: `./`_
 
 Ex: `zeiver -o "./downloads/images/dir"`
 
@@ -176,10 +191,6 @@ Do not create a hierarchy of directories structured the same as the URL the file
 All files will be saved to the current output directory instead. 
 
 *_Only available when downloading._
-
-***--record-file***
-
-Changes the name of the record file. This file is where the recorder will store the links. *Default: `URL_Records.txt`*
 
 ---
 #### HTTP

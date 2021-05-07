@@ -21,15 +21,21 @@ impl Page{
 pub struct File {
     pub link:String,
     pub name:String,
+    pub short_name:Option<String>,
+    pub ext:Option<String>,
     pub dir_path:String
 }
 impl File{
     pub fn new(link: &str) -> File{
         let name = File::get_name(link).unwrap_or(String::from("untitled"));
+        let ext = File::get_part_of_name(&name,true);
+        let short_name = File::get_part_of_name(&name,false);
         let dir_path = File::get_dir_path(link);
         File {
             link:link.to_string(),
             name,
+            ext,
+            short_name,
             dir_path
         }
     }
@@ -71,7 +77,7 @@ impl File{
                     mut_url.set_query(None);
                     mut_url.set_path(query);
                 }else{
-                    return Some(String::from("untitled"));
+                    return None;
                 }
             }
         }
@@ -110,6 +116,19 @@ impl File{
             name[start..name.len()].to_string()
         }else{
             name.to_string()
+        }
+    }
+    /// Get the file extension
+    pub fn get_part_of_name(name:&str,get_ext:bool)-> Option<String>{
+        let name_split:Vec<&str> = name.split('.').collect();
+        if name_split.len() == 2{
+            if get_ext{
+                Some(String::from(name_split[1]))
+            }else{
+                Some(String::from(name_split[0]))
+            }
+        }else{
+            None
         }
     }
 }

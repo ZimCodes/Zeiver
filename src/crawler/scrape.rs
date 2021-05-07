@@ -43,29 +43,31 @@ impl Scraper{
                         if !x.starts_with("?dir=")
                             || (x.starts_with("?dir=") && util::check_dir_query(url,x.as_str()))
                         {
-                            if accept.is_some(){
-                                let reg = util::acc_rej_regex(accept);
-                                if reg.is_match(x.as_str()){
-                                    Scraper::add_file(url,x.as_str(),&mut files,verbose);
-                                }
-                            }
-                            else if reject.is_some(){
-                                let reg = util::acc_rej_regex(reject);
-                                if !reg.is_match(x.as_str()){
-                                    Scraper::add_file(url,x.as_str(),&mut files,verbose);
-                                }
-                            }
-                            else if accept.is_none() && reject.is_none(){
-                                Scraper::add_file(url,x.as_str(),&mut files,verbose);
-                            }
+                            Scraper::acc_rej_check(url, &mut files, x, accept, reject, verbose);
                         }
-
                     }
                 }
-
-
             });
         files
+    }
+    /// Scrape files based on 'accept' and 'reject' option configurations
+    fn acc_rej_check(url:&str, files:&mut Vec<asset::File>, x:String, accept:&Option<String>, reject:&Option<String>, verbose:bool){
+        //Accept Option
+        if accept.is_some(){
+            let reg = util::set_regex(accept);
+            if reg.is_match(x.as_str()){
+                Scraper::add_file(url,x.as_str(),files,verbose);
+            }
+        }//Reject Option
+        else if reject.is_some(){
+            let reg = util::set_regex(reject);
+            if !reg.is_match(x.as_str()){
+                Scraper::add_file(url,x.as_str(),files,verbose);
+            }
+        }//Neither Option
+        else if accept.is_none() && reject.is_none(){
+            Scraper::add_file(url,x.as_str(),files,verbose);
+        }
     }
     /// Scrape directory URLs present on the current page(URL)
     fn scrape_dirs(res:&str, url:&str, verbose:bool) -> Vec<asset::Directory>{

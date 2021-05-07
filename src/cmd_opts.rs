@@ -53,6 +53,12 @@ pub struct Opts{
     /// *Option cannot be used with `--record-only`.
     #[structopt(long,conflicts_with = "record-only")]
     pub record:bool,
+    /// Prevents Recorder from creating stat files
+    ///
+    /// The Recorder will no longer create stat files when saving scraped
+    /// links to a file.
+    #[structopt(long)]
+    pub no_stats:bool,
     /// The wait between each failed request (secs)
     ///
     /// Whenever a request fails, Zeiver will wait the specified
@@ -76,14 +82,14 @@ pub struct Opts{
     ///
     /// Using Regex, specify which files to accept for downloading.
     /// Only the files that matches the regex will be acceptable
-    /// for download. (This option takes precedence over --reject, -r)
+    /// for download. (This option takes precedence over --reject, -R)
     #[structopt(short = "A",long)]
     pub accept:Option<String>,
     /// Files to reject for download
     ///
     /// Using Regex, specify which files to reject for downloading.
     /// Only the files that match the regex will be rejected
-    /// for download. (--accept, -a takes precedence over this option)
+    /// for download. (--accept, -A takes precedence over this option)
     #[structopt(short = "R",long,conflicts_with = "accept")]
     pub reject:Option<String>,
     /// The User Agent header to use
@@ -119,13 +125,12 @@ pub struct Opts{
     /// Name of record file
     ///
     /// The name of the file to record the links received by the Recorder
-    /// Ex: Link-file.txt
+    /// Ex: Link_file.txt
     #[structopt(long,default_value = "URL_Records.txt")]
     pub record_file:String,
     /// The URLs to download content from
     #[structopt(name = "URLS",required_unless("input-file"))]
     pub urls:Vec<PathBuf>,
-
     /// Run a quick scrape test
     ///
     /// Use the Scraper without activating the Recorder and Downloader
