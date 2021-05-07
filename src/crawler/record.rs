@@ -48,9 +48,10 @@ impl Recorder{
                 f.write(link_buf).expect("A problem occurred when trying to write to record file");
             }
         }
-        println!("{:?}",stats_map);
 
         if !no_stats{
+            println!("{:?}",stats_map);
+
             let stats_file = format!(r"{}\{}_stats_{}",env::current_dir().unwrap().to_string_lossy(),recorder_id,file_name_str);
             if let Err(e) = Recorder::create_stats_txt_file(stats_map,&stats_file){
                 eprintln!("Cannot make stat file. {}",e);
