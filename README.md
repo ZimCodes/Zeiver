@@ -154,6 +154,7 @@ Prevents Recorder from creating `_stat_` files.
 
 The Recorder will no longer create `_stat_` files when saving scraped links to a file. *Default: `false`*
 Ex: `stat_URL_Record.txt`
+
 ---
 #### File/Directory
 
