@@ -10,8 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Update Dependencies
-      - run: cargo update
-      - name: Push to GitHub
+        run: cargo update
       - run: git status
       - run: git add -A
       - run: git commit -m "update cargo dependencies"
