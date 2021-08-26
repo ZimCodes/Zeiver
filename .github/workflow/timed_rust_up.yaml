@@ -1,0 +1,18 @@
+name: Timed Rust Update
+
+on:
+  schedule:
+    - cron: '* 0,12 1 * *'
+
+jobs:
+  update_rust_job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update Dependencies
+      - run: cargo update
+      - name: Push to GitHub
+      - run: git status
+      - run: git add -A
+      - run: git commit -m "update cargo dependencies"
+      - run: git push origin main
