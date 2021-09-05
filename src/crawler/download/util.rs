@@ -50,8 +50,7 @@ pub fn download_progress(mut f:fs::File,file_byte:&[u8]){
         data_length += data_written;
     }
     println!("File Size: {}",byte_calc(file_length));
-    println!("-----Download Completed!-----");
-
+    println!("-----File Downloaded!-----");
 }
 fn byte_calc(total:usize) -> String{
     let units:[&str;9] = ["B","KB","MB","GB","TB","PB","EB","ZB","YB"];

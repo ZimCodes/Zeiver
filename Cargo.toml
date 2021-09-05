@@ -12,14 +12,14 @@ license = "MIT OR Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reqwest = "0.11.1"
-tokio = { version = "1.2.0", features = ["full"] }
+reqwest = "0.11.4"
+tokio = { version = "1.10.1", features = ["full"] }
 select = "0.5.0"
-regex = "1.4.3"
+regex = "1.5.4"
 mime = "0.3.16"
-url = "2.2.1"
-bytes = "1.0.1"
+url = "2.2.2"
+bytes = "1.1.0"
 lazy_static = "1.4.0"
-structopt = "0.3.21"
-crossbeam = "0.8.0"
-rand = "0.8.3"
+structopt = "0.3.22"
+crossbeam = "0.8.1"
+rand = "0.8.4"

@@ -1,8 +1,9 @@
 name: Timed Rust Update
 
 on:
-  schedule:
-    - cron: '* 0,12 1 * *'
+  push:
+    branches:
+      - main
 
 jobs:
   update_rust_job:

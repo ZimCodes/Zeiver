@@ -4,8 +4,8 @@ use url::Url;
 
 lazy_static!{
     static ref BACK_REG:Regex = Regex::new(r"(?:\.\./)").unwrap();
-    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.[\w]{2,9}/?$").unwrap();
-    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.[\w]{2,9}/?$").unwrap();
+    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.[a-zA-Z0-9][a-zA-Z][a-zA-Z0-9]{1,5}/?$").unwrap();
+    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.[a-zA-Z0-9][a-zA-Z][a-zA-Z0-9]{1,5}/?$").unwrap();
     static ref PREVIEW_REG:Regex = Regex::new(r"\?preview$").unwrap();
     static ref SYMBOLS_REG:Regex = Regex::new(r"/?[a-zA-Z0-9\*~\+\-%\?\[\]\$_\.!‘\(\)=]+/").unwrap();
     static ref QUERY_PATH_REG:Regex = Regex::new(r"/\?/").unwrap();
@@ -185,4 +185,28 @@ pub fn is_url_path(url:&str,rel_url:&str) -> bool{
 pub fn set_regex(regex:&Option<String>) -> Regex{
         let regex_pat = regex.as_ref().unwrap();
         Regex::new(&*format!(r"{}",regex_pat)).unwrap()
+}
+/*Sanitize the url to for easy traversing*/
+pub fn sanitize_url(url:&str) ->String{
+    use crate::crawler::scrape::od::{OLAINDEX};
+    let url = OLAINDEX::sanitize_url(url);
+    let url = remove_preview_query(url.as_ref());
+    String::from(url)
+}
+/// Check if url is the parent directory of the href link
+pub fn sub_dir_check(x:&str,url:&str)->bool{
+    if !x.starts_with(url) {
+        let mut rel:Vec<&str> = x.split('/').collect();
+        let mut new_url:Vec<&str> = url.split('/').collect();
+
+        if rel.len()  < 4 {
+            return false;
+        }
+        rel.remove(3);
+        new_url.remove(3);
+
+        rel.join("/").starts_with(&new_url.join("/"))
+    }else{
+        true
+    }
 }

@@ -23,7 +23,7 @@ impl Recorder{
     }
     /// Create a file and place the corresponding links from each page.
     pub fn run(&mut self,record_file:&String,recorder_id:usize,no_stats:bool){
-        println!("-----Recording Links From Scraper-----");
+        println!("\n-----Recording Links From Scraper-----\n");
         let record_path = Path::new(record_file);
         let file_name = record_path.file_name().expect("Path to create recorder file does not exist");
         let file_name_str = file_name.to_string_lossy();
@@ -74,7 +74,7 @@ impl Recorder{
                 if e.kind() == ErrorKind::NotFound {
                     println!("Creating Directory: \"{}\"",path);
                 }else{
-                    println!("{}",e);
+                    eprintln!("{}",e);
                 }
                 fs::create_dir_all(path).expect(&*format!("directory for path, '{}', cannot be created!",path));
                 env::set_current_dir(path).unwrap_or_else(|_e|{
