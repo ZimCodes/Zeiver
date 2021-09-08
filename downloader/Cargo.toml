@@ -1,0 +1,18 @@
+[package]
+name = "downloader"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bytes = "1.1.0"
+lazy_static = "1.4.0"
+regex = "1.5.4"
+mime = "0.3.16"
+scraper = {path = "../scraper"}
+http = {path = "../http"}
+recorder = {path = "../recorder"}
+asset = {path = "../asset"}
+tokio = { version = "1.10.1", features = ["full"] }
+reqwest = "0.11.4"

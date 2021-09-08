@@ -21,6 +21,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "asset"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "regex",
+ "url",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -104,6 +113,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "cmd_opts"
+version = "0.1.0"
+dependencies = [
+ "structopt",
+]
+
+[[package]]
 name = "core-foundation"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -118,6 +134,17 @@ name = "core-foundation-sys"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
+
+[[package]]
+name = "crawler"
+version = "0.1.0"
+dependencies = [
+ "cmd_opts",
+ "downloader",
+ "recorder",
+ "reqwest",
+ "scraper",
+]
 
 [[package]]
 name = "crossbeam"
@@ -185,6 +212,22 @@ checksum = "d82cfc11ce7f2c3faef78d8a684447b40d503d9681acebed6cb728d45940c4db"
 dependencies = [
  "cfg-if",
  "lazy_static",
+]
+
+[[package]]
+name = "downloader"
+version = "0.1.0"
+dependencies = [
+ "asset",
+ "bytes",
+ "http 0.1.0",
+ "lazy_static",
+ "mime",
+ "recorder",
+ "regex",
+ "reqwest",
+ "scraper",
+ "tokio",
 ]
 
 [[package]]
@@ -310,7 +353,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "futures-util",
- "http",
+ "http 0.2.4",
  "indexmap",
  "slab",
  "tokio",
@@ -358,6 +401,14 @@ dependencies = [
 
 [[package]]
 name = "http"
+version = "0.1.0"
+dependencies = [
+ "rand 0.8.4",
+ "reqwest",
+]
+
+[[package]]
+name = "http"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "527e8c9ac747e28542699a951517aa9a6945af506cd1f2e1b53a576c17b6cc11"
@@ -374,7 +425,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "399c583b2979440c60be0821a6199eca73bc3c8dcd9d070d75ac726e2c6186e5"
 dependencies = [
  "bytes",
- "http",
+ "http 0.2.4",
  "pin-project-lite",
 ]
 
@@ -401,7 +452,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "h2",
- "http",
+ "http 0.2.4",
  "http-body",
  "httparse",
  "httpdate",
@@ -980,6 +1031,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "recorder"
+version = "0.1.0"
+dependencies = [
+ "scraper",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1025,7 +1083,7 @@ dependencies = [
  "encoding_rs",
  "futures-core",
  "futures-util",
- "http",
+ "http 0.2.4",
  "http-body",
  "hyper",
  "hyper-tls",
@@ -1069,6 +1127,20 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "scraper"
+version = "0.1.0"
+dependencies = [
+ "asset",
+ "http 0.1.0",
+ "lazy_static",
+ "regex",
+ "reqwest",
+ "select",
+ "tokio",
+ "url",
+]
 
 [[package]]
 name = "security-framework"
@@ -1599,15 +1671,9 @@ dependencies = [
 name = "zeiver"
 version = "0.4.0"
 dependencies = [
- "bytes",
+ "cmd_opts",
+ "crawler",
  "crossbeam",
- "lazy_static",
- "mime",
- "rand 0.8.4",
- "regex",
  "reqwest",
- "select",
- "structopt",
  "tokio",
- "url",
 ]

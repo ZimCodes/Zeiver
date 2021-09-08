@@ -3,13 +3,12 @@ use std::thread;
 use std::time::Duration;
 use rand;
 use rand::Rng;
-
 pub struct Http;
 
 impl Http{
     /// Establish a connection to the URL
     pub async fn connect(client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,verbose:bool)
-        -> Result<String,reqwest::Error> {
+                         -> Result<String,reqwest::Error> {
         let res = Http::get_response(client,url,tries,wait,retry_wait,is_random,verbose).await?;
         res.text().await
     }

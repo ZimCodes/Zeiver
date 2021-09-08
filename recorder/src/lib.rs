@@ -1,6 +1,6 @@
 use std::fs;
 use std::env;
-use super::scrape::Scraper;
+use scraper::Scraper;
 use std::rc::Rc;
 use std::io::{Write, ErrorKind,Error};
 use std::collections::HashMap;

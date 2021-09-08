@@ -188,7 +188,7 @@ pub fn set_regex(regex:&Option<String>) -> Regex{
 }
 /*Sanitize the url to for easy traversing*/
 pub fn sanitize_url(url:&str) ->String{
-    use crate::crawler::scrape::od::{OLAINDEX};
+    use crate::od::olaindex::OLAINDEX;
     let url = OLAINDEX::sanitize_url(url);
     let url = remove_preview_query(url.as_ref());
     String::from(url)

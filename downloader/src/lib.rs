@@ -1,9 +1,10 @@
 use std::str::FromStr;
 use mime::Mime;
 use std::rc::Rc;
-use crate::crawler::scrape::Scraper;
-use crate::crawler::{asset,http};
-use crate::crawler::record::Recorder;
+use scraper::Scraper;
+use asset;
+use http;
+use recorder::Recorder;
 mod util;
 pub struct Downloader{
     use_dir:bool,
@@ -43,7 +44,7 @@ impl Downloader {
     }
     /// Downloads a File
     #[tokio::main]
-    pub async fn run(&self,client:&reqwest::Client, file:&asset::File) -> Result<(),reqwest::Error>{
+    pub async fn run(&self,client:&reqwest::Client, file:&asset::file::File) -> Result<(),reqwest::Error>{
         let res = http::Http::get_response(client,&file.link,self.tries,self.wait,self.retry_wait,self.is_random,self.verbose).await?;
         let headers = res.headers();
         let content_type = headers.get(reqwest::header::CONTENT_TYPE);
@@ -67,8 +68,4 @@ impl Downloader {
 
         Ok(())
     }
-
-
-
 }
-

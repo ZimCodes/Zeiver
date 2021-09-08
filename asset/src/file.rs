@@ -1,23 +1,14 @@
 use url::Url;
-use std::fmt;
 use regex::Regex;
 use lazy_static::lazy_static;
+
 lazy_static!{
     static ref LAST_SLASH_REG:Regex = Regex::new(r"/$").unwrap();
     static ref FILE_EXT_REG:Regex = Regex::new(r"/[a-zA-Z0-9\*~\+\-%\?\[\]\$_\.!‘\(\)= ]+\.[\w]{2,4}/?$").unwrap();
     static ref QUERY_REG:Regex = Regex::new(r"/\?\w+=\w+/").unwrap();
     static ref QUERY_PATH_REG:Regex = Regex::new(r"/\?/").unwrap();
 }
-pub struct Page{
-    pub files:Vec<File>,
-}
-impl Page{
-    pub fn new(files:Vec<File>) -> Page {
-        Page{
-            files,
-        }
-    }
-}
+
 pub struct File {
     pub link:String,
     pub name:String,
@@ -130,20 +121,5 @@ impl File{
         }else{
             None
         }
-    }
-}
-pub struct Directory{
-    pub link:String,
-}
-impl  Directory{
-    pub fn new(link: String) -> Directory{
-        Directory{
-            link
-        }
-    }
-}
-impl fmt::Debug for Directory{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) ->fmt::Result{
-        writeln!(f,"{}",self.link)
     }
 }

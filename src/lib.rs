@@ -4,8 +4,9 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use tokio::time::Duration;
 use crossbeam::thread;
-mod crawler;
-pub mod cmd_opts;
+use reqwest;
+use crawler;
+use cmd_opts;
 
 pub struct Zeiver;
 impl Zeiver{
