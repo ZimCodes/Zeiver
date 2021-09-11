@@ -1,13 +1,12 @@
-use select::document::Document;
-use select::predicate::Name;
 use tokio::fs;
-use tokio::io::{ErrorKind};
+use tokio::io::ErrorKind;
 use std::path::PathBuf;
 use reqwest;
 use asset;
 use http;
 mod parser;
 mod od;
+mod search;
 
 pub struct Scraper{
     pub pages:Vec<asset::page::Page>,
@@ -31,31 +30,18 @@ impl Scraper{
     {
         let mut files:Vec<asset::file::File> = Vec::new();
         let mut previous_file = String::new();//variable to check for duplicates
-        let mut is_data_attr:bool = false;
 
         println!("-----Parsing File Links-----");
-
-
-        Document::from(res)
-            .find(Name("a"))
-            .filter_map(|n| {
-                if n.attr("data-route").is_some() || is_data_attr{
-                    is_data_attr = true;
-                    n.attr("data-route")
-                }else{
-                    n.attr("href")
-                }
-            }).filter(|link| !link.contains("javascript:void"))
-            .map(|link| parser::sanitize_url(link))
+        search::filtered_links(res)
+            .iter()
             .for_each(|x|{
-                if previous_file != x {
+                if &previous_file != x {
                     previous_file = x.to_string();
                     let is_file_ext = parser::is_file_ext(x.as_str());
 
                     let ending_check = is_file_ext
                         || od::olaindex::OLAINDEX::has_dl_query(&x)
                         || od::olaindex::OLAINDEX::hash_query(&x);
-
 
                     let sub_check = parser::sub_dir_check(&x, url);
 
@@ -64,11 +50,10 @@ impl Scraper{
                         && (!x.starts_with("http")
                         || sub_check)
                     {
-
                         if !x.starts_with("?dir=")
                             || (x.starts_with("?dir=") && parser::check_dir_query(url, x.as_str()))
                         {
-                            let mut x = x;
+                            let mut x = String::from(x);
                             if self.od_type.is_some() && self.od_type.as_ref().unwrap() == "olaindex"{
                                 x = od::olaindex::OLAINDEX::add_dl_query(&x);
                             }
@@ -90,51 +75,40 @@ impl Scraper{
     fn scrape_dirs(&mut self,res:&str, url:&str, verbose:bool) -> Vec<asset::directory::Directory>{
         let mut dirs = Vec::new();
         let mut past_dir = String::new();//variable to check for duplicates
-        let mut is_data_attr:bool = false;
 
         println!("-----Parsing Directory Links-----");
-
-        Document::from(res)
-            .find(Name("a"))
-            .filter_map(|n| {
-                if n.attr("data-route").is_some() || is_data_attr{
-                    is_data_attr = true;
-                    n.attr("data-route")
-                }else{
-                    n.attr("href")
-                }
-            }).filter(|link| !link.contains("javascript:void"))
-            .map(|link| parser::sanitize_url(link))
+        search::filtered_links(res)
+            .iter()
             .for_each(|x|{
 
-                let x = &*x;
-                let current_dir = format!("{}{}",url,x);
-                if past_dir != current_dir {
+            let x = &*x;
+            let current_dir = format!("{}{}",url,x);
+            if past_dir != current_dir {
 
-                    past_dir = current_dir;
+                past_dir = current_dir;
 
-                    if  (!x.starts_with("http")
-                        || x.starts_with(url))
-                        && !parser::is_back_url(x)
-                        && !parser::is_home_url(x)
-                        && (!x.contains("sortBy") && !x.contains("sortby"))
+                if  (!x.starts_with("http")
+                    || x.starts_with(url))
+                    && !parser::is_back_url(x)
+                    && !parser::is_home_url(x)
+                    && (!x.contains("sortBy") && !x.contains("sortby"))
+                {
+                    if  parser::is_not_symbol(x)
+                        && ((x.starts_with("/")
+                        && !parser::is_url_path(url, x))
+                        || !x.starts_with("/")
+                        && !x.starts_with("?"))
+                        && !od::olaindex::OLAINDEX::has_dl_query(&x)
+                        && !parser::is_file_ext(x)
                     {
-                        if  parser::is_not_symbol(x)
-                            && ((x.starts_with("/")
-                            && !parser::is_url_path(url, x))
-                            || !x.starts_with("/")
-                            && !x.starts_with("?"))
-                            && !od::olaindex::OLAINDEX::has_dl_query(&x)
-                            && !parser::is_file_ext(x)
-                        {
-                            self.add_dir(url,x,&mut dirs,verbose);
-                        }
-                        else if x.starts_with("?dir=") && parser::check_dir_query(url, x){
-                            self.add_dir(url,x,&mut dirs,verbose);
-                        }
+                        self.add_dir(url,x,&mut dirs,verbose);
+                    }
+                    else if x.starts_with("?dir=") && parser::check_dir_query(url, x){
+                        self.add_dir(url,x,&mut dirs,verbose);
                     }
                 }
-            });
+            }
+        });
         println!("-----End of Parsing Directory Links-----");
         dirs
     }
@@ -259,12 +233,9 @@ impl Scraper{
                 dirs_of_dirs = new_dirs;
                 cur_depth += 1;
             }else{
-
                 println!("-----Finished Directory Diving-----");
-
                 break;
             }
-
         }
         Ok(())
     }

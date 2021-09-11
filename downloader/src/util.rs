@@ -19,38 +19,44 @@ pub async fn prepare_file(res_content:Box<HttpBodyType>, file:&asset::file::File
     match *res_content {
         HttpBodyType::Text(text) => {
             let file_byte = text.as_bytes();
-            download_progress(f,file_byte).await;
+            println!("-----Downloading {}-----",file.name);
+            download_progress(f,file_byte,file.name.as_str()).await;
         },
         HttpBodyType::Binary(data) =>{
             let file_byte = data.as_ref();
-            download_progress(f,file_byte).await;
+            println!("-----Downloading {}-----",file.name);
+            download_progress(f,file_byte,file.name.as_str()).await;
         }
     };
 
 }
 /// Downloads the file while showing its current progress
-pub async fn download_progress(mut f:fs::File,file_byte:&[u8]){
+pub async fn download_progress(mut f:fs::File,file_byte:&[u8],name:&str){
     let file_length = file_byte.len();
     let mut data_length:usize = 0;
-    println!("-----Downloading File-----");
-    while data_length < file_length{
-        let data_written = match f.write(file_byte).await{
-            Ok(byte) => byte,
-            Err(e) => match e.kind(){
-                ErrorKind::Interrupted =>{
-                    0usize
-                },
-                _ => {
-                    eprintln!("No bytes in the buffer were written to this File");
-                    break;
-                }
-            }
-        };
-        data_length += data_written;
-        println!("{}",data_length);
+
+    while let Ok(byte) = retrieve_buffer_data(&mut f, file_byte).await{
+        data_length += byte;
+        if data_length >= file_length{
+            break;
+        }
     }
     println!("File Size: {}",byte_calc(file_length));
-    println!("-----File Downloaded!-----");
+    println!("-----{} Downloaded!-----",name);
+}
+async fn retrieve_buffer_data(f: &mut fs::File, file_byte:&[u8]) -> Result<usize,()>{
+    match f.write(file_byte).await{
+        Ok(byte) => Ok(byte),
+        Err(e) => match e.kind(){
+            ErrorKind::Interrupted =>{
+                Ok(0usize)
+            },
+            _ => {
+                eprintln!("No bytes in the buffer were written to this File");
+                Err(())
+            }
+        }
+    }
 }
 fn byte_calc(total:usize) -> String{
     let units:[&str;9] = ["B","KB","MB","GB","TB","PB","EB","ZB","YB"];

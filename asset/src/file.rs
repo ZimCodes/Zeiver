@@ -18,10 +18,10 @@ pub struct File {
 }
 impl File{
     pub fn new(link: &str) -> File{
-        let name = File::get_name(link).unwrap_or(String::from("untitled"));
-        let ext = File::get_part_of_name(&name,true);
-        let short_name = File::get_part_of_name(&name,false);
-        let dir_path = File::get_dir_path(link);
+        let name = File::retrieve_name(link).unwrap_or(String::from("untitled"));
+        let ext = File::part_of_name(&name, true);
+        let short_name = File::part_of_name(&name, false);
+        let dir_path = File::dir_path(link);
         File {
             link:link.to_string(),
             name,
@@ -31,7 +31,7 @@ impl File{
         }
     }
     /// Retrieve the parent path(directories) of the file
-    fn get_dir_path(link:&str)-> String{
+    fn dir_path(link:&str) -> String{
         let no_query_url = QUERY_PATH_REG.replace(link,"/");
         let url = Url::parse(no_query_url.as_ref()).unwrap();
 
@@ -54,7 +54,7 @@ impl File{
         }
     }
     /// Retrieve the name of the file from the URL
-    fn get_name(url: &str) -> Option<String> {
+    fn retrieve_name(url: &str) -> Option<String> {
         if let Some(name) = File::query_check(url){
             return Some(File::cut_name(name.as_str()));
         }
@@ -93,7 +93,6 @@ impl File{
 
             },
             None => {
-                println!("None");
                 None
             }
         }
@@ -110,7 +109,7 @@ impl File{
         }
     }
     /// Get the file extension
-    pub fn get_part_of_name(name:&str,get_ext:bool)-> Option<String>{
+    pub fn part_of_name(name:&str, get_ext:bool) -> Option<String>{
         let name_split:Vec<&str> = name.split('.').collect();
         if name_split.len() == 2{
             if get_ext{
