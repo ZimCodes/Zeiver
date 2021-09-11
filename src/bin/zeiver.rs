@@ -1,5 +1,6 @@
 use zeiver::Zeiver;
-fn main() {
-    Zeiver::crawl();
+#[tokio::main]
+async fn main() {
+    Zeiver::crawl().await;
 }
 

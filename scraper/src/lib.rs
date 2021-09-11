@@ -1,7 +1,7 @@
 use select::document::Document;
 use select::predicate::Name;
-use std::fs;
-use std::io::ErrorKind;
+use tokio::fs;
+use tokio::io::{ErrorKind};
 use std::path::PathBuf;
 use reqwest;
 use asset;
@@ -32,9 +32,9 @@ impl Scraper{
         let mut files:Vec<asset::file::File> = Vec::new();
         let mut previous_file = String::new();//variable to check for duplicates
         let mut is_data_attr:bool = false;
-        if verbose {
-            println!("-----Parsing File Links-----");
-        }
+
+        println!("-----Parsing File Links-----");
+
 
         Document::from(res)
             .find(Name("a"))
@@ -83,6 +83,7 @@ impl Scraper{
                     }
                 }
             });
+        println!("-----End of Parsing File Links-----");
         files
     }
     /// Scrape directory URLs present on the current page(URL)
@@ -90,9 +91,9 @@ impl Scraper{
         let mut dirs = Vec::new();
         let mut past_dir = String::new();//variable to check for duplicates
         let mut is_data_attr:bool = false;
-        if verbose {
-            println!("-----Parsing Directory Links-----");
-        }
+
+        println!("-----Parsing Directory Links-----");
+
         Document::from(res)
             .find(Name("a"))
             .filter_map(|n| {
@@ -134,9 +135,9 @@ impl Scraper{
                     }
                 }
             });
+        println!("-----End of Parsing Directory Links-----");
         dirs
     }
-    #[tokio::main]
     pub async fn run(&mut self,client:&reqwest::Client,url:&str,accept:&Option<String>,
                      reject:&Option<String>,depth:usize,tries:u32,wait:Option<f32>,
                      retry_wait:f32,is_random:bool,verbose:bool)
@@ -216,22 +217,19 @@ impl Scraper{
     async fn dir_recursive(&mut self,client:&reqwest::Client,mut url:&str,mut res:String, mut dirs_of_dirs:Vec<Vec<asset::directory::Directory>>,
                            accept:&Option<String>, reject:&Option<String>,depth:usize,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,verbose:bool)->Result<(),reqwest::Error>
     {
-        let mut cur_depth = 1;
-        if verbose {
-            println!("-----Starting Directory Recursion-----");
-        }
+        println!("-----Starting Directory Diving-----");
 
+        let mut cur_depth = 1;
         while cur_depth < depth {
             let mut new_dirs = Vec::new();
             for dirs in dirs_of_dirs{
-                if verbose {
-                    println!("-----Checking next set of Directories-----");
-                }
+
+                println!("-----Checking next set of Directories-----");
 
                 for dir in dirs {
-                    if verbose {
-                        println!("\n-----Current Parsing Directory-----\n{:?}",dir);
-                    }
+
+                    println!("\n-----Current Parsing Directory-----\n{:?}",dir);
+
                     //Connect to Directory link
                     url = dir.link.as_str();
 
@@ -248,24 +246,22 @@ impl Scraper{
                         new_dirs.push(cur_dirs);
                     }
                 }
-                if verbose{
-                    println!("-----Finished Checking this set of Directories-----");
-                }
 
+                println!("-----Finished Checking this set of Directories-----");
             }
 
             // Check if any Directories were found inside any of the previous Directory Links
             // If there aren't any new Directories, stop checking directories
             if !new_dirs.is_empty(){
-                if verbose {
-                    println!("-----Setting up new Directories to check-----");
-                }
+
+                println!("-----Setting up new Directories to check-----");
+
                 dirs_of_dirs = new_dirs;
                 cur_depth += 1;
             }else{
-                if verbose{
-                    println!("-----Finished Directory Recursion-----");
-                }
+
+                println!("-----Finished Directory Diving-----");
+
                 break;
             }
 
@@ -310,8 +306,8 @@ impl Scraper{
         }
     }
     /// Read links from a file & start downloading
-    pub fn links_from_file(path:&str) -> Vec<PathBuf> {
-        let f = fs::read_to_string(path);
+    pub async fn links_from_file(path:&str) -> Vec<PathBuf> {
+        let f = fs::read_to_string(path).await;
         let msg =  match f {
             Ok(msg) => msg,
             Err(e)=> match e.kind(){

@@ -1,6 +1,5 @@
-use std::fs;
-use std::io::ErrorKind;
-use std::io::prelude::*;
+use tokio::fs;
+use tokio::io::{ErrorKind,AsyncWriteExt};
 use bytes::Bytes;
 use std::env;
 use lazy_static::lazy_static;
@@ -15,27 +14,27 @@ pub enum HttpBodyType{
     Binary(Bytes)
 }
 /// Prepares the File for download
-pub fn prepare_file(res_content:Box<HttpBodyType>, file:&asset::file::File,cuts:u32,use_dir:bool){
-    let f = create_file_path(file,cuts,use_dir);
+pub async fn prepare_file(res_content:Box<HttpBodyType>, file:&asset::file::File,cuts:u32,use_dir:bool){
+    let f = create_file_path(file,cuts,use_dir).await;
     match *res_content {
         HttpBodyType::Text(text) => {
             let file_byte = text.as_bytes();
-            download_progress(f,file_byte);
+            download_progress(f,file_byte).await;
         },
         HttpBodyType::Binary(data) =>{
             let file_byte = data.as_ref();
-            download_progress(f,file_byte);
+            download_progress(f,file_byte).await;
         }
     };
 
 }
 /// Downloads the file while showing its current progress
-pub fn download_progress(mut f:fs::File,file_byte:&[u8]){
+pub async fn download_progress(mut f:fs::File,file_byte:&[u8]){
     let file_length = file_byte.len();
     let mut data_length:usize = 0;
     println!("-----Downloading File-----");
     while data_length < file_length{
-        let data_written = match f.write(file_byte){
+        let data_written = match f.write(file_byte).await{
             Ok(byte) => byte,
             Err(e) => match e.kind(){
                 ErrorKind::Interrupted =>{
@@ -48,6 +47,7 @@ pub fn download_progress(mut f:fs::File,file_byte:&[u8]){
             }
         };
         data_length += data_written;
+        println!("{}",data_length);
     }
     println!("File Size: {}",byte_calc(file_length));
     println!("-----File Downloaded!-----");
@@ -66,17 +66,17 @@ fn byte_calc(total:usize) -> String{
     size
 }
 /// Creates a file path
-fn create_file_path(file:&asset::file::File,cuts:u32,use_dir:bool) -> fs::File{
+async fn create_file_path(file:&asset::file::File,cuts:u32,use_dir:bool) -> fs::File{
     let cur_dir = env::current_dir().expect("Current directory cannot be retrieved");
     let cur_dir = match cur_dir.to_str(){
       Some(dir) => dir,
         None => "./"
     };
-    let save_dir_path = link_dir_path(file, cur_dir, cuts, use_dir);
+    let save_dir_path = link_dir_path(file, cur_dir, cuts, use_dir).await;
 
     let save_file_path = file_path_join(file,save_dir_path.as_str());
     println!("SAVE FILE PATH:{}",save_file_path);
-    let f = match fs::File::create(save_file_path){
+    let f = match fs::File::create(save_file_path).await{
         Ok(f) => f,
         Err(e) => panic!("File cannot be created! Reason: {}",e.to_string())
     };
@@ -97,11 +97,11 @@ fn file_path_join(file:&asset::file::File,save_dir_path:&str) -> String{
     }
 }
 /// Link remote directory path with local save location
-fn link_dir_path(file:&asset::file::File, cur_dir:&str, cuts:u32, use_dir:bool) ->String{
+async fn link_dir_path(file:&asset::file::File, cur_dir:&str, cuts:u32, use_dir:bool) ->String{
     if use_dir{
         let dir_path = format!("{}{}", cur_dir, cut_dir(file,cuts));
 
-        if let Err(e) = fs::create_dir_all(&dir_path){
+        if let Err(e) = fs::create_dir_all(&dir_path).await{
             match e.kind(){
                 ErrorKind::AlreadyExists=> println!("{} already exists!", dir_path),
                 _=> panic!("{}",e.to_string())

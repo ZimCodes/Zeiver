@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 scraper = {path = "../scraper"}
+tokio = { version = "1.10.1", features = ["fs","io-util"] }

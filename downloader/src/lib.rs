@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use mime::Mime;
-use std::rc::Rc;
+use std::sync::Arc;
 use scraper::Scraper;
 use asset;
 use http;
@@ -16,8 +16,8 @@ pub struct Downloader{
     verbose:bool
 }
 impl Downloader {
-    pub fn new(save:&str,cuts:u32,tries:u32,wait:Option<f32>,retry_wait:f32,use_dir:bool,is_random:bool,verbose:bool) ->Downloader{
-        Recorder::save_dir(save);
+    pub async fn new(save:&str,cuts:u32,tries:u32,wait:Option<f32>,retry_wait:f32,use_dir:bool,is_random:bool,verbose:bool) ->Downloader{
+        Recorder::save_dir(save).await;
         Downloader{
             use_dir,
             cuts,
@@ -29,12 +29,12 @@ impl Downloader {
         }
     }
     /// Start downloading files from the scraper
-    pub fn start(&self,client:&reqwest::Client,scraper:Rc<Scraper>){
+    pub async fn start(&self,client:&reqwest::Client,scraper:Arc<Scraper>){
         let pages = &scraper.pages;
         for page in pages{
             if !page.files.is_empty(){
                 for file in &page.files{
-                    if let Err(e) = Downloader::run(self,client,file){
+                    if let Err(e) = self.run(client,file).await{
                         panic!("{}",e.to_string());
                     }
                 }
@@ -43,8 +43,7 @@ impl Downloader {
         }
     }
     /// Downloads a File
-    #[tokio::main]
-    pub async fn run(&self,client:&reqwest::Client, file:&asset::file::File) -> Result<(),reqwest::Error>{
+    async fn run(&self,client:&reqwest::Client, file:&asset::file::File) -> Result<(),reqwest::Error>{
         let res = http::Http::get_response(client,&file.link,self.tries,self.wait,self.retry_wait,self.is_random,self.verbose).await?;
         let headers = res.headers();
         let content_type = headers.get(reqwest::header::CONTENT_TYPE);
@@ -62,7 +61,7 @@ impl Downloader {
                         Box::new(util::HttpBodyType::Binary(res.bytes().await?))
                     }
                 };
-                util::prepare_file(res_content,file,self.cuts,self.use_dir);
+                util::prepare_file(res_content,file,self.cuts,self.use_dir).await;
             }
         };
 

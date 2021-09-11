@@ -1,35 +1,35 @@
-use std::fs;
+use tokio::fs;
 use std::env;
 use scraper::Scraper;
-use std::rc::Rc;
-use std::io::{Write, ErrorKind,Error};
+use std::sync::Arc;
+use tokio::io::{AsyncWriteExt,Error,ErrorKind};
 use std::collections::HashMap;
 use std::path::Path;
 mod util;
 
 pub struct Recorder{
-    scraper:Rc<Scraper>,
+    scraper:Arc<Scraper>,
     verbose:bool
 }
 
 impl Recorder{
     /// Creates a new Recorder
-    pub fn new(save_dir:&str,scraper:Rc<Scraper>,verbose:bool) -> Recorder{
-        Recorder::save_dir(&save_dir);
+    pub async fn new(save_dir:&str,scraper:Arc<Scraper>,verbose:bool) -> Recorder{
+        Recorder::save_dir(&save_dir).await;
         Recorder{
             scraper,
             verbose,
         }
     }
     /// Create a file and place the corresponding links from each page.
-    pub fn run(&mut self,record_file:&String,recorder_id:usize,no_stats:bool){
+    pub async fn run(&mut self,record_file:&String,recorder_id:usize,no_stats:bool){
         println!("\n-----Recording Links From Scraper-----\n");
         let record_path = Path::new(record_file);
         let file_name = record_path.file_name().expect("Path to create recorder file does not exist");
         let file_name_str = file_name.to_string_lossy();
         let new_file_path = format!("{}_{}",recorder_id,file_name_str);
 
-        let mut f = fs::File::create(new_file_path).expect("Unable to create record file");
+        let mut f = fs::File::create(new_file_path).await.expect("Unable to create record file");
         let mut stats_map:HashMap<&str,u32> = HashMap::new();//{filetype,total} holds recorder stats
         for page in &self.scraper.pages{
             for file in &page.files{
@@ -45,7 +45,7 @@ impl Recorder{
                 }
                 // Write the link to the page file
                 let link_buf = link.as_bytes();
-                f.write(link_buf).expect("A problem occurred when trying to write to record file");
+                f.write(link_buf).await.expect("A problem occurred when trying to write to record file");
             }
         }
 
@@ -53,7 +53,7 @@ impl Recorder{
             println!("{:?}",stats_map);
 
             let stats_file = format!(r"{}\{}_stats_{}",env::current_dir().unwrap().to_string_lossy(),recorder_id,file_name_str);
-            if let Err(e) = Recorder::create_stats_txt_file(stats_map,&stats_file){
+            if let Err(e) = Recorder::create_stats_txt_file(stats_map,&stats_file).await{
                 eprintln!("Cannot make stat file. {}",e);
             }
         }
@@ -61,7 +61,7 @@ impl Recorder{
         println!("-----End of Recording-----");
     }
     /// Set the directory to save downloaded files
-    pub fn save_dir(path:&str){
+    pub async fn save_dir(path:&str){
         let is_save_set:bool;
         if path.starts_with("./"){
             is_save_set = env::current_dir().unwrap().as_path().ends_with(&path[2..]);
@@ -76,7 +76,7 @@ impl Recorder{
                 }else{
                     eprintln!("{}",e);
                 }
-                fs::create_dir_all(path).expect(&*format!("directory for path, '{}', cannot be created!",path));
+                fs::create_dir_all(path).await.expect(&*format!("directory for path, '{}', cannot be created!",path));
                 env::set_current_dir(path).unwrap_or_else(|_e|{
                     env::set_current_dir(".").expect("Cannot set path as a save location!");
                 });
@@ -97,15 +97,15 @@ impl Recorder{
         }
     }
     // /Create a text file with stats about each URL recorded
-    fn create_stats_txt_file(stats_map:HashMap<&str,u32>,record_path:&str)->Result<(),Error>{
-        let mut f = fs::File::create(record_path)?;
+    async fn create_stats_txt_file(stats_map:HashMap<&str,u32>,record_path:&str)->Result<(),Error>{
+        let mut f = fs::File::create(record_path).await?;
         let header = "|File Type| -> |Total|";
         let header_line = "----------------------------";
         f.write(format!("{}{}{}{}",
                         header,
                         util::get_line_separator(),
                         header_line,
-                        util::get_line_separator()).as_bytes())?;
+                        util::get_line_separator()).as_bytes()).await?;
         let separator = "=================";
         for (file_type,total) in stats_map{
             let message = format!("{} -> {}{}{}{}",
@@ -114,7 +114,7 @@ impl Recorder{
                                   util::get_line_separator(),
                                   separator,
                                   util::get_line_separator());
-            f.write(message.as_bytes())?;
+            f.write(message.as_bytes()).await?;
         }
         Ok(())
     }
