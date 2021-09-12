@@ -7,7 +7,7 @@ lazy_static!{
 }
 pub enum OlaindexExtras {
     All,
-    ExcludeDownload
+    ExcludeHomeAndDownload
 }
 pub struct OLAINDEX{}
 impl OLAINDEX{
@@ -48,13 +48,13 @@ impl OLAINDEX{
 
         match extra_path{
             Some(path)=>{
-                let is_common_search =  path == &"v" || path == &"view"
-                    || path == &"home";
+                let is_common_search =  path == &"v" || path == &"view";
                 let is_down_search = path == &"d" || path == &"down";
                 let is_show_search = path == &"s" || path == &"show";
+                let is_home = path == &"home";
                 match include {
-                    OlaindexExtras::ExcludeDownload => is_common_search || is_show_search,
-                    _ =>  is_common_search ||  is_down_search || is_show_search
+                    OlaindexExtras::ExcludeHomeAndDownload => is_common_search || is_show_search,
+                    _ =>  is_common_search ||  is_down_search || is_show_search || is_home
                 }
             },
             None => false

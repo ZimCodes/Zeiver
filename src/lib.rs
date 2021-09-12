@@ -98,7 +98,7 @@ impl Zeiver {
                         continue;
                     }
                 };
-                println!("Name: {} Value: {}", header_name, header_value.to_str().unwrap());
+                println!("Name: {}\nValue: {}\n\n", header_name, header_value.to_str().unwrap());
                 header_map.insert(header_name, header_value);
             }
             builder = builder.default_headers(header_map);

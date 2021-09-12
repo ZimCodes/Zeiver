@@ -11,17 +11,22 @@ mod search;
 pub struct Scraper{
     pub pages:Vec<asset::page::Page>,
     dir_links:Vec<String>,
-    od_type:Option<String>
+    od_type:Option<String>,
+    current_sub_page:usize,
+    max_sub_pages:usize
 }
 impl Scraper{
-    pub fn new() -> Scraper{
+    pub fn new(max_sub_pages:usize) -> Scraper{
         let pages = Vec::new();
         let dir_links = Vec::new();
         let od_type = None;
+        let current_sub_page = 1;
         Scraper{
             pages,
             dir_links,
-            od_type
+            od_type,
+            current_sub_page,
+            max_sub_pages
         }
     }
     /// Scrape files URLs present on the current page(URL)
@@ -38,7 +43,6 @@ impl Scraper{
                 if &previous_file != x {
                     previous_file = x.to_string();
                     let is_file_ext = parser::is_file_ext(x.as_str());
-
                     let ending_check = is_file_ext
                         || od::olaindex::OLAINDEX::has_dl_query(&x)
                         || od::olaindex::OLAINDEX::hash_query(&x);
@@ -80,11 +84,9 @@ impl Scraper{
         search::filtered_links(res)
             .iter()
             .for_each(|x|{
-
             let x = &*x;
             let current_dir = format!("{}{}",url,x);
             if past_dir != current_dir {
-
                 past_dir = current_dir;
 
                 if  (!x.starts_with("http")
@@ -92,6 +94,7 @@ impl Scraper{
                     && !parser::is_back_url(x)
                     && !parser::is_home_url(x)
                     && (!x.contains("sortBy") && !x.contains("sortby"))
+                    || self.page_query(x)
                 {
                     if  parser::is_not_symbol(x)
                         && ((x.starts_with("/")
@@ -111,6 +114,12 @@ impl Scraper{
         });
         println!("-----End of Parsing Directory Links-----");
         dirs
+    }
+    fn page_query(&mut self,rel:&str) -> bool{
+        let (has_page_query,cur_sub_page) =
+            parser::has_page_query(rel,self.current_sub_page,self.max_sub_pages);
+        self.current_sub_page = cur_sub_page;
+        has_page_query
     }
     pub async fn run(&mut self,client:&reqwest::Client,url:&str,accept:&Option<String>,
                      reject:&Option<String>,depth:usize,tries:u32,wait:Option<f32>,

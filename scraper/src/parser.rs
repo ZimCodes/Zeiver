@@ -13,6 +13,7 @@ lazy_static!{
     static ref LAST_SLASH_REG:Regex = Regex::new(r"/$").unwrap();
     static ref DUPLICATE_SLASH_REG:Regex = Regex::new(r"[^:]//\w+").unwrap();
     static ref WEB_REG:Regex = Regex::new(r"[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)=]+\.(html?|aspx?|php)/?$").unwrap();
+    static ref PAGE_QUERY_REG:Regex = Regex::new(r"\?page=([0-9]{1,3})$").unwrap();
 }
 /// Joins the relative & original URL together
 /// 1.) If first path of URL matches first path of relative URL,
@@ -206,9 +207,29 @@ pub fn sub_dir_check(x:&str,url:&str)-> bool{
 
         OLAINDEX::remove_extra_paths(&mut rel,OlaindexExtras::All);
         OLAINDEX::remove_extra_paths(&mut new_url,OlaindexExtras::All);
+        let new_url = new_url.join("/");
+        let new_url = PAGE_QUERY_REG.replace(&*new_url,"");
 
-        rel.join("/").starts_with(&new_url.join("/"))
+        rel.join("/").starts_with(&new_url.as_ref())
     }else{
         true
+    }
+}
+/// Checks if the path has a page query and returns the current page number
+pub fn has_page_query(rel:&str, cur_pages: usize, max_pages:usize) -> (bool,usize){
+    let has_query = PAGE_QUERY_REG.is_match(rel);
+    if has_query && cur_pages < max_pages && max_pages > 0usize {
+        let pat_match = PAGE_QUERY_REG.captures(rel).unwrap();
+
+        let num_slice =  pat_match.get(1).unwrap().as_str();
+        let num:usize = num_slice.parse().unwrap();
+
+        if cur_pages < num{
+            (true,num)
+        }else{
+            (false,cur_pages)
+        }
+    }else{
+        (false,cur_pages)
     }
 }

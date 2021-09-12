@@ -12,12 +12,20 @@ fn has_data_route(res:&str)-> bool {
 fn olaindex_document(res:&str) -> Vec<String>{
      Document::from(res)
          //Find all <a data-route> tags
-         .find(Name("a").and(Attr("data-route",())))
+         .find(Name("a"))
          .filter_map(|node|{
-        node.attr("data-route")
+             let link = match node.attr("href"){
+                 Some(link) =>link,
+                 None=> ""
+             };
+             if link.contains("?page="){
+                 node.attr("href")
+             }else{
+                 node.attr("data-route")
+             }
     }).filter(|link| {
          let mut paths:Vec<&str> = link.split("/").collect();
-         !OLAINDEX::has_extra_paths(&mut paths,OlaindexExtras::ExcludeDownload)
+         !OLAINDEX::has_extra_paths(&mut paths,OlaindexExtras::ExcludeHomeAndDownload)
      })
          .filter(|link| !link.contains("javascript:void"))
          .map(|link| parser::sanitize_url(link)).collect()
@@ -31,7 +39,7 @@ fn generic_document(res:&str) -> Vec<String>{
         node.attr("href")
     }).filter(|link| {
         let mut paths:Vec<&str> = link.split("/").collect();
-        !OLAINDEX::has_extra_paths(&mut paths,OlaindexExtras::ExcludeDownload)
+        !OLAINDEX::has_extra_paths(&mut paths,OlaindexExtras::ExcludeHomeAndDownload)
     }).filter(|link| !link.contains("javascript:void"))
         .map(|link| parser::sanitize_url(link)).collect()
 }
