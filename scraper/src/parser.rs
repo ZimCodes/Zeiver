@@ -75,8 +75,6 @@ pub fn url_joiner(url:&str,rel:&str) -> String{
         }else{
             format!("{}{}",url,rel)
         }
-
-
     }
 }
 /// Checks if the directory query from the URL,'?dir=', matches

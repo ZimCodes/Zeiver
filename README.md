@@ -1,8 +1,8 @@
 # Zeiver
-**Zeiver** is designed to scrape and download content recursively from ODs _(open directories)_.
-It also provides a means of retrieving links to the content as well.
+**Zeiver** is designed to *scrape* and *download content* recursively from ODs _(open directories)_.
+It also provides a means of *retrieving links* to the content and *scouting*.
 
-***Currently under recent development and thus unstable. Use at your own risk!**
+***~Currently under development and thus unstable. Use at your own risk!~**
 
 __*Zeiver does not download the entire OD itself, only the files.__
 
@@ -26,39 +26,45 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
 * [License](https://github.com/ZimCodes/Zeiver#license)
 
 ## Features
-Zeiver currently has 3 components:
+Zeiver currently has 4 major modules:
+* HTTP
+  * Grabs content from the internet. *(Webpage,files,etc)*
 * Scraper
-    * Recursively grabs all links from an OD
+    * Recursively grabs all links from an OD.
 * Downloader
     * Downloads content retrieved from Scraper (_or from a file_)
 * Recorder
     * Saves a record of all files that were found in the OD
     * Records are saved to a file called *URL_Records.txt*. Name can be 
       changed using `--record-file`
+    * Creates stat files *(statistical data about what was retrieved)*
 
 ***All components can be used independently**
 
 ### Workflow
-The **Scraper** recursively grabs links from the OD. Afterwards, the links are either sent to the
+The **HTTP** module repeatedly grabs a webpage for the Scraper to parse *(based on parameters)*.
+The **Scraper** takes the webpage and recursively grabs the links from them.
+Afterwards, the links are either sent to the
 **Recorder** (_Disabled by default_), specified with:
 * `--record-only`
 * `--record`
  
 *AND/OR*
  
-**Downloader** (_Enabled by default_)
+**Downloader** (_Enabled by default_). The **Downloader** uses the **HTTP** module to download
+the files' data from the internet. the **Downloader** then writes the data to a newly created files.
 
 ### More
-1. Uses Multithreading
-    * Dependent on the amount of URLs provided.
+1. Uses asynchronous runtime
 
 2. Random & fixed delays of HTTP requests
 
-3. Ability to customize how files retrieved
+3. Ability to customize how files retrieved or not
 
 ## Supported ODs
 List of currently supported ODs:
 * OLAINDEX
+* Directory Lister
 
 ## Installation
 1. Install Rust. 
