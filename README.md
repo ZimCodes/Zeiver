@@ -2,6 +2,8 @@
 **Zeiver** is designed to scrape and download content recursively from ODs _(open directories)_.
 It also provides a means of retrieving links to the content as well.
 
+***Currently under recent development and thus unstable. Use at your own risk!**
+
 __*Zeiver does not download the entire OD itself, only the files.__
 
 For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver).
@@ -10,7 +12,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
 * [Features](https://github.com/ZimCodes/Zeiver#features)
    * [Workflow](https://github.com/ZimCodes/Zeiver#workflow)
    * [More](https://github.com/ZimCodes/Zeiver#more)
-* [Unsupported ODs](https://github.com/ZimCodes/Zeiver#unsupported-ods)
+* [Supported ODs](https://github.com/ZimCodes/Zeiver#supported-ods)
 * [Installation](https://github.com/ZimCodes/Zeiver#installation)
 * [Sample](https://github.com/ZimCodes/Zeiver#sample)
 * [Commands](https://github.com/ZimCodes/Zeiver#commands)
@@ -54,11 +56,9 @@ The **Scraper** recursively grabs links from the OD. Afterwards, the links are e
 
 3. Ability to customize how files retrieved
 
-## Unsupported ODs
-List of currently unsupported ODs:
-* __Dynamic ODs__ (_JavaScript influenced_)
-    * Some __h5ai__
-    * __ZFile__
+## Supported ODs
+List of currently supported ODs:
+* OLAINDEX
 
 ## Installation
 1. Install Rust. 
@@ -108,6 +108,13 @@ Run a scrape test without downloading or recording
 ***-d, --depth***
 
 Specify the maximum depth for recursive scraping. _Default: `20`_
+
+***-p, --pages***
+
+Specify the maximum sub page for recursive scraping.
+
+Some ODs only show a small amount of files on a webpage. To view more, there is a **Next** and/or **Previous** button
+that shows more files. This option is used to interact with the **Next** button of an OD.
 
 ***-A, --accept***
 
