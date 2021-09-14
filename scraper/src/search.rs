@@ -2,7 +2,7 @@ use select::document::Document;
 use select::predicate::{Name,Predicate};
 use crate::parser;
 use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
-use crate::od::ODType;
+use crate::od::ODMethod;
 
 /// Parses the OLAINDEX HTML Document type ods
 fn olaindex_document(res:&str) -> Vec<String>{
@@ -40,9 +40,9 @@ fn generic_document(res:&str) -> Vec<String>{
         .map(|link| parser::sanitize_url(link)).collect()
 }
 /// Switch to a different way to parse Document type
-pub fn filtered_links(res:&str,od_type:&ODType)->Vec<String>{
+pub fn filtered_links(res:&str, od_type:&ODMethod) ->Vec<String>{
     match od_type {
-        ODType::OLAINDEX =>
+        ODMethod::OLAINDEX =>
             olaindex_document(res),
         _ => generic_document(res)
     }

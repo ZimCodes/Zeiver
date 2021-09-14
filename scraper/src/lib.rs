@@ -11,7 +11,7 @@ mod search;
 pub struct Scraper{
     pub pages:Vec<asset::page::Page>,
     dir_links:Vec<String>,
-    od_type:od::ODType,
+    od_type:od::ODMethod,
     current_sub_page:usize,
     max_sub_pages:usize
 }
@@ -19,7 +19,7 @@ impl Scraper{
     pub fn new(max_sub_pages:usize) -> Scraper{
         let pages = Vec::new();
         let dir_links = Vec::new();
-        let od_type = od::ODType::General;
+        let od_type = od::ODMethod::Generic;
         let current_sub_page = 1;
         Scraper{
             pages,
@@ -131,12 +131,12 @@ impl Scraper{
             return Ok(());
         }
         self.od_type_from_url(url);
-
+        //Determine od type from url
         let url = parser::sanitize_url(url);
 
         //Retrieve page
         let res = http::Http::connect(client,&url,tries,wait,retry_wait,is_random,verbose).await?;
-
+        //Determine od type from html document
         self.od_type_from_document(&*res);
 
         let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(),&url,verbose)];
@@ -189,15 +189,17 @@ impl Scraper{
             ));
     }
     fn od_type_from_url(&mut self, url:&str){
+        println!("-----Resolving Scrape Method-----");
         self.od_type = od::od_type_from_url(url);
     }
     fn od_type_from_document(&mut self, res:&str){
-        if self.od_type.eq(&od::ODType::General){
+        if self.od_type.eq(&od::ODMethod::Generic){
             self.od_type = od::od_type_from_document(res);
         }
+        println!("----->  {:?}  <-----\n",self.od_type);
     }
     fn file_link_modification(&self, x:&String)-> String{
-        if self.od_type.eq(&od::ODType::OLAINDEX){
+        if self.od_type.eq(&od::ODMethod::OLAINDEX){
          od::olaindex::OLAINDEX::add_dl_query(&x)
         }else{
             x.to_string()
