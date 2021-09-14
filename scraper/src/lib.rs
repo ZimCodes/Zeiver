@@ -11,7 +11,7 @@ mod search;
 pub struct Scraper{
     pub pages:Vec<asset::page::Page>,
     dir_links:Vec<String>,
-    od_type:Option<String>,
+    od_type:od::ODType,
     current_sub_page:usize,
     max_sub_pages:usize
 }
@@ -19,7 +19,7 @@ impl Scraper{
     pub fn new(max_sub_pages:usize) -> Scraper{
         let pages = Vec::new();
         let dir_links = Vec::new();
-        let od_type = None;
+        let od_type = od::ODType::General;
         let current_sub_page = 1;
         Scraper{
             pages,
@@ -37,7 +37,7 @@ impl Scraper{
         let mut previous_file = String::new();//variable to check for duplicates
 
         println!("-----Parsing File Links-----");
-        search::filtered_links(res)
+        search::filtered_links(res,&self.od_type)
             .iter()
             .for_each(|x|{
                 if &previous_file != x {
@@ -58,9 +58,7 @@ impl Scraper{
                             || (x.starts_with("?dir=") && parser::check_dir_query(url, x.as_str()))
                         {
                             let mut x = String::from(x);
-                            if self.od_type.is_some() && self.od_type.as_ref().unwrap() == "olaindex"{
-                                x = od::olaindex::OLAINDEX::add_dl_query(&x);
-                            }
+                            x = self.file_link_modification(&x);
 
                             if od::olaindex::OLAINDEX::has_dl_query(&x) {
                                 let (new_accept,new_reject) = od::olaindex::OLAINDEX::acc_rej_filters(&accept, &reject);
@@ -79,9 +77,8 @@ impl Scraper{
     fn scrape_dirs(&mut self,res:&str, url:&str, verbose:bool) -> Vec<asset::directory::Directory>{
         let mut dirs = Vec::new();
         let mut past_dir = String::new();//variable to check for duplicates
-
         println!("-----Parsing Directory Links-----");
-        search::filtered_links(res)
+        search::filtered_links(res,&self.od_type)
             .iter()
             .for_each(|x|{
             let x = &*x;
@@ -133,12 +130,14 @@ impl Scraper{
         if self.single_scrape(url,verbose){
             return Ok(());
         }
-        self.retrieve_od_type(url);
+        self.od_type_from_url(url);
 
         let url = parser::sanitize_url(url);
 
         //Retrieve page
         let res = http::Http::connect(client,&url,tries,wait,retry_wait,is_random,verbose).await?;
+
+        self.od_type_from_document(&*res);
 
         let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(),&url,verbose)];
 
@@ -189,9 +188,19 @@ impl Scraper{
                 joined_url.as_str()
             ));
     }
-    fn retrieve_od_type(&mut self,url:&str){
-        if od::olaindex::OLAINDEX::hash_query(url){
-            self.od_type = Some(String::from("olaindex"));
+    fn od_type_from_url(&mut self, url:&str){
+        self.od_type = od::od_type_from_url(url);
+    }
+    fn od_type_from_document(&mut self, res:&str){
+        if self.od_type.eq(&od::ODType::General){
+            self.od_type = od::od_type_from_document(res);
+        }
+    }
+    fn file_link_modification(&self, x:&String)-> String{
+        if self.od_type.eq(&od::ODType::OLAINDEX){
+         od::olaindex::OLAINDEX::add_dl_query(&x)
+        }else{
+            x.to_string()
         }
     }
     /// Recursively scrape file URLs from child directories

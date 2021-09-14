@@ -1,6 +1,8 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::borrow::Cow;
+use select::document::Document;
+use select::predicate::{Name, Attr, Predicate};
 lazy_static!{
     static ref OLAINDEX_HASH_QUERY:Regex = Regex::new(r"\?hash=[0-9a-zA-Z]{8}(/?|&download=1)$").unwrap();
     static ref OLAINDEX_QUERIES:Regex = Regex::new(r"\?hash=[0-9a-zA-Z]{8}&download=1$").unwrap();
@@ -65,6 +67,13 @@ impl OLAINDEX{
         if OLAINDEX::has_extra_paths(paths, include){
             paths.remove(3);
         }
+    }
+    /// Check if data-route attribute exists in Document.
+    /// [Type:] Used to determine od type
+    pub fn has_data_route(res:&str)-> bool {
+        Document::from(res)
+            .find(Name("a").and(Attr("data-route", ())))
+            .any(|x| x == x)
     }
 }
 

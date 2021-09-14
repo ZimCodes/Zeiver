@@ -1,21 +1,17 @@
-use select::document::{Document};
-use select::predicate::{Name, Attr, Predicate};
+use select::document::Document;
+use select::predicate::{Name,Predicate};
 use crate::parser;
 use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
-/// Check if data-route attribute exists in Document
-fn has_data_route(res:&str)-> bool {
-    Document::from(res)
-        .find(Name("a").and(Attr("data-route", ())))
-        .any(|x| x == x)
-}
+use crate::od::ODType;
+
 /// Parses the OLAINDEX HTML Document type ods
 fn olaindex_document(res:&str) -> Vec<String>{
      Document::from(res)
          //Find all <a data-route> tags
-         .find(Name("a"))
+         .find(Name("a").or(Name("li")))
          .filter_map(|node|{
              let link = match node.attr("href"){
-                 Some(link) =>link,
+                 Some(link) => link,
                  None=> ""
              };
              if link.contains("?page="){
@@ -44,10 +40,10 @@ fn generic_document(res:&str) -> Vec<String>{
         .map(|link| parser::sanitize_url(link)).collect()
 }
 /// Switch to a different way to parse Document type
-pub fn filtered_links(res:&str)->Vec<String>{
-    if has_data_route(res){
-        olaindex_document(res)
-    }else{
-        generic_document(res)
+pub fn filtered_links(res:&str,od_type:&ODType)->Vec<String>{
+    match od_type {
+        ODType::OLAINDEX =>
+            olaindex_document(res),
+        _ => generic_document(res)
     }
 }

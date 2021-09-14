@@ -142,7 +142,7 @@ pub struct Opts{
     /// Run a quick scrape test
     ///
     /// Use the Scraper without activating the Recorder and Downloader
-    #[structopt(long,conflicts_with_all(&["record-only","record","cuts","no-dirs","output"]))]
+    #[structopt(long,conflicts_with_all(&["record-only","record","cuts","no-dirs","output","no-stats"]))]
     pub test:bool
 }
 impl Opts{
