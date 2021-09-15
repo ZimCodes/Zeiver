@@ -22,7 +22,7 @@ dependencies = [
 
 [[package]]
 name = "asset"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "lazy_static",
  "regex",
@@ -114,7 +114,7 @@ dependencies = [
 
 [[package]]
 name = "cmd_opts"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "structopt",
 ]
@@ -137,7 +137,7 @@ checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
 name = "crawler"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "cmd_opts",
  "downloader",
@@ -148,11 +148,11 @@ dependencies = [
 
 [[package]]
 name = "downloader"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "asset",
  "bytes",
- "http 0.1.0",
+ "http 0.2.0",
  "lazy_static",
  "mime",
  "recorder",
@@ -333,7 +333,7 @@ dependencies = [
 
 [[package]]
 name = "http"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "rand 0.8.4",
  "reqwest",
@@ -912,7 +912,7 @@ dependencies = [
 
 [[package]]
 name = "recorder"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "scraper",
  "tokio",
@@ -1005,10 +1005,10 @@ dependencies = [
 
 [[package]]
 name = "scraper"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "asset",
- "http 0.1.0",
+ "http 0.2.0",
  "lazy_static",
  "regex",
  "reqwest",

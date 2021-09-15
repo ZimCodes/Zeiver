@@ -14,7 +14,7 @@ pub enum OlaindexExtras {
 pub struct OLAINDEX{}
 impl OLAINDEX{
     /// Check to see if url has download query to the OLAINDEX ODs
-    /// Ex: https://example.com/coolthing.mp4?download=1
+    /// [Identity] Ex: https://example.com/coolthing.mp4?download=1
     pub fn has_dl_query(x: &str) -> bool{
         x.ends_with("?download=1")
     }
@@ -33,6 +33,7 @@ impl OLAINDEX{
         (new_accept,new_reject)
     }
     /// Checks for hash query in URL
+    /// [Identity]
     pub fn hash_query(x:&str) ->bool{
         OLAINDEX_HASH_QUERY.is_match(x)
     }
@@ -41,6 +42,7 @@ impl OLAINDEX{
         OLAINDEX_HASH_QUERY.replace(url,"")
     }
     /// Add download query to string
+    /// [Transform]
     pub fn add_dl_query(x:&String)-> String{
         format!("{}?download=1",x)
     }
