@@ -65,6 +65,9 @@ the files' data from the internet. the **Downloader** then writes the data to a 
 List of currently supported ODs:
 * OLAINDEX
 * Directory Lister
+* AutoIndex PHP
+
+**May(possibly) work with other ODs*. More specialized ODs support coming soon!
 
 ## Installation
 1. Install Rust. 
