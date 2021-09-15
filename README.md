@@ -2,8 +2,6 @@
 **Zeiver** is designed to *scrape* and *download content* recursively from ODs _(open directories)_.
 It also provides a means of *retrieving links* to the content and *scouting*.
 
-***~Currently under development and thus unstable. Use at your own risk!~**
-
 __*Zeiver does not download the entire OD itself, only the files.__
 
 For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver).
