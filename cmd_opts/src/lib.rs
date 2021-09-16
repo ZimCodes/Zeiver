@@ -57,7 +57,7 @@ pub struct Opts{
     pub record_only:bool,
     /// Activates the Recorder
     ///
-    /// Enables the Recorder which saves the scraped links to a file.
+    /// Enables the Recorder which saves the scraped links to a file. Disabled by default.
     /// *Option cannot be used with `--record-only`.
     #[structopt(long,conflicts_with = "record-only")]
     pub record:bool,
@@ -121,12 +121,21 @@ pub struct Opts{
     pub proxy_auth:Option<String>,
     /// Read URLs from a local or external file
     ///
-    /// Read URLs from a file. *Each URL is read line by line.
-    #[structopt(short,long,requires_if("None","urls"))]
+    /// Read URLs from a file to be sent to the Scraper. *Each line represents a URL to an OD.
+    #[structopt(short,long,requires_ifs(&[("None","urls"),("None","input-record")]))]
     pub input_file: Option<PathBuf>,
+    /// Read URLs from a file containing file paths and create a stats file.
+    ///
+    /// Read URLs from a file containing file paths and create a stats file based on the results.
+    /// *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
+    ///`--output`, `--output-record`
+    #[structopt(long,conflicts_with_all(&["record-only","record","cuts","no-dirs","output","no-stats",
+    "depth","pages","timeout","wait","retry-wait","random-wait","tries","redirects","accept","reject",
+    "U","headers","proxy","proxy-auth","input-file","urls","test"]))]
+    pub input_record: Option<PathBuf>,
     /// Save file location
     ///
-    /// The local file path to save downloading files.
+    /// The local file path to save files. Files saved by the *Recorder* are also stored here.
     /// Ex: ./downloads/images/dir
     #[structopt(short,long,default_value = "./")]
     pub output:PathBuf,
@@ -135,14 +144,16 @@ pub struct Opts{
     /// The name of the file to record the links received by the Recorder
     /// Ex: Link_file.txt
     #[structopt(long,default_value = "URL_Records.txt")]
-    pub record_file:String,
+    pub output_record:String,
     /// The URLs to download content from
-    #[structopt(name = "URLS",required_unless("input-file"))]
+    #[structopt(name = "URLS",requires_ifs(&[("None","input-file"),("None","input-record")]))]
     pub urls:Vec<PathBuf>,
     /// Run a quick scrape test
     ///
-    /// Use the Scraper without activating the Recorder and Downloader
-    #[structopt(long,conflicts_with_all(&["record-only","record","cuts","no-dirs","output","no-stats"]))]
+    /// Use the Scraper without activating the Recorder and Downloader. Can be used with `--verbose`
+    /// to scout an OD's available content.
+    #[structopt(long,conflicts_with_all(&["record-only","record","cuts","no-dirs","output","output-record",
+    "no-stats","input-record"]))]
     pub test:bool
 }
 impl Opts{

@@ -1,6 +1,3 @@
-use tokio::fs;
-use tokio::io::ErrorKind;
-use std::path::PathBuf;
 use reqwest;
 use asset;
 use http;
@@ -293,29 +290,5 @@ impl Scraper {
         else if accept.is_none() && reject.is_none() {
             Scraper::add_file(url, x.as_str(), files, verbose);
         }
-    }
-    /// Read links from a file & start downloading
-    pub async fn links_from_file(path: &str) -> Vec<PathBuf> {
-        let f = fs::read_to_string(path).await;
-        let msg = match f {
-            Ok(msg) => msg,
-            Err(e) => match e.kind() {
-                ErrorKind::NotFound => panic!("File cannot be found!"),
-                ErrorKind::InvalidData => panic!("The contents of the file are not valid UTF-8"),
-                _ => {
-                    panic!("Error retrieving data from file")
-                }
-            }
-        };
-        let links = if cfg!(target_os = "windows") {
-            msg.split("\r\n")
-        } else {
-            msg.split("\n")
-        };
-        let mut link_strings = Vec::new();
-        for link in links {
-            link_strings.push(PathBuf::from(link))
-        }
-        link_strings
     }
 }

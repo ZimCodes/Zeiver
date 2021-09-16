@@ -39,11 +39,19 @@ impl WebCrawler {
                                    self.opts.random_wait,self.opts.verbose).await;
         println!("-----Downloader Task Completed!-----");
     }
+    /// Activates Recorder using content obtained from Scraper
     pub async fn recorder_task(&self,scraper:Arc<scraper::Scraper>,recorder_id:usize){
         println!("-----Using Recorder-----");
         let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
         let mut recorder = recorder::Recorder::new(save, scraper, self.opts.verbose).await;
-        recorder.run(&self.opts.record_file,recorder_id,self.opts.no_stats).await;
+        recorder.run(&self.opts.output_record, recorder_id, self.opts.no_stats).await;
+        println!("-----Recording Task Completed!-----");
+    }
+    /// Activates Recorder using content obtained from user's file
+    pub async fn recorder_file_task(&self){
+        println!("-----Using Recorder-----");
+        let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
+        recorder::Recorder::run_from_file(&self.opts.input_record,&self.opts.output_record,save,self.opts.verbose).await;
         println!("-----Recording Task Completed!-----");
     }
     /// Activates the Scraper
@@ -65,6 +73,6 @@ impl WebCrawler {
     }
     /// Retrieves urls from an input file
     pub async fn input_file_links(path:Option<PathBuf>) ->Vec<PathBuf>{
-        scraper::Scraper::links_from_file(path.unwrap().to_str().expect("Cannot parse links from file into a string")).await
+        recorder::Recorder::links_from_file(&path).await
     }
 }

@@ -16,9 +16,11 @@ impl Zeiver {
         Zeiver::clean_urls_list(&mut opts);
         if !opts.urls.is_empty() {
             Zeiver::multi_thread(web_crawler, opts.urls, opts.record_only, opts.record, opts.test).await;
-        } else {
+        } else if opts.input_file.is_some(){
             let urls = crawler::WebCrawler::input_file_links(opts.input_file).await;
             Zeiver::multi_thread(web_crawler, urls, opts.record_only, opts.record, opts.test).await;
+        }else{
+            web_crawler.recorder_file_task().await;
         }
     }
     /// Performs tasks given to the WebCrawler under multi-threading

@@ -8,7 +8,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
 
 ## Table of Contents
 * [Features](https://github.com/ZimCodes/Zeiver#features)
-   * [Workflow](https://github.com/ZimCodes/Zeiver#workflow)
+   * [Normal Workflow](https://github.com/ZimCodes/Zeiver#normal-workflow)
    * [More](https://github.com/ZimCodes/Zeiver#more)
 * [Supported ODs](https://github.com/ZimCodes/Zeiver#supported-ods)
 * [Installation](https://github.com/ZimCodes/Zeiver#installation)
@@ -34,12 +34,12 @@ Zeiver currently has 4 major modules:
 * Recorder
     * Saves a record of all files that were found in the OD
     * Records are saved to a file called *URL_Records.txt*. Name can be 
-      changed using `--record-file`
+      changed using `--output-record`
     * Creates stat files *(statistical data about what was retrieved)*
 
-***All components can be used independently**
+***All components can be used independently.*** With exception to *HTTP module*.
 
-### Workflow
+### Normal Workflow
 The **HTTP** module repeatedly grabs a webpage for the Scraper to parse *(based on parameters)*.
 The **Scraper** takes the webpage and recursively grabs the links from them.
 Afterwards, the links are either sent to the
@@ -64,8 +64,9 @@ List of currently supported ODs:
 * OLAINDEX
 * Directory Lister
 * AutoIndex PHP
+* Abyss Web Server X1
 
-**May(possibly) work with other ODs*. More specialized ODs support coming soon!
+**May also work with other ODs*.
 
 ## Installation
 1. Install Rust. 
@@ -107,7 +108,8 @@ Enable verbose output
 
 ***--test***
 
-Run a scrape test without downloading or recording
+Run a scrape test without downloading or recording. **Can be used with `--verbose`
+to scout an OD's available content**.
 
 ---
 #### Download
@@ -158,7 +160,7 @@ Save the links only
 After scraping, instead of downloading the files, save the links to them. *_The downloader will be disabled when
 this option is active. Enables Recorder instead._
 
-***--record-file***
+***--output-record***
 
 Changes the name of the record file. This file is where the recorder will store the links. *Default: `URL_Records.txt`*
 
@@ -174,15 +176,21 @@ Ex: `stat_URL_Record.txt`
 
 ***-i, --input-file***
 
-Read URLs from a local or external file. *Each URL is read line by line.
+Read URLs from a file to be sent to the Scraper. *Each line represents a URL to an OD.
 
 Ex: `zeiver -i "./dir/urls.txt"`
+
+***--input-record***
+
+Read URLs from a file containing file paths and create a stats file based on the results.
+*Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
+`--output`, `--output-record`
 
 ***-o, --output***
 
 Save file location.
 
-The local file path to save downloading files. Files saved by the Recorder are also stored here.
+The local file path to save files. **Files saved by the *Recorder* are also stored here.**
 _Default: `./`_
 
 Ex: `zeiver -o "./downloads/images/dir"`
