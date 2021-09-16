@@ -64,7 +64,7 @@ List of currently supported ODs:
 * OLAINDEX
 * Directory Lister
 * AutoIndex PHP
-* Abyss Web Server X1
+* Abyss Web Server X1 & X2
 
 **May also work with other ODs*.
 
@@ -116,7 +116,7 @@ to scout an OD's available content**.
 
 ***-d, --depth***
 
-Specify the maximum depth for recursive scraping. _Default: `20`_
+Specify the maximum depth for recursive scraping. _Default: `20`_. **Depth of** `1` is current directory.
 
 ***-p, --pages***
 
