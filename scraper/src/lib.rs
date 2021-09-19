@@ -1,6 +1,7 @@
 use reqwest;
 use asset;
 use http;
+
 mod parser;
 mod od;
 mod search;
@@ -9,109 +10,112 @@ pub struct Scraper {
     pub pages: Vec<asset::page::Page>,
     dir_links: Vec<String>,
     od_type: od::ODMethod,
-    current_sub_page: usize,
-    max_sub_pages: usize,
+    current_subpage: usize,
 }
 
 impl Scraper {
-    pub fn new(max_sub_pages: usize) -> Scraper {
+    pub fn new() -> Scraper {
         let pages = Vec::new();
         let dir_links = Vec::new();
         let od_type = od::ODMethod::Generic;
-        let current_sub_page = 1;
+        let current_subpage = 1;
         Scraper {
             pages,
             dir_links,
             od_type,
-            current_sub_page,
-            max_sub_pages,
+            current_subpage,
         }
     }
     /// Scrape files URLs present on the current page(URL)
-    fn scrape_files(&mut self, res: &str, url: &str, accept: &Option<String>, reject: &Option<String>, verbose: bool)
+    fn scrape_files(&mut self, res: &str, url: &str, accept: &Option<String>, reject: &Option<String>, is_first_parse: bool, verbose: bool)
                     -> Vec<asset::file::File>
     {
         let mut files: Vec<asset::file::File> = Vec::new();
         let mut previous_file = String::new();//variable to check for duplicates
+        let mut previous_mod_file = String::new();//variable after modification to check for duplicates
+        if is_first_parse {
+            println!("-----First File Parse-----");
+        } else {
+            println!("-----Parsing File Links-----");
+        }
+        let scraped_links = search::filtered_links(res, url, &self.od_type);
+        for x in scraped_links {
+            if previous_file != x {
+                previous_file = x.to_string();
+                let is_file_ext = parser::is_file_ext(x.as_str());
+                let ending_check = is_file_ext
+                    || od::olaindex::OLAINDEX::has_dl_query(&x)
+                    || od::olaindex::OLAINDEX::hash_query(&x);
 
-        println!("-----Parsing File Links-----");
-        search::filtered_links(res, &self.od_type)
-            .iter()
-            .for_each(|x| {
-                if &previous_file != x {
-                    previous_file = x.to_string();
-                    let is_file_ext = parser::is_file_ext(x.as_str());
-                    let ending_check = is_file_ext
-                        || od::olaindex::OLAINDEX::has_dl_query(&x)
-                        || od::olaindex::OLAINDEX::hash_query(&x);
+                let sub_check = parser::sub_dir_check(&x, url);
 
-                    let sub_check = parser::sub_dir_check(&x, url);
-
-                    if ending_check
-                        && !x.ends_with("/")
-                        && (!x.starts_with("http")
-                        || sub_check)
+                if ending_check
+                    && !x.ends_with("/")
+                    && (!x.starts_with("http")
+                    || sub_check)
+                {
+                    if !x.starts_with("?dir=")
+                        || (x.starts_with("?dir=") && parser::check_dir_query(url, x.as_str()))
                     {
-                        if !x.starts_with("?dir=")
-                            || (x.starts_with("?dir=") && parser::check_dir_query(url, x.as_str()))
-                        {
-                            let mut x = String::from(x);
-                            x = self.file_link_modification(url,&x,res);
-
+                        let mut x = String::from(x);
+                        x = self.od_file_link_modify(url, &x, res);
+                        if previous_mod_file != x {
                             if od::olaindex::OLAINDEX::has_dl_query(&x) {
                                 let (new_accept, new_reject) = od::olaindex::OLAINDEX::acc_rej_filters(&accept, &reject);
                                 Scraper::acc_rej_check(url, &mut files, &x, &new_accept, &new_reject, verbose);
                             } else {
                                 Scraper::acc_rej_check(url, &mut files, &x, accept, reject, verbose);
                             }
+                            //Assign as the new previously modded file
+                            previous_mod_file = x;
                         }
                     }
                 }
-            });
+            }
+        }
+        println!("--->| # of Files: {} |<---\n",files.len());
         println!("-----End of Parsing File Links-----");
         files
     }
     /// Scrape directory URLs present on the current page(URL)
-    fn scrape_dirs(&mut self, res: &str, url: &str, verbose: bool) -> Vec<asset::directory::Directory> {
+    fn scrape_dirs(&mut self, res: &str, url: &str, is_first_parse: bool, verbose: bool) -> Vec<asset::directory::Directory> {
         let mut dirs = Vec::new();
         let mut past_dir = String::new();//variable to check for duplicates
-        println!("-----Parsing Directory Links-----");
-        search::filtered_links(res, &self.od_type)
-            .iter()
-            .for_each(|x| {
-                let x = &*x;
-                let current_dir = format!("{}{}", url, x);
-                if past_dir != current_dir {
-                    past_dir = current_dir;
+        if is_first_parse {
+            println!("-----First Directory Parse-----");
+        } else {
+            println!("-----Parsing Directory Links-----");
+        }
+        let scraped_links = search::filtered_links(res, url, &self.od_type);
+        for x in scraped_links {
+            let x = &*x;
+            let current_dir = format!("{}{}", url, x);
+            if past_dir != current_dir {
+                past_dir = current_dir;
 
-                    if (!x.starts_with("http")
-                        || x.starts_with(url))
-                        && !parser::is_back_url(x)
-                        && !parser::is_home_url(x)
-                        && !parser::unrelated_dir_queries(x)
-                        && !parser::is_rel_url(url,x)
-                        || self.page_query(x)
+                if (!x.starts_with("http")
+                    || x.starts_with(url))
+                    && !parser::is_back_url(x)
+                    && !parser::is_home_url(x)
+                    && !parser::unrelated_dir_queries(x)
+                    && !parser::is_rel_url(url, x)
+                    && !parser::has_page_query(x)
+                    || parser::within_page_limit(x, self.current_subpage)
+                {
+                    if parser::is_not_symbol(x)
+                        && !od::olaindex::OLAINDEX::has_dl_query(&x)
+                        && !parser::is_file_ext(x)
                     {
-
-                        if parser::is_not_symbol(x)
-                            && !od::olaindex::OLAINDEX::has_dl_query(&x)
-                            && !parser::is_file_ext(x)
-                        {
-                            self.add_dir(url, x, &mut dirs, verbose);
-                        } else if x.starts_with("?dir=") && parser::check_dir_query(url, x) {
-                            self.add_dir(url, x, &mut dirs, verbose);
-                        }
+                        self.add_dir(url, x, &mut dirs, verbose);
+                    } else if x.starts_with("?dir=") && parser::check_dir_query(url, x) {
+                        self.add_dir(url, x, &mut dirs, verbose);
                     }
                 }
-            });
+            }
+        }
+        println!("--->| # of Directories: {} |<---\n",dirs.len());
         println!("-----End of Parsing Directory Links-----");
         dirs
-    }
-    fn page_query(&mut self, rel: &str) -> bool {
-        let (has_page_query, cur_sub_page) =
-            parser::has_page_query(rel, self.current_sub_page, self.max_sub_pages);
-        self.current_sub_page = cur_sub_page;
-        has_page_query
     }
     pub async fn run(&mut self, client: &reqwest::Client, url: &str, accept: &Option<String>,
                      reject: &Option<String>, depth: usize, tries: u32, wait: Option<f32>,
@@ -120,23 +124,24 @@ impl Scraper {
     {
         let url_string = parser::add_last_slash(url);
         let url = url_string.as_str();
-
         //Check if URL points to a file
         if self.single_scrape(url, verbose) {
             return Ok(());
         }
+
         self.od_type_from_url(url);
+
         //Determine od type from url
         let url = parser::sanitize_url(url);
-
         //Retrieve page
         let res = http::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
+
         //Determine od type from html document
         self.od_type_from_document(&*res);
 
-        let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(), &url, verbose)];
+        let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(), &url, true, verbose)];
 
-        let files = self.scrape_files(res.as_str(), &url, &accept, &reject, verbose);
+        let files = self.scrape_files(res.as_str(), &url, &accept, &reject, true, verbose);
         if !files.is_empty() {
             self.pages.push(asset::page::Page::new(files));
         }
@@ -194,11 +199,11 @@ impl Scraper {
         }
         println!("----->  {:?}  <-----\n", self.od_type);
     }
-    fn file_link_modification(&self, url:&str, x: &String,rel:&str) -> String {
+    fn od_file_link_modify(&self, url: &str, x: &String, res: &str) -> String {
         if self.od_type.eq(&od::ODMethod::OLAINDEX) {
-            od::olaindex::OLAINDEX::add_dl_query(&x)
-        } else if self.od_type.eq(&od::ODMethod::AutoIndexPHP){
-            od::autoindex_php::AutoIndexPHP::transform_dl_link(url,x.as_str(),rel)
+            od::olaindex::OLAINDEX::transform_link(x)
+        } else if self.od_type.eq(&od::ODMethod::AutoIndexPHP) {
+            od::autoindex_php::AutoIndexPHP::transform_dl_link(url, x.as_str(), res)
         } else {
             x.to_string()
         }
@@ -225,13 +230,13 @@ impl Scraper {
 
                     res = http::Http::connect(client, url, tries, wait, retry_wait, is_random, verbose).await?;
                     //Retrieve Files from Directory Link
-                    let files = self.scrape_files(res.as_str(), url, &accept, &reject, verbose);
+                    let files = self.scrape_files(res.as_str(), url, &accept, &reject, false, verbose);
                     if !files.is_empty() {
                         self.pages.push(asset::page::Page::new(files));
                     }
 
                     //Retrieve Directories from current Directory Link
-                    let cur_dirs = self.scrape_dirs(res.as_str(), url, verbose);
+                    let cur_dirs = self.scrape_dirs(res.as_str(), url, false, verbose);
                     if !cur_dirs.is_empty() {
                         new_dirs.push(cur_dirs);
                     }

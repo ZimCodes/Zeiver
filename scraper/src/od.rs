@@ -1,10 +1,13 @@
 pub mod olaindex;
 pub mod autoindex_php;
+pub mod directory_lister;
 
 #[derive(PartialEq, Debug)]
 pub enum ODMethod {
     OLAINDEX,
     AutoIndexPHP,
+    AutoIndexPHPNoCrumb,
+    DirectoryLister,
     Generic,
 }
 /*Determine the od type from URL*/
@@ -17,11 +20,18 @@ pub fn od_type_from_url(url: &str) -> ODMethod {
 }
 /*Determine od type from HTML Document */
 pub fn od_type_from_document(res: &str) -> ODMethod {
-    if olaindex::OLAINDEX::has_data_route(res) {
+    if olaindex::OLAINDEX::is_od(res) {
         ODMethod::OLAINDEX
-    } else if autoindex_php::AutoIndexPHP::is_od(res) {
-        ODMethod::AutoIndexPHP
-    } else {
-        ODMethod::Generic
+    } else if directory_lister::DirectoryLister::is_od(res){
+        ODMethod::DirectoryLister
+    }else {
+        let (breadcrumb_exist, is_autoindex) = autoindex_php::AutoIndexPHP::is_od(res);
+        if breadcrumb_exist && is_autoindex {
+            ODMethod::AutoIndexPHP
+        }else if is_autoindex {
+            ODMethod::AutoIndexPHPNoCrumb
+        }else {
+            ODMethod::Generic
+        }
     }
 }

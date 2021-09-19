@@ -65,6 +65,7 @@ List of currently supported ODs:
 * Directory Lister
 * AutoIndex PHP
 * Abyss Web Server X1 & X2
+* LiteSpeed Web Server
 
 **May also work with other ODs*.
 
@@ -109,21 +110,15 @@ Enable verbose output
 ***--test***
 
 Run a scrape test without downloading or recording. **Can be used with `--verbose`
-to scout an OD's available content**.
+to scout an OD's available content *like a spider***.
 
 ---
 #### Download
 
 ***-d, --depth***
 
-Specify the maximum depth for recursive scraping. _Default: `20`_. **Depth of** `1` is current directory.
-
-***-p, --pages***
-
-Specify the maximum sub page for recursive scraping.
-
-Some ODs only show a small amount of files on a webpage. To view more, there is a **Next** and/or **Previous** button
-that shows more files. This option is used to interact with the **Next** button of an OD.
+Specify the maximum depth for recursive scraping. Can also be used to traverse subpages *(ODs with **previous** & **next** buttons)*.
+_Default: `20`_. **Depth of`1` is current directory.**
 
 ***-A, --accept***
 

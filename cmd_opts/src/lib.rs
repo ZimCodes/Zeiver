@@ -13,12 +13,6 @@ pub struct Opts{
     /// This option is used to determine how far to look into a directory(ies) to retrieve files.
     #[structopt(short = "d",long,default_value = "20")]
     pub depth:usize,
-    /// Specify the maximum sub page for recursive scraping
-    ///
-    /// Some ODs only show a small amount of files on a webpage. To view more, there is a `next` and/or `previous` button
-    /// that shows more files. This option is used to interact with the `next` button.
-    #[structopt(short ="p",long, default_value = "0")]
-    pub pages:usize,
     /// Do not create directories from URL (download)
     ///
     /// Do not create a hierarchy of directories structured the same as the URL
@@ -130,7 +124,7 @@ pub struct Opts{
     /// *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
     ///`--output`, `--output-record`
     #[structopt(long,conflicts_with_all(&["record-only","record","cuts","no-dirs","output","no-stats",
-    "depth","pages","timeout","wait","retry-wait","random-wait","tries","redirects","accept","reject",
+    "depth","timeout","wait","retry-wait","random-wait","tries","redirects","accept","reject",
     "U","headers","proxy","proxy-auth","input-file","urls","test"]))]
     pub input_record: Option<PathBuf>,
     /// Save file location

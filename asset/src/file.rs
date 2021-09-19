@@ -1,6 +1,7 @@
 use url::Url;
 use regex::Regex;
 use lazy_static::lazy_static;
+use std::cmp::PartialEq;
 
 lazy_static!{
     static ref LAST_SLASH_REG:Regex = Regex::new(r"/$").unwrap();
@@ -8,13 +9,21 @@ lazy_static!{
     static ref QUERY_REG:Regex = Regex::new(r"/\?\w+=\w+/").unwrap();
     static ref QUERY_PATH_REG:Regex = Regex::new(r"/\?/").unwrap();
 }
-
+#[derive(Debug)]
 pub struct File {
     pub link:String,
     pub name:String,
     pub short_name:Option<String>,
     pub ext:Option<String>,
     pub dir_path:String
+}
+impl PartialEq for File{
+    fn eq(&self, other: &Self) -> bool {
+        self.link == other.link
+    }
+    fn ne(&self, other: &Self) -> bool {
+        self.link != other.link
+    }
 }
 impl File{
     pub fn new(link: &str) -> File{

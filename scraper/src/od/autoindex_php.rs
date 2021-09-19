@@ -1,5 +1,5 @@
 use select::document::Document;
-use select::predicate::{Name, Class, Not,Attr, Predicate};
+use select::predicate::{Name, Class, Not, Predicate};
 use lazy_static::lazy_static;
 use regex::Regex;
 use url::Url;
@@ -15,24 +15,23 @@ pub struct AutoIndexPHP;
 
 impl AutoIndexPHP {
     /// [Identity] Identify whether this is an AutoIndex PHP OD
-    pub fn is_od(res: &str) -> bool {
-        let is_current_od = Document::from(res).find(Name("div").descendant(Name("a")
-            .and(Attr("href","http://autoindex.sourceforge.net/")))
+    pub fn is_od(res: &str) -> (bool,bool) {
+        let is_current_od = Document::from(res).find(Name("a")
         ).any(|node| node.text().contains(IDENTIFIER));
         let breadcrumbs_exist = AutoIndexPHP::check_for_breadcrumbs(res);
-        breadcrumbs_exist && is_current_od
+        (breadcrumbs_exist, is_current_od)
     }
     /// Check if breadcrumbs exist
-    fn check_for_breadcrumbs(res:&str)->bool{
+    fn  check_for_breadcrumbs(res:&str)->bool{
         Document::from(res).find(Name("div").and(Not(Class("autoindex_small")))
-            .descendant(Class("autoindex_a"))).any(|node| node.eq(&node))
+            .descendant(Class("autoindex_a").or(Class("default_a")))).any(|node| node.eq(&node))
     }
-    /// Traverse document using standard `div:not(.autoindex_small) a.autoindex_a`
+    /// Traverse document using standard for breadcrumb `div:not(.autoindex_small) a.autoindex_a`
     fn standard_traversal(res: &str) -> Vec<String> {
         Document::from(res).find(Name("div").and(Not(Class("autoindex_small")))
             .descendant(Class("autoindex_a"))).map(|node| node.text()).collect()
     }
-    /// Traverse document using special `div h2 a.default_a`
+    /// Traverse document using special `div h2 a.default_a` for breadcrumb
     fn special_default_traversal(res: &str) -> Vec<String> {
         Document::from(res).find(Name("div").descendant(Name("h2"))
             .descendant(Class("default_a"))).map(|node| node.text()).collect()
@@ -49,7 +48,7 @@ impl AutoIndexPHP {
     }
     /// Retrieve the starting path
     fn retrieve_start_path(collection: Vec<String>) -> (String, bool) {
-        let first_crumb = &collection[0];
+        let first_crumb = &collection[0].trim();
         if first_crumb.starts_with("..") {
             let mut split_path: Vec<&str> = first_crumb.split("/").collect();
             if split_path.len() > 1 {

@@ -28,7 +28,7 @@ impl WebCrawler {
         }else{
             self.opts.depth
         };
-        WebCrawler::run_scraper(client, path, &self.opts.accept, &self.opts.reject, depth,self.opts.pages,
+        WebCrawler::run_scraper(client, path, &self.opts.accept, &self.opts.reject, depth,
                                 self.opts.tries, self.opts.wait, self.opts.retry_wait, self.opts.random_wait, self.opts.verbose).await
     }
     /// Performs task given to the Downloader
@@ -55,10 +55,10 @@ impl WebCrawler {
         println!("-----Recording Task Completed!-----");
     }
     /// Activates the Scraper
-    async fn run_scraper(client:&reqwest::Client,path:&str,accept:&Option<String>,reject:&Option<String>,depth:usize,pages:usize,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,verbose:bool)
+    async fn run_scraper(client:&reqwest::Client,path:&str,accept:&Option<String>,reject:&Option<String>,depth:usize,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,verbose:bool)
                    -> scraper::Scraper
     {
-        let mut scraper = scraper::Scraper::new(pages);
+        let mut scraper = scraper::Scraper::new();
         if let Err(e) = scraper.run(client,path,accept,reject,depth,tries,wait,retry_wait,is_random,verbose).await{
             panic!("{}",e.to_string());
         }

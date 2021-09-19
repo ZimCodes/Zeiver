@@ -5,8 +5,8 @@ use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
 
 lazy_static! {
     static ref BACK_REG:Regex = Regex::new(r"(?:\.\./)").unwrap();
-    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.[a-zA-Z0-9][a-zA-Z]([a-zA-Z0-9]{1,5})?/?$").unwrap();
-    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.[a-zA-Z0-9][a-zA-Z]([a-zA-Z0-9]{1,5})?/?$").unwrap();
+    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])/?$").unwrap();
+    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])/?$").unwrap();
     static ref PREVIEW_REG:Regex = Regex::new(r"\?preview$").unwrap();
     static ref SYMBOLS_REG:Regex = Regex::new(r"/?[a-zA-Z0-9\*~\+\-%\?\[\]\$_\.!‘\(\)=]+/").unwrap();
     static ref QUERY_PATH_REG:Regex = Regex::new(r"/\?/").unwrap();
@@ -182,13 +182,21 @@ pub fn set_regex(regex: &Option<String>) -> Regex {
     let regex_pat = regex.as_ref().unwrap();
     Regex::new(&*format!(r"{}", regex_pat)).unwrap()
 }
-/*Sanitize the url to for easy traversing*/
+///Sanitize the url to for easy traversing
 pub fn sanitize_url(url: &str) -> String {
     let url = OLAINDEX::sanitize_url(url);
     let url = remove_preview_query(url.as_ref());
+    let url = remove_space_entity(&url);
     String::from(url)
 }
-
+///Remove `%20` space HTML Entity at the end of link
+fn remove_space_entity(url:&str)-> &str{
+    if url.ends_with("%20"){
+        &url[..url.len()-3]
+    }else{
+        url
+    }
+}
 /// Check if url is the parent directory of the href link
 pub fn sub_dir_check(x: &str, url: &str) -> bool {
     if !x.starts_with(url) {
@@ -210,23 +218,26 @@ pub fn sub_dir_check(x: &str, url: &str) -> bool {
         true
     }
 }
+/// Checks if the path has a page query
+pub fn has_page_query(rel: &str) -> bool{
+    PAGE_QUERY_REG.is_match(rel)
+}
+/// Keeps url with `?page=` from being traversed backwards
+#[allow(unused_assignments)]
+pub fn within_page_limit(rel:&str,mut current_page:usize)-> bool{
+    if !has_page_query(rel){
+        return false;
+    }
+    let page_num = match PAGE_QUERY_REG.captures(rel){
+        Some(captures) => captures.get(1).unwrap().as_str().parse::<usize>().unwrap(),
+        None => 0
+    };
 
-/// Checks if the path has a page query and returns the current page number
-pub fn has_page_query(rel: &str, cur_pages: usize, max_pages: usize) -> (bool, usize) {
-    let has_query = PAGE_QUERY_REG.is_match(rel);
-    if has_query && cur_pages < max_pages && max_pages > 0usize {
-        let pat_match = PAGE_QUERY_REG.captures(rel).unwrap();
-
-        let num_slice = pat_match.get(1).unwrap().as_str();
-        let num: usize = num_slice.parse().unwrap();
-
-        if cur_pages < num {
-            (true, num)
-        } else {
-            (false, cur_pages)
-        }
-    } else {
-        (false, cur_pages)
+    if current_page < page_num {
+        current_page += 1;
+        true
+    }else{
+        false
     }
 }
 
@@ -255,5 +266,23 @@ pub fn is_rel_url(url: &str, rel: &str) -> bool {
         } else {
             url == url_joiner(url, rel).as_str()
         }
+    }
+}
+
+
+#[cfg(test)]
+mod tests{
+    use super::is_file_ext;
+    #[test]
+    fn file_regex_test(){
+        assert!(is_file_ext("Example.3gp"));//start num
+        assert!(is_file_ext("Example.7z.001"));//Length at 3
+        assert!(!is_file_ext("Example.7z.01"));//Length below 3
+        assert!(is_file_ext("Example.u3i"));//letter #
+        assert!(is_file_ext("Example.PWD"));//caps
+        assert!(is_file_ext("Example.60D"));//2 #s starting
+        assert!(!is_file_ext("Example.87fesf27"));//Length above 7
+        assert!(is_file_ext("Example.H13"));//letter ##
+        assert!(is_file_ext("Example.alpx"));//all letters
     }
 }
