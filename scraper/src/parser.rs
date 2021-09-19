@@ -199,7 +199,10 @@ fn remove_space_entity(url:&str)-> &str{
 }
 /// Check if url is the parent directory of the href link
 pub fn sub_dir_check(x: &str, url: &str) -> bool {
-    if !x.starts_with(url) {
+    let x = remove_last_slash(x);
+    let url = remove_last_slash(url);
+
+    if !x.starts_with(&url) {
         let mut rel: Vec<&str> = x.split('/').collect();
         let mut new_url: Vec<&str> = url.split('/').collect();
 
@@ -240,12 +243,10 @@ pub fn within_page_limit(rel:&str,mut current_page:usize)-> bool{
         false
     }
 }
-
 /// Case-Insensitive `str.contains()` variant
 fn ins_contains(rel: &str, text: &str) -> bool {
     rel.to_lowercase().contains(text)
 }
-
 /// Queries that is used not need for traversing a directory
 pub fn unrelated_dir_queries(rel: &str) -> bool {
     ins_contains(rel, "sortby")

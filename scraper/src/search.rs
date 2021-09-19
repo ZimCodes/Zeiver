@@ -2,8 +2,23 @@ use select::document::Document;
 use select::predicate::{Name, Class, Predicate};
 use crate::parser;
 use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
+use crate::od::apache::Apache;
 use crate::od::ODMethod;
 use select::node::Node;
+
+/// Parses the Apache HTML Document type ods
+fn apache_document(res: &str) -> Vec<String> {
+    Document::from(res).find(
+        Name("tr").descendant(Name("td").descendant(Name("a")))
+            .or(Name("pre").descendant(Name("a")))
+            .or(Name("li").descendant(Name("a")))
+    ).filter(|node| no_parent_dir(node))
+        .filter(|node|!Apache::has_extra_query(node.attr("href").unwrap()))
+        .filter_map(|node| {
+            node.attr("href")
+        }).filter(|link| !link.contains("javascript:void"))
+        .map(|link| parser::sanitize_url(link)).collect()
+}
 
 /// Parses the Directory Lister HTML Document type ods
 fn directory_lister_document(res: &str, url: &str) -> Vec<String> {
@@ -75,6 +90,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::OLAINDEX => olaindex_document(res),
         ODMethod::AutoIndexPHP | ODMethod::AutoIndexPHPNoCrumb => autoindex_document(res),
         ODMethod::DirectoryLister => directory_lister_document(res, url),
+        ODMethod::Apache => apache_document(res),
         _ => generic_document(res)
     }
 }

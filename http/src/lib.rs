@@ -12,7 +12,7 @@ impl Http{
         let res = Http::get_response(client,url,tries,wait,retry_wait,is_random,verbose).await?;
         res.text().await
     }
-    /// Sends a request to the server
+    /// Sends a request to the server & receives a response
     pub async fn get_response(client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
                               verbose:bool) -> Result<Response,reqwest::Error>{
         // Wait between HTTP requests
