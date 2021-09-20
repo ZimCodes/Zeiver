@@ -53,9 +53,9 @@ impl Scraper {
                     && !x.ends_with("/")
                     && (!x.starts_with("http")
                     || sub_check
-                    || self.od_type.eq(&od::ODMethod::Apache))
+                    || self.od_type.eq(&od::ODMethod::Apache)
+                    || self.od_type.eq(&od::ODMethod::NGINX))
                 {
-
                     if !x.starts_with("?dir=")
                         || (x.starts_with("?dir=") && parser::check_dir_query(url, x.as_str()))
                     {
@@ -75,7 +75,7 @@ impl Scraper {
                 }
             }
         }
-        println!("--->| # of Files: {} |<---\n",files.len());
+        println!("--->| # of Files: {} |<---\n", files.len());
         println!("-----End of Parsing File Links-----");
         files
     }
@@ -115,7 +115,7 @@ impl Scraper {
                 }
             }
         }
-        println!("--->| # of Directories: {} |<---\n",dirs.len());
+        println!("--->| # of Directories: {} |<---\n", dirs.len());
         println!("-----End of Parsing Directory Links-----");
         dirs
     }
@@ -139,7 +139,7 @@ impl Scraper {
         let res = http::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
 
         //Determine od type from html document
-        self.od_type_from_document(&*res,client,&url,tries,wait,retry_wait,is_random,verbose).await?;
+        self.od_type_from_document(&*res,client, &url, tries, wait, retry_wait, is_random, verbose).await?;
 
         let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(), &url, true, verbose)];
 
@@ -195,10 +195,15 @@ impl Scraper {
         println!("-----Resolving Scrape Method-----");
         self.od_type = od::od_type_from_url(url);
     }
-    async fn od_type_from_document(&mut self, res: &str,client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,
-                                   retry_wait:f32,is_random:bool, verbose:bool)->Result<(),reqwest::Error> {
-        if self.od_type.eq(&od::ODMethod::Generic) {
-            self.od_type = od::od_type_from_document(res,client,url,tries,wait,retry_wait,is_random,verbose).await?;
+    async fn od_type_from_document(&mut self, res: &str,client: &reqwest::Client, url: &str, tries: u32, wait: Option<f32>,
+                             retry_wait: f32, is_random: bool, verbose: bool) -> Result<(), reqwest::Error> {
+        if self.od_type.eq(&od::ODMethod::None) {
+            let response = http::Http::get_response(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
+            let server_name = match response.headers().get("server") {
+                Some(header_value) => header_value.to_str().unwrap(),
+                None => ""
+            };
+            self.od_type = od::od_type_from_document(res, server_name);
         }
         println!("----->  {:?}  <-----\n", self.od_type);
         Ok(())

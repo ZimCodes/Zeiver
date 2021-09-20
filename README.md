@@ -21,6 +21,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
         * [Recorder](https://github.com/ZimCodes/Zeiver#recorder)
         * [File/Directory](https://github.com/ZimCodes/Zeiver#filedirectory)
         * [HTTP](https://github.com/ZimCodes/Zeiver#http)
+* [Tips/Tricks](https://github.com/ZimCodes/Zeiver#tips-and-tricks)
 * [License](https://github.com/ZimCodes/Zeiver#license)
 
 ## Features
@@ -66,6 +67,8 @@ List of currently supported ODs:
 * AutoIndex PHP
 * Abyss Web Server X1 & X2
 * LiteSpeed Web Server
+* Apache
+* NGINX
 
 **May also work with other ODs*.
 
@@ -258,6 +261,10 @@ Ex: `zeiver --proxy "socks5://192.168.1.1:9000"`
 ***--proxy-auth***
 
 The basic authentication needed to use the proxy. *_Must use the __'username:password'__ format._
+
+## Tips and Tricks
+### URL is too long
+Having trouble entering a long URL in the terminal? Place them inside an input file and use `--input-file` instead.
 
 
 ## License 

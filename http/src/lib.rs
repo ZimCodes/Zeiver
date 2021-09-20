@@ -38,8 +38,12 @@ impl Http{
                 Err(e) => {
                     if e.is_request(){
                         panic!("Error found with request: {}",e);
+                    }else if e.is_builder(){
+                        panic!("Invalid domain: [{:?}]. Please check URLs in your input file to make sure they are entered line by line or \
+                        check URLs entered in terminal.",e.url());
+                    }else{
+                        eprintln!("{}. Retrying connection!", e.to_string());
                     }
-                    eprintln!("{}. Retrying connection!", e.to_string());
                     error = Some(e);
                 }
             }
@@ -48,6 +52,16 @@ impl Http{
             Http::pause_thread(retry_wait,verbose);
         }
         Err(error.unwrap())
+    }
+    /// Print a header from a Response to the terminal
+    pub async fn print_header(header:&str,client:&reqwest::Client,url:&str,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
+                                 verbose:bool) -> Result<(),reqwest::Error> {
+        let response = Http::get_response(client,url,tries,wait,retry_wait,is_random,verbose).await?;
+        match response.headers().get(header){
+            Some(value) => println!("{}: {}",header,value.to_str().unwrap()),
+            None => println!("{} Header is not available:",header)
+        };
+        Ok(())
     }
     /// Pauses the thread
     fn pause_thread(wait:f32,verbose:bool){

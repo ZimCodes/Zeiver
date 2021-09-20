@@ -65,7 +65,7 @@ pub struct Opts{
     ///
     /// Whenever a request fails, Zeiver will wait the specified
     /// number of seconds before retrying again
-    #[structopt(long,default_value = "10")]
+    #[structopt(long,default_value = "8")]
     pub retry_wait:f32,
     /// Wait a random amount of seconds between each request
     ///

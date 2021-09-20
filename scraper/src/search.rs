@@ -4,7 +4,19 @@ use crate::parser;
 use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
 use crate::od::apache::Apache;
 use crate::od::ODMethod;
-use select::node::Node;
+
+/// Parses the nginx HTML Document type ods
+/// Shares qualities with apache
+fn nginx_document(res: &str) -> Vec<String> {
+    Document::from(res).find(
+        Name("a")
+    ).filter(|node| no_parent_dir(&node.text(),node.attr("href")))
+        .filter(|node| !Apache::has_extra_query(node.attr("href").unwrap()))
+        .filter_map(|node| {
+            node.attr("href")
+        }).filter(|link| !link.contains("javascript:void"))
+        .map(|link| parser::sanitize_url(link)).collect()
+}
 
 /// Parses the Apache HTML Document type ods
 fn apache_document(res: &str) -> Vec<String> {
@@ -12,8 +24,8 @@ fn apache_document(res: &str) -> Vec<String> {
         Name("tr").descendant(Name("td").descendant(Name("a")))
             .or(Name("pre").descendant(Name("a")))
             .or(Name("li").descendant(Name("a")))
-    ).filter(|node| no_parent_dir(node))
-        .filter(|node|!Apache::has_extra_query(node.attr("href").unwrap()))
+    ).filter(|node| no_parent_dir(&node.text(),node.attr("href")))
+        .filter(|node| !Apache::has_extra_query(node.attr("href").unwrap()))
         .filter_map(|node| {
             node.attr("href")
         }).filter(|link| !link.contains("javascript:void"))
@@ -27,7 +39,7 @@ fn directory_lister_document(res: &str, url: &str) -> Vec<String> {
         .find(Name("ul").descendant(Name("a")))
         .filter(|node| {
             let link = node.attr("href").unwrap();
-            !url.contains(link) && no_parent_dir(node)
+            !url.contains(link) && no_parent_dir(&node.text(),node.attr("href"))
         })
         .filter_map(|node| {
             node.attr("href")
@@ -40,7 +52,7 @@ fn autoindex_document(res: &str) -> Vec<String> {
     Document::from(res)
         //Find all <a> tags
         .find(Name("tbody").descendant(Class("autoindex_a").or(Class("default_a"))))
-        .filter(|node| no_parent_dir(node))
+        .filter(|node| no_parent_dir(&node.text(),node.attr("href")))
         .filter_map(|node| {
             node.attr("href")
         }).filter(|link| !link.contains("javascript:void"))
@@ -54,7 +66,7 @@ fn olaindex_document(res: &str) -> Vec<String> {
         .find(Name("div")
             .and(Class("mdui-container").or(Class("container")))
             .descendant(Name("a").or(Name("li"))))
-        .filter(|node| no_parent_dir(node))
+        .filter(|node| no_parent_dir(&node.text(),node.attr("href")))
         .filter_map(|node| {
             if node.attr("data-route").is_some() {
                 node.attr("data-route")
@@ -74,7 +86,7 @@ fn generic_document(res: &str) -> Vec<String> {
     Document::from(res)
         //Find all <a> tags
         .find(Name("a"))
-        .filter(|node| no_parent_dir(node))
+        .filter(|node| no_parent_dir(&node.text(),node.attr("href")))
         .filter_map(|node| {
             node.attr("href")
         }).filter(|link| {
@@ -91,16 +103,36 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::AutoIndexPHP | ODMethod::AutoIndexPHPNoCrumb => autoindex_document(res),
         ODMethod::DirectoryLister => directory_lister_document(res, url),
         ODMethod::Apache => apache_document(res),
+        ODMethod::NGINX => nginx_document(res),
         _ => generic_document(res)
     }
 }
 
 /// Check if link leads back to parent directory
-fn no_parent_dir(node: &Node) -> bool {
-    let not_parent_dir = node.text().trim().to_lowercase() != "parent directory";
-    let no_back_path = match node.attr("href") {
-        Some(link) => link != ".",
+fn no_parent_dir(content: &str,href:Option<&str>) -> bool {
+    let not_parent_dir = !content.trim().to_lowercase().starts_with("parent directory");
+    let no_back_path = match href {
+        Some(link) => link != "." && link != "../" && link != ".." && link != "./",
         None => false
     };
     not_parent_dir && no_back_path
+}
+
+#[cfg(test)]
+mod tests{
+    use super::no_parent_dir;
+    #[test]
+    fn no_parent_test(){
+        assert_eq!(no_parent_dir("Parent directory/",Some("../")),false);
+        assert_eq!(no_parent_dir("Parent Directory",Some("..")),false);
+        assert_eq!(no_parent_dir("Parent Directory",Some("./")),false);
+        assert_eq!(no_parent_dir("parent directory",Some(".")),false);
+        assert_eq!(no_parent_dir("Carrots and java",Some("../")),false);
+        assert_eq!(no_parent_dir("Carrots and java",Some("./")),false);
+        assert_eq!(no_parent_dir("Carrots and java",Some("..")),false);
+        assert_eq!(no_parent_dir("Carrots and java",Some(".")),false);
+
+        assert_eq!(no_parent_dir("Carrots and java",Some("./Carrots%20and%20java")),true);
+        assert_eq!(no_parent_dir("Drink Soda",Some("Drink%20Soda")),true);
+    }
 }
