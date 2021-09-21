@@ -152,6 +152,10 @@ pub fn remove_last_slash(url: &str) -> String {
 pub fn remove_http(path:&str) ->String{
     HTTP_REG.replace(path,"").to_string()
 }
+/// Checks if url has an authentic HTTP scheme
+pub fn is_http(url:&str)->bool{
+    HTTP_REG.is_match(url)
+}
 /// Removes the '?preview' query from an URL
 pub fn remove_preview_query(url: &str) -> String {
     if url.ends_with("?preview") {
@@ -224,7 +228,7 @@ fn remove_space_entity(url:&str)-> &str{
         url
     }
 }
-///Replace last `/` with HTML Encode then compare url with relative path
+///HTML Encode then compare url with relative path
 pub fn encode_slash_starts_with(rel:&str,url:&str)->bool{
     let url = ready_url_for_checking(url,"/");
     let rel = ready_url_for_checking(rel,"/");

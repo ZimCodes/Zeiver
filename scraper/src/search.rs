@@ -4,12 +4,33 @@ use crate::parser;
 use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
 use crate::od::apache::Apache;
 use crate::od::directory_listing_script::DirectoryListingScript;
+use crate::od::lighttpd::LightTPD;
 use crate::od::ODMethod;
 
+/// Parses lighttpd HTML Documents
+fn lighttpd_document(res:&str,url:&str) -> Vec<String>{
+    let full_names = LightTPD::full_file_name(res);
+    Document::from(res)
+        //Find all <a> tags
+        .find(Name("tr").descendant(Name("td").descendant(Name("a"))))
+        .filter(|node| no_parent_dir(url,&node.text(),node.attr("href")))
+        .filter_map(|node| {
+            let href = node.attr("href").unwrap();
+            let new_href = format!("{}/",href);
+            if full_names.contains(&new_href){
+                Some(new_href)
+            }else{
+                Some(href.to_string())
+            }
+        }).filter(|link| {
+        let mut paths: Vec<&str> = link.split("/").collect();
+        !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
+    }).filter(|link| !link.contains("javascript:void"))
+        .map(|link| parser::sanitize_url(&link)).collect()
+}
 /// Parses the Evoluted Directory Listing Script HTML Document type ods
 fn directory_listing_script_document(res:&str,url:&str) -> Vec<String>{
     Document::from(res)
-        //Find all <a> tags
         .find(Attr("id","listingcontainer").descendant(Name("a"))
             .or(Class("table-container").descendant(Name("a"))))
         .filter(|node| no_parent_dir(url,&node.text(),node.attr("href")))
@@ -116,6 +137,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::AutoIndexPHP | ODMethod::AutoIndexPHPNoCrumb => autoindex_document(res,url),
         ODMethod::DirectoryLister => directory_lister_document(res, url),
         ODMethod::DirectoryListingScript => directory_listing_script_document(res,url),
+        ODMethod::LightTPD => lighttpd_document(res,url),
         ODMethod::Apache => apache_document(res,url),
         ODMethod::NGINX => nginx_document(res,url),
         _ => generic_document(res,url)

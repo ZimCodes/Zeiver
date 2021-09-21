@@ -70,6 +70,7 @@ List of currently supported ODs:
 * Apache
 * NGINX
 * Evoluted Directory Listing Script
+* lighttpd
 
 **May also work with other ODs*.
 

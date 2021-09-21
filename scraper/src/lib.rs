@@ -185,7 +185,7 @@ impl Scraper {
     }
     /// Adds a URL to the list of files to download
     fn add_file(url: &str, x: &str, files: &mut Vec<asset::file::File>, verbose: bool) {
-        let joined_url = if x.starts_with("http") {
+        let joined_url = if parser::is_http(x) {
             let modded_url = x.replace("//","/");
             // Adds an additional slash to http scheme
             if modded_url.starts_with("https"){

@@ -4,6 +4,7 @@ pub mod directory_lister;
 pub mod apache;
 pub mod nginx;
 pub mod directory_listing_script;
+pub mod lighttpd;
 mod none;
 
 #[derive(PartialEq, Debug)]
@@ -15,6 +16,7 @@ pub enum ODMethod {
     Apache,
     NGINX,
     DirectoryListingScript,
+    LightTPD,
     Generic,
     None,
 }
@@ -44,20 +46,22 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
 }
 
 /// AutoIndex od type check
-fn autoindex_type_check(res: &str, server_name:&str) -> ODMethod {
+fn autoindex_type_check(res: &str, server_name: &str) -> ODMethod {
     let (breadcrumb_exist, is_autoindex) = autoindex_php::AutoIndexPHP::is_od(res);
     if breadcrumb_exist && is_autoindex {
         ODMethod::AutoIndexPHP
     } else if is_autoindex {
         ODMethod::AutoIndexPHPNoCrumb
     } else {
-        od_type_from_header(res,server_name)
+        od_type_from_header(res, server_name)
     }
 }
 
 /// Determine OD Type from `Server` header
 fn od_type_from_header(res: &str, server_name: &str) -> ODMethod {
-    if apache::Apache::is_od(res, server_name) {
+    if lighttpd::LightTPD::is_od(res, server_name) {
+        ODMethod::LightTPD
+    } else if apache::Apache::is_od(res, server_name) {
         ODMethod::Apache
     } else if nginx::NGINX::is_od(server_name) {
         ODMethod::NGINX
