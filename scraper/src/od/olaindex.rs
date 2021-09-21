@@ -10,6 +10,7 @@ const IDENTIFIER_KEYWORDS:&str = "OLAINDEX,OneDrive,Index,Microsoft OneDrive,Dir
 lazy_static! {
     static ref OLAINDEX_HASH_QUERY:Regex = Regex::new(r"\?hash=[0-9a-zA-Z]{8}(/?|&download=1)$").unwrap();
     static ref OLAINDEX_QUERIES:Regex = Regex::new(r"\?hash=[0-9a-zA-Z]{8}&download=1$").unwrap();
+    static ref OLAINDEX_EXTRA_PATHS:Regex = Regex::new(r"(/|%2F)(v|view|d|down|home|s|show)(/|%2F)").unwrap();
 }
 pub enum OlaindexExtras {
     All,
@@ -79,6 +80,10 @@ impl OLAINDEX {
             paths.remove(3);
         }
     }
+    /// Removes an extra path from an path
+    pub fn remove_path(path:&str)->String{
+        OLAINDEX_EXTRA_PATHS.replace(path,"/").to_string()
+    }
     /// [Identity] Used to determine od type
     pub fn is_od(res:&str)->bool{
         let has_description_id = Document::from(res)
@@ -93,4 +98,28 @@ impl OLAINDEX {
         }
     }
 }
+#[cfg(test)]
+mod tests{
+    use super::OLAINDEX_EXTRA_PATHS;
+    #[test]
+    fn extra_paths_regex(){
+        const HOME:&str = "https://www.example.org";
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/v/",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/v%2F",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Fv/",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Fv%2F",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/s/",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/show/",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/view/",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/home/",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/d/",HOME)),true);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/down/",HOME)),true);
 
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/down",HOME)),false);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/t/",HOME)),false);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t/",HOME)),false);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t",HOME)),false);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t%2F",HOME)),false);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Ftime",HOME)),false);
+    }
+}

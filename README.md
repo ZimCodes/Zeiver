@@ -69,6 +69,7 @@ List of currently supported ODs:
 * LiteSpeed Web Server
 * Apache
 * NGINX
+* Evoluted Directory Listing Script
 
 **May also work with other ODs*.
 

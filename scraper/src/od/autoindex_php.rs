@@ -83,7 +83,7 @@ impl AutoIndexPHP {
         let (start_path, use_extend) = AutoIndexPHP::start_path(res);
         let no_nav_rel = match use_extend {
             true => EXTENDED_NAV_REGEX.replace(rel, start_path),
-            false => NAVIGATOR_REGEX.replace(rel, start_path)
+            false => NAVIGATOR_REGEX.replace(rel,start_path)
         };
         let filtered_rel = FILE_REGEX.replace(no_nav_rel.as_ref(), "");
         let url = Url::parse(url).expect(format!("Cannot parse url for transformation into download link: {}", url).as_str());

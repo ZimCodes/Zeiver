@@ -42,6 +42,9 @@ impl Scraper {
         for x in scraped_links {
             if previous_file != x {
                 previous_file = x.to_string();
+
+                let x = Scraper::od_file_sanitize(&x);
+
                 let is_file_ext = parser::is_file_ext(x.as_str());
                 let ending_check = is_file_ext
                     || od::olaindex::OLAINDEX::has_dl_query(&x)
@@ -94,9 +97,8 @@ impl Scraper {
             let current_dir = format!("{}{}", url, x);
             if past_dir != current_dir {
                 past_dir = current_dir;
-
                 if (!x.starts_with("http")
-                    || x.starts_with(url))
+                    || parser::encode_slash_starts_with(x,url))
                     && !parser::is_back_url(x)
                     && !parser::is_home_url(x)
                     && !parser::unrelated_dir_queries(x)
@@ -107,9 +109,9 @@ impl Scraper {
                     if parser::is_not_symbol(x)
                         && !od::olaindex::OLAINDEX::has_dl_query(&x)
                         && !parser::is_file_ext(x)
+                        || parser::check_dir_query(url,x)
                     {
-                        self.add_dir(url, x, &mut dirs, verbose);
-                    } else if x.starts_with("?dir=") && parser::check_dir_query(url, x) {
+
                         self.add_dir(url, x, &mut dirs, verbose);
                     }
                 }
@@ -141,6 +143,11 @@ impl Scraper {
         //Determine od type from html document
         self.od_type_from_document(&*res,client, &url, tries, wait, retry_wait, is_random, verbose).await?;
 
+        //Determines if webpage is a valid OD
+        if self.od_type.eq(&od::ODMethod::None){
+            println!("URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑",url);
+            return Ok(());
+        }
         let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(), &url, true, verbose)];
 
         let files = self.scrape_files(res.as_str(), &url, &accept, &reject, true, verbose);
@@ -179,7 +186,13 @@ impl Scraper {
     /// Adds a URL to the list of files to download
     fn add_file(url: &str, x: &str, files: &mut Vec<asset::file::File>, verbose: bool) {
         let joined_url = if x.starts_with("http") {
-            String::from(x)
+            let modded_url = x.replace("//","/");
+            // Adds an additional slash to http scheme
+            if modded_url.starts_with("https"){
+                format!("{}/{}",&modded_url[..6],&modded_url[6..])
+            }else{
+                format!("{}/{}",&modded_url[..5],&modded_url[5..])
+            }
         } else {
             parser::url_joiner(url, x)
         };
@@ -208,12 +221,15 @@ impl Scraper {
         println!("----->  {:?}  <-----\n", self.od_type);
         Ok(())
     }
+    fn od_file_sanitize(x:&str) ->String{
+        parser::removes_single_path(x)
+    }
     fn od_file_link_modify(&self, url: &str, x: &String, res: &str) -> String {
         if self.od_type.eq(&od::ODMethod::OLAINDEX) {
-            od::olaindex::OLAINDEX::transform_link(x)
+            od::olaindex::OLAINDEX::transform_link(&x)
         } else if self.od_type.eq(&od::ODMethod::AutoIndexPHP) {
-            od::autoindex_php::AutoIndexPHP::transform_dl_link(url, x.as_str(), res)
-        } else {
+             od::autoindex_php::AutoIndexPHP::transform_dl_link(url, &x, res)
+        }else{
             x.to_string()
         }
     }
