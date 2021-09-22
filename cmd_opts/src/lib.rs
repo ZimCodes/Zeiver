@@ -99,7 +99,7 @@ pub struct Opts{
     pub user_agent:Option<String>,
     /// Use HTTPS only
     ///
-    /// Restrict Zeiver to handle all requests through HTTPS only.
+    /// Restrict Zeiver to send all requests through HTTPS connections only.
     #[structopt(long)]
     pub https_only:bool,
     /// Sets the default headers 'header:value'

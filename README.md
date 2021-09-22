@@ -223,7 +223,7 @@ All files will be saved to the current output directory instead.
 
 Use HTTPS only
 
-Restrict Zeiver to handle all requests through HTTPS only.
+Restrict Zeiver to send all requests through HTTPS connections only.
 
 ***-H, --headers***
 
