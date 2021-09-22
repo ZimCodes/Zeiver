@@ -117,6 +117,13 @@ impl Zeiver {
             None => format!("Zeiver/{}", env!("CARGO_PKG_VERSION"))
         };
         builder = builder.user_agent(user_agent);
+        // Accept all certificates
+        builder = builder.danger_accept_invalid_certs(opts.all_certs);
+        // Disable Referer
+        builder = builder.referer(false);
+        // HTTPS only
+        builder = builder.https_only(opts.https_only);
+        // Redirect Policy
         let policy = reqwest::redirect::Policy::limited(opts.redirects);
         builder.redirect(policy).build()
     }

@@ -72,6 +72,7 @@ List of currently supported ODs:
 * Evoluted Directory Listing Script
 * lighttpd
 * phpBB
+* OneManager
 
 **May also work with other ODs*.
 
@@ -218,6 +219,12 @@ All files will be saved to the current output directory instead.
 
 ---
 #### HTTP
+***--https-only***
+
+Use HTTPS only
+
+Restrict Zeiver to handle all requests through HTTPS only.
+
 ***-H, --headers***
 
 Sets the default headers to use for every request. *_Must use the __'header$value'__ format. Each header must also be
@@ -265,11 +272,21 @@ Ex: `zeiver --proxy "socks5://192.168.1.1:9000"`
 
 The basic authentication needed to use the proxy. *_Must use the __'username:password'__ format._
 
+***--all-certs***
+
+Accepts all certificates *(Beware!)*
+
+Accepts all certificates even invalid ones. **Use this option at your own risk!**
+
+---
 ## Tips and Tricks
 ### URL is too long
 Having trouble entering a long URL in the terminal? Place them inside an input file and use `--input-file` instead.
 
+### Can't access an OD because of certificates
+Trying using the `--all-certs` option, but *be wary* with this option.
 
+---
 ## License 
 Zeiver is licensed under the MIT and Apache 2.0 Licenses.
 

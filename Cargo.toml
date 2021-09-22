@@ -1,6 +1,6 @@
 [package]
 name = "zeiver"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["ZimCodes <23222943+ZimCodes@users.noreply.github.com>"]
 edition = "2018"
 description = "Web crawler designed for downloading content from ODs"

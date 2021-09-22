@@ -152,7 +152,7 @@ version = "0.2.0"
 dependencies = [
  "asset",
  "bytes",
- "http 0.2.0",
+ "http 0.2.1",
  "lazy_static",
  "mime",
  "recorder",
@@ -333,7 +333,7 @@ dependencies = [
 
 [[package]]
 name = "http"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "rand 0.8.4",
  "reqwest",
@@ -930,10 +930,10 @@ dependencies = [
 
 [[package]]
 name = "scraper"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "asset",
- "http 0.2.0",
+ "http 0.2.1",
  "lazy_static",
  "regex",
  "reqwest",
@@ -1450,7 +1450,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "cmd_opts",
  "crawler",

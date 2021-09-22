@@ -5,11 +5,11 @@ use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
 
 lazy_static! {
     static ref BACK_REG:Regex = Regex::new(r"(?:\.\./)").unwrap();
-    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])/?$").unwrap();
-    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])/?$").unwrap();
+    static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])$").unwrap();
+    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])$").unwrap();
     static ref PREVIEW_REG:Regex = Regex::new(r"\?preview$").unwrap();
     static ref SYMBOLS_REG:Regex = Regex::new(r"/?[a-zA-Z0-9\*~\+\-%\?\[\]\$_\.!‘\(\)=]+/").unwrap();
-    static ref QUERY_PATH_REG:Regex = Regex::new(r"/(\?|\.)/").unwrap();
+    static ref QUERY_PATH_REG:Regex = Regex::new(r"/\./").unwrap();
     static ref LAST_SLASH_REG:Regex = Regex::new(r"/$").unwrap();
     static ref DUPLICATE_SLASH_REG:Regex = Regex::new(r"[^:]//\w+").unwrap();
     static ref WEB_REG:Regex = Regex::new(r"[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)=]+\.(html?|aspx?|php)/?$").unwrap();
@@ -356,14 +356,10 @@ mod tests{
     #[test]
     fn one_non_letter_path(){
         assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/./ChampionHat/This_Battery_Pack_tut.pdf"),true);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/?/ChampionHat/This_Battery_Pack_tut.pdf"),true);
         assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/?/./ChampionHat/This_Battery_Pack_tut.pdf"),true);
         assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/././ChampionHat/This_Battery_Pack_tut.pdf"),true);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/?/./ChampionHat/This_Battery_Pack_tut.pdf"),true);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/?/?/ChampionHat/This_Battery_Pack_tut.pdf"),true);
+        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/./?/ChampionHat/This_Battery_Pack_tut.pdf"),true);
 
         assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/.ChampionHat/This_Battery_Pack_tut.pdf"),false);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/Champion?Hat/This?_Battery_Pack_tut.pdf"),false);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/?ChampionHat/This_Battery_Pack_tut.pdf"),false);
     }
 }

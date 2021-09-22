@@ -97,6 +97,11 @@ pub struct Opts{
     /// The User Agent header to use
     #[structopt(short="U")]
     pub user_agent:Option<String>,
+    /// Use HTTPS only
+    ///
+    /// Restrict Zeiver to handle all requests through HTTPS only.
+    #[structopt(long)]
+    pub https_only:bool,
     /// Sets the default headers 'header:value'
     ///
     /// Sets the default headers for every request. Must use the
@@ -113,6 +118,11 @@ pub struct Opts{
     /// 'username:password' format.
     #[structopt(long)]
     pub proxy_auth:Option<String>,
+    /// Accept all certificates *(Beware!)*
+    ///
+    /// Accept all certificates even invalid ones. **Use this option at your own risk!**
+    #[structopt(long)]
+    pub all_certs:bool,
     /// Read URLs from a local or external file
     ///
     /// Read URLs from a file to be sent to the Scraper. *Each line represents a URL to an OD.
