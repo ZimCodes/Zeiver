@@ -71,6 +71,7 @@ List of currently supported ODs:
 * NGINX
 * Evoluted Directory Listing Script
 * lighttpd
+* phpBB
 
 **May also work with other ODs*.
 

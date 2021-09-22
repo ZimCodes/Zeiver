@@ -5,6 +5,7 @@ pub mod apache;
 pub mod nginx;
 pub mod directory_listing_script;
 pub mod lighttpd;
+pub mod phpbb;
 mod none;
 
 #[derive(PartialEq, Debug)]
@@ -17,6 +18,7 @@ pub enum ODMethod {
     NGINX,
     DirectoryListingScript,
     LightTPD,
+    PHPBB,
     Generic,
     None,
 }
@@ -40,7 +42,9 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::DirectoryLister
     } else if directory_listing_script::DirectoryListingScript::is_od(res) {
         ODMethod::DirectoryListingScript
-    } else {
+    } else if phpbb::PHPBB::is_od(res){
+        ODMethod::PHPBB
+    }else {
         autoindex_type_check(res, server_name)
     }
 }

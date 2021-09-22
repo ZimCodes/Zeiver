@@ -5,8 +5,23 @@ use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
 use crate::od::apache::Apache;
 use crate::od::directory_listing_script::DirectoryListingScript;
 use crate::od::lighttpd::LightTPD;
+use crate::od::phpbb::PHPBB;
 use crate::od::ODMethod;
 
+/// Parses phpBB HTML Documents
+fn phpbb_document(res:&str,url:&str)->Vec<String>{
+    Document::from(res).find(
+        Name("tr").descendant(Name("td").descendant(Name("a")))
+            .or(Name("pre").descendant(Name("a")))
+            .or(Name("li").descendant(Name("a")))
+    ).filter(|node| no_parent_dir(url,&node.text(),node.attr("href")))
+        .filter(|node| !PHPBB::is_a_sort_query(node.attr("href").unwrap()))
+        .filter(|node| !PHPBB::is_copy_file(&node.text()))
+        .filter_map(|node| {
+            node.attr("href")
+        }).filter(|link| !link.contains("javascript:void"))
+        .map(|link| parser::sanitize_url(link)).collect()
+}
 /// Parses lighttpd HTML Documents
 fn lighttpd_document(res:&str,url:&str) -> Vec<String>{
     let full_names = LightTPD::full_file_name(res);
@@ -137,6 +152,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::AutoIndexPHP | ODMethod::AutoIndexPHPNoCrumb => autoindex_document(res,url),
         ODMethod::DirectoryLister => directory_lister_document(res, url),
         ODMethod::DirectoryListingScript => directory_listing_script_document(res,url),
+        ODMethod::PHPBB => phpbb_document(res,url),
         ODMethod::LightTPD => lighttpd_document(res,url),
         ODMethod::Apache => apache_document(res,url),
         ODMethod::NGINX => nginx_document(res,url),
