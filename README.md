@@ -10,7 +10,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
 * [Features](https://github.com/ZimCodes/Zeiver#features)
    * [Normal Workflow](https://github.com/ZimCodes/Zeiver#normal-workflow)
    * [More](https://github.com/ZimCodes/Zeiver#more)
-* [Supported ODs](https://github.com/ZimCodes/Zeiver#supported-ods)
+* [Open Directory Support](https://github.com/ZimCodes/Zeiver#open-directory-support)
 * [Installation](https://github.com/ZimCodes/Zeiver#installation)
 * [Sample](https://github.com/ZimCodes/Zeiver#sample)
 * [Commands](https://github.com/ZimCodes/Zeiver#commands)
@@ -21,7 +21,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
         * [Recorder](https://github.com/ZimCodes/Zeiver#recorder)
         * [File/Directory](https://github.com/ZimCodes/Zeiver#filedirectory)
         * [HTTP](https://github.com/ZimCodes/Zeiver#http)
-* [Tips/Tricks](https://github.com/ZimCodes/Zeiver#tips-and-tricks)
+* [Extra Info](https://github.com/ZimCodes/Zeiver#extra-info)
 * [License](https://github.com/ZimCodes/Zeiver#license)
 
 ## Features
@@ -60,22 +60,8 @@ the files' data from the internet. the **Downloader** then writes the data to a 
 
 3. Ability to customize how files retrieved or not
 
-## Supported ODs
-List of currently supported ODs:
-* OLAINDEX
-* Directory Lister
-* AutoIndex PHP
-* Abyss Web Server X1 & X2
-* LiteSpeed Web Server
-* Apache
-* NGINX
-* Evoluted Directory Listing Script
-* lighttpd
-* phpBB
-* OneManager
-* h5ai
-
-**May also work with other ODs*.
+## Open Directory Support
+Currently supported ODs can be found in [OD.md](https://github.com/ZimCodes/Zeiver/blob/main/OD.md).
 
 ## Installation
 1. Install Rust. 
@@ -280,12 +266,16 @@ Accepts all certificates *(Beware!)*
 Accepts all certificates even invalid ones. **Use this option at your own risk!**
 
 ---
-## Tips and Tricks
+## Extra Info
 ### URL is too long
 Having trouble entering a long URL in the terminal? Place them inside an input file and use `--input-file` instead.
 
 ### Can't access an OD because of certificates
 Trying using the `--all-certs` option, but *be wary* with this option.
+
+### Content from OD exists, however Zeiver isn't scraping/recording/downloading any of them
+Some ODs will send Zeiver **HTML Documents** without any content *(files/folders)* from the OD.
+This is because Zeiver retrieves an HTML Document without JavaScript & some ODs *will not work* without it.
 
 ---
 ## License 

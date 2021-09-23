@@ -8,6 +8,7 @@ pub mod lighttpd;
 pub mod phpbb;
 pub mod onemanager;
 pub mod h5ai;
+pub mod microsoftiis;
 mod none;
 
 #[derive(PartialEq, Debug)]
@@ -23,11 +24,12 @@ pub enum ODMethod {
     PHPBB,
     OneManager,
     H5AI,
+    MicrosoftIIS,
     Generic,
     None,
 }
 
-///Determine the od type from URL
+/// Determine the od type from URL
 pub fn od_type_from_url(url: &str) -> ODMethod {
     if olaindex::OLAINDEX::hash_query(url) {
         ODMethod::OLAINDEX
@@ -71,11 +73,13 @@ fn autoindex_type_check(res: &str, server_name: &str) -> ODMethod {
 
 /// Determine OD Type from `Server` header
 fn od_type_from_header(res: &str, server_name: &str) -> ODMethod {
-    if lighttpd::LightTPD::is_od(res, server_name) {
+    if microsoftiis::MicrosoftIIS::is_od(res,server_name){
+        ODMethod::MicrosoftIIS
+    } else if lighttpd::LightTPD::is_od(res, server_name) {
         ODMethod::LightTPD
     } else if apache::Apache::is_od(res, server_name) {
         ODMethod::Apache
-    } else if nginx::NGINX::is_od(server_name) {
+    } else if nginx::NGINX::is_od(res,server_name) {
         ODMethod::NGINX
     } else {
         ODMethod::Generic
