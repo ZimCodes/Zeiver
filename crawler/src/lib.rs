@@ -5,6 +5,7 @@ use reqwest;
 use scraper;
 use downloader;
 use recorder;
+use grabber;
 
 pub struct WebCrawler {
     opts:cmd_opts::Opts
@@ -44,7 +45,7 @@ impl WebCrawler {
         println!("-----Using Recorder-----");
         let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
         let mut recorder = recorder::Recorder::new(save, scraper, self.opts.verbose).await;
-        recorder.run(&self.opts.output_record, recorder_id, self.opts.no_stats).await;
+        recorder.run(&self.opts.output_record, recorder_id, self.opts.no_stats_list,self.opts.no_stats).await;
         println!("-----Recording Task Completed!-----");
     }
     /// Activates Recorder using content obtained from user's file
@@ -74,5 +75,15 @@ impl WebCrawler {
     /// Retrieves urls from an input file
     pub async fn input_file_links(path:Option<PathBuf>) ->Vec<PathBuf>{
         recorder::Recorder::links_from_file(&path).await
+    }
+    pub async fn print_header(header:String,client:&reqwest::Client,url:PathBuf,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
+                              verbose:bool) -> Result<(),reqwest::Error>{
+        let url = url.to_string_lossy();
+        grabber::Http::print_header(&header,client,url.as_ref(),tries,wait,retry_wait,is_random,verbose).await
+    }
+    pub async fn print_all_headers(client:&reqwest::Client,url:PathBuf,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
+                                   verbose:bool) -> Result<(),reqwest::Error>{
+        let url = url.to_string_lossy();
+        grabber::Http::print_headers(client,url.as_ref(),tries,wait,retry_wait,is_random,verbose).await
     }
 }

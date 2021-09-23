@@ -28,7 +28,7 @@ impl Recorder{
         Recorder::run_file(input_record,output_record,1,verbose).await;
     }
     /// Create a file and place the corresponding links from each page.
-    pub async fn run(&mut self, output_record:&String, recorder_id:usize, no_stats:bool){
+    pub async fn run(&mut self, output_record:&String, recorder_id:usize, no_stats_list:bool, no_stats:bool){
         println!("\n-----Recording Links From Scraper-----\n");
         let (file_name_str,new_file_path) = Recorder::file_properties(output_record,recorder_id);
 
@@ -42,7 +42,9 @@ impl Recorder{
                     if let Some(ext) = &file.ext{
                         let file_name = &file.name;
                         let new_name = String::from(file_name);
-                        file_vec.push(new_name);
+                        if !no_stats_list{
+                            file_vec.push(new_name);
+                        }
                         Recorder::update_stats(&mut file_type_map, String::from(ext));
                     }
                 }
@@ -177,8 +179,11 @@ impl Recorder{
         let mut f = fs::File::create(record_path).await?;
         let header_line = "----------------------------";
         Recorder::add_file_type_stats(&mut f,file_type_map,header_line).await?;
-        Recorder::add_file_name_stats(&mut f, file_vec,header_line).await
-
+        if !file_vec.is_empty(){
+            Recorder::add_file_name_stats(&mut f, file_vec,header_line).await
+        }else{
+            Ok(())
+        }
     }
     async fn add_file_type_stats(f: &mut fs::File, file_type_map:HashMap<String,u32>,header_line:&str) ->Result<(),Error>{
         let header = "\t|File Type| -> |Total|";

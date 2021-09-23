@@ -1,6 +1,6 @@
 use reqwest;
 use asset;
-use http;
+use grabber;
 
 mod parser;
 mod od;
@@ -138,11 +138,11 @@ impl Scraper {
         //Determine od type from url
         let url = parser::sanitize_url(url);
         //Retrieve page
-        let res = http::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
-
+        let (res,status_code) = grabber::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
         //Determine od type from html document
         self.od_type_from_document(&*res,client, &url, tries, wait, retry_wait, is_random, verbose).await?;
 
+        println!("*** Status Code: {} ***\n",status_code.as_str());
         //Determines if webpage is a valid OD
         if self.od_type.eq(&od::ODMethod::None){
             println!("URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑",url);
@@ -158,7 +158,7 @@ impl Scraper {
         //Determines whether to start recursive scraping
         let is_dir_empty = dirs_of_dirs.get(0).unwrap().is_empty();
         if !is_dir_empty {
-            self.dir_recursive(client, &url, res, dirs_of_dirs, accept, reject, depth, tries, wait, retry_wait, is_random, verbose).await?;
+            self.dir_recursive(client, dirs_of_dirs, accept, reject, depth, tries, wait, retry_wait, is_random, verbose).await?;
         }
 
         Ok(())
@@ -211,7 +211,7 @@ impl Scraper {
     async fn od_type_from_document(&mut self, res: &str,client: &reqwest::Client, url: &str, tries: u32, wait: Option<f32>,
                              retry_wait: f32, is_random: bool, verbose: bool) -> Result<(), reqwest::Error> {
         if self.od_type.eq(&od::ODMethod::None) {
-            let response = http::Http::get_response(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
+            let response = grabber::Http::get_response(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
             let server_name = match response.headers().get("server") {
                 Some(header_value) => header_value.to_str().unwrap(),
                 None => ""
@@ -234,9 +234,7 @@ impl Scraper {
         }
     }
     /// Recursively scrape file URLs from child directories
-    /// NOTE: variables ARE being used
-    #[allow(unused_assignments)]
-    async fn dir_recursive(&mut self, client: &reqwest::Client, mut url: &str, mut res: String, mut dirs_of_dirs: Vec<Vec<asset::directory::Directory>>,
+    async fn dir_recursive(&mut self, client: &reqwest::Client, mut dirs_of_dirs: Vec<Vec<asset::directory::Directory>>,
                            accept: &Option<String>, reject: &Option<String>, depth: usize, tries: u32, wait: Option<f32>, retry_wait: f32, is_random: bool, verbose: bool) -> Result<(), reqwest::Error>
     {
         println!("-----Starting Directory Diving-----");
@@ -251,9 +249,10 @@ impl Scraper {
                     println!("\n-----Current Parsing Directory-----\n{:?}", dir);
 
                     //Connect to Directory link
-                    url = dir.link.as_str();
+                    let url = dir.link.as_str();
 
-                    res = http::Http::connect(client, url, tries, wait, retry_wait, is_random, verbose).await?;
+                    let (res,status_code) = grabber::Http::connect(client, url, tries, wait, retry_wait, is_random, verbose).await?;
+                    println!("*** Status Code: {} ***\n",status_code.as_str());
                     //Retrieve Files from Directory Link
                     let files = self.scrape_files(res.as_str(), url, &accept, &reject, false, verbose);
                     if !files.is_empty() {

@@ -1,6 +1,6 @@
 [package]
 name = "downloader"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,7 +11,7 @@ lazy_static = "1.4.0"
 regex = "1.5.4"
 mime = "0.3.16"
 scraper = {path = "../scraper"}
-http = {path = "../http"}
+grabber = {path = "../grabber" }
 recorder = {path = "../recorder"}
 asset = {path = "../asset"}
 reqwest = "0.11.4"

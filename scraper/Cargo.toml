@@ -1,12 +1,12 @@
 [package]
 name = "scraper"
-version = "0.5.5"
+version = "0.6.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-http = {path = "../http"}
+grabber = {path = "../grabber" }
 asset = {path = "../asset"}
 lazy_static = "1.4.0"
 url = "2.2.2"

@@ -114,7 +114,7 @@ dependencies = [
 
 [[package]]
 name = "cmd_opts"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "structopt",
 ]
@@ -137,10 +137,11 @@ checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
 name = "crawler"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "cmd_opts",
  "downloader",
+ "grabber",
  "recorder",
  "reqwest",
  "scraper",
@@ -148,11 +149,11 @@ dependencies = [
 
 [[package]]
 name = "downloader"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "asset",
  "bytes",
- "http 0.2.1",
+ "grabber",
  "lazy_static",
  "mime",
  "recorder",
@@ -275,6 +276,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "grabber"
+version = "0.3.0"
+dependencies = [
+ "rand 0.8.4",
+ "reqwest",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -285,7 +294,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "futures-util",
- "http 0.2.4",
+ "http",
  "indexmap",
  "slab",
  "tokio",
@@ -333,14 +342,6 @@ dependencies = [
 
 [[package]]
 name = "http"
-version = "0.2.1"
-dependencies = [
- "rand 0.8.4",
- "reqwest",
-]
-
-[[package]]
-name = "http"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "527e8c9ac747e28542699a951517aa9a6945af506cd1f2e1b53a576c17b6cc11"
@@ -357,7 +358,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "399c583b2979440c60be0821a6199eca73bc3c8dcd9d070d75ac726e2c6186e5"
 dependencies = [
  "bytes",
- "http 0.2.4",
+ "http",
  "pin-project-lite",
 ]
 
@@ -384,7 +385,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "h2",
- "http 0.2.4",
+ "http",
  "http-body",
  "httparse",
  "httpdate",
@@ -836,7 +837,7 @@ dependencies = [
 
 [[package]]
 name = "recorder"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "asset",
  "scraper",
@@ -889,7 +890,7 @@ dependencies = [
  "encoding_rs",
  "futures-core",
  "futures-util",
- "http 0.2.4",
+ "http",
  "http-body",
  "hyper",
  "hyper-tls",
@@ -930,10 +931,10 @@ dependencies = [
 
 [[package]]
 name = "scraper"
-version = "0.5.5"
+version = "0.6.0"
 dependencies = [
  "asset",
- "http 0.2.1",
+ "grabber",
  "lazy_static",
  "regex",
  "reqwest",
@@ -1450,7 +1451,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.5.5"
+version = "0.6.0"
 dependencies = [
  "cmd_opts",
  "crawler",

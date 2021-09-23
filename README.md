@@ -1,6 +1,6 @@
 # Zeiver
-**Zeiver** is designed to *scrape* and *download content* recursively from ODs _(open directories)_.
-It also provides a means of *retrieving links* to the content and *scouting*.
+**Zeiver** is designed to *scrape* and *download* content recursively from ODs _(open directories)_.
+It also provides a means of *recording* links and *scanning* ODs for content.
 
 __*Zeiver does not download the entire OD itself, only the files.__
 
@@ -20,13 +20,13 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
         * [Download](https://github.com/ZimCodes/Zeiver#download)
         * [Recorder](https://github.com/ZimCodes/Zeiver#recorder)
         * [File/Directory](https://github.com/ZimCodes/Zeiver#filedirectory)
-        * [HTTP](https://github.com/ZimCodes/Zeiver#http)
+        * [Grabber](https://github.com/ZimCodes/Zeiver#grabber)
 * [Extra Info](https://github.com/ZimCodes/Zeiver#extra-info)
 * [License](https://github.com/ZimCodes/Zeiver#license)
 
 ## Features
 Zeiver currently has 4 major modules:
-* HTTP
+* Grabber *(HTTP)*
   * Grabs content from the internet. *(Webpage,files,etc)*
 * Scraper
     * Recursively grabs all links from an OD.
@@ -38,11 +38,11 @@ Zeiver currently has 4 major modules:
       changed using `--output-record`
     * Creates stat files *(statistical data about what was retrieved)*
 
-***All components can be used independently.*** With exception to *HTTP module*.
+***All components can be used independently.***
 
 ### Normal Workflow
-The **HTTP** module repeatedly grabs a webpage for the Scraper to parse *(based on parameters)*.
-The **Scraper** takes the webpage and recursively grabs the links from them.
+The **Grabber** module repeatedly grabs a webpage for the Scraper to parse *(based on parameters)*.
+The **Scraper** takes the webpage and recursively scrapes the links from them.
 Afterwards, the links are either sent to the
 **Recorder** (_Disabled by default_), specified with:
 * `--record-only`
@@ -50,18 +50,17 @@ Afterwards, the links are either sent to the
  
 *AND/OR*
  
-**Downloader** (_Enabled by default_). The **Downloader** uses the **HTTP** module to download
+**Downloader** (_Enabled by default_). The **Downloader** uses the **Grabber** to download
 the files' data from the internet. the **Downloader** then writes the data to a newly created files.
 
 ### More
 1. Uses asynchronous runtime
-
 2. Random & fixed delays of HTTP requests
-
 3. Ability to customize how files retrieved or not
+4. Scans an OD for content
 
 ## Open Directory Support
-Currently supported ODs can be found in [OD.md](https://github.com/ZimCodes/Zeiver/blob/main/OD.md).
+Supported ODs can be found in [OD.md](https://github.com/ZimCodes/Zeiver/blob/main/OD.md).
 
 ## Installation
 1. Install Rust. 
@@ -103,9 +102,14 @@ Enable verbose output
 
 ***--test***
 
-Run a scrape test without downloading or recording. **Can be used with `--verbose`
-to scout an OD's available content *like a spider***.
+Run a scrape test without downloading or recording.
 
+***--scan***
+
+Scan ODs
+
+Scan ODs displaying their content to the terminal. *A shortcut to activating*
+`--verbose` *&* `--test`.
 ---
 #### Download
 
@@ -160,6 +164,14 @@ Prevents Recorder from creating `_stat_` files.
 The Recorder will no longer create `_stat_` files when saving scraped links to a file. *Default: `false`*
 Ex: `stat_URL_Record.txt`
 
+***--no-stats-list***
+
+Prevent Recorder from writing file names to stat files
+
+Stat files includes the names of all files in alphabetical order
+alongside the number of file extensions. This option prevents the Recorder from adding file names
+to stat files.
+
 ---
 #### File/Directory
 
@@ -171,7 +183,7 @@ Ex: `zeiver -i "./dir/urls.txt"`
 
 ***--input-record***
 
-Read URLs from a file containing file paths and create a stats file based on the results.
+Read URLs from a file containing links to a file and create a stats file based on the results.
 *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
 `--output`, `--output-record`
 
@@ -179,7 +191,7 @@ Read URLs from a file containing file paths and create a stats file based on the
 
 Save file location.
 
-The local file path to save files. **Files saved by the *Recorder* are also stored here.**
+The local directory path to save files. **Files saved by the *Recorder* are also stored here.**
 _Default: `./`_
 
 Ex: `zeiver -o "./downloads/images/dir"`
@@ -205,7 +217,21 @@ All files will be saved to the current output directory instead.
 *_Only available when downloading._
 
 ---
-#### HTTP
+#### Grabber
+***--print-headers***
+
+Prints all Response Headers to terminal
+
+Prints all available Response headers received from each url to the terminal.
+**Option takes precedence over all other options**!
+
+***--print-header***
+
+Prints a Response Header to terminal
+
+Prints a specified Response Header to the terminal for each url. **This Option takes precedence over all
+other options**.
+
 ***--https-only***
 
 Use HTTPS only
@@ -273,7 +299,7 @@ Having trouble entering a long URL in the terminal? Place them inside an input f
 ### Can't access an OD because of certificates
 Trying using the `--all-certs` option, but *be wary* with this option.
 
-### Content from OD exists, however Zeiver isn't scraping/recording/downloading any of them
+### Content from OD exists, however Zeiver isn't scraping/recording/downloading/scouting any of them
 Some ODs will send Zeiver **HTML Documents** without any content *(files/folders)* from the OD.
 This is because Zeiver retrieves an HTML Document without JavaScript & some ODs *will not work* without it.
 

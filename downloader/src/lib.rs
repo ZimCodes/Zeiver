@@ -3,7 +3,7 @@ use mime::Mime;
 use std::sync::Arc;
 use scraper::Scraper;
 use asset;
-use http;
+use grabber;
 use recorder::Recorder;
 mod util;
 pub struct Downloader{
@@ -44,7 +44,7 @@ impl Downloader {
     }
     /// Downloads a File
     async fn run(&self,client:&reqwest::Client, file:&asset::file::File) -> Result<(),reqwest::Error>{
-        let res = http::Http::get_response(client,&file.link,self.tries,self.wait,self.retry_wait,self.is_random,self.verbose).await?;
+        let res = grabber::Http::get_response(client,&file.link,self.tries,self.wait,self.retry_wait,self.is_random,self.verbose).await?;
         let headers = res.headers();
         let content_type = headers.get(reqwest::header::CONTENT_TYPE);
         match content_type {
