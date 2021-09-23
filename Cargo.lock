@@ -930,7 +930,7 @@ dependencies = [
 
 [[package]]
 name = "scraper"
-version = "0.5.3"
+version = "0.5.4"
 dependencies = [
  "asset",
  "http 0.2.1",
@@ -1450,7 +1450,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.5.1"
+version = "0.5.4"
 dependencies = [
  "cmd_opts",
  "crawler",

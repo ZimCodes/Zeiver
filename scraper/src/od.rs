@@ -7,6 +7,7 @@ pub mod directory_listing_script;
 pub mod lighttpd;
 pub mod phpbb;
 pub mod onemanager;
+pub mod h5ai;
 mod none;
 
 #[derive(PartialEq, Debug)]
@@ -21,6 +22,7 @@ pub enum ODMethod {
     LightTPD,
     PHPBB,
     OneManager,
+    H5AI,
     Generic,
     None,
 }
@@ -48,6 +50,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::PHPBB
     }else if onemanager::OneManager::is_od(res){
         ODMethod::OneManager
+    }else if h5ai::H5AI::is_od(res){
+        ODMethod::H5AI
     }else {
         autoindex_type_check(res, server_name)
     }

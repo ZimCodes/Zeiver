@@ -73,6 +73,7 @@ List of currently supported ODs:
 * lighttpd
 * phpBB
 * OneManager
+* h5ai
 
 **May also work with other ODs*.
 

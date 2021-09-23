@@ -8,6 +8,19 @@ use crate::od::lighttpd::LightTPD;
 use crate::od::phpbb::PHPBB;
 use crate::od::ODMethod;
 
+/// Parses h5ai HTMl Documents
+fn h5ai_document(res: &str, url: &str)-> Vec<String>{
+    Document::from(res)
+        .find(Name("td").and(Class("fb-n"))
+            .descendant(Name("a"))
+        )
+        .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
+        .filter_map(|node| {
+            node.attr("href")
+        }).filter(|link| !link.contains("javascript:void"))
+        .map(|link| parser::sanitize_url(link)).collect()
+}
+
 /// Parses Older OneManager HTML Documents
 fn onmanager_older_sub_document(res: &str, url: &str) -> Vec<String> {
     Document::from(res).find(Name("div")
@@ -218,6 +231,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::DirectoryListingScript => directory_listing_script_document(res, url),
         ODMethod::PHPBB => phpbb_document(res, url),
         ODMethod::OneManager => onemanager_modern_document(res, url),
+        ODMethod::H5AI => h5ai_document(res,url),
         ODMethod::LightTPD => lighttpd_document(res, url),
         ODMethod::Apache => apache_document(res, url),
         ODMethod::NGINX => nginx_document(res, url),
