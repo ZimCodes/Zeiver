@@ -184,7 +184,9 @@ Ex: `zeiver -i "./dir/urls.txt"`
 
 ***--input-record***
 
-Read URLs from a file containing links to a file and create a stats file based on the results.
+Read URLs from an input file which contains links to other files and create a stats file based on the results. This option is
+for those who have a file filled with random unorganized links to a bunch of other files and want to take advantage of Zeiver's
+*Recorder* module.
 *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
 `--output`, `--output-record`
 

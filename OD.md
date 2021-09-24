@@ -11,7 +11,7 @@
 * phpBB
 * OneManager
 * h5ai
-* MicrosoftIIS
+* Microsoft-IIS
 
 **May also work with other ODs. So long as they have `<a>`.*
 
