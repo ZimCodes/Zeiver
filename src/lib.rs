@@ -6,6 +6,7 @@ use reqwest;
 use crawler;
 use cmd_opts;
 use crawler::WebCrawler;
+use logger;
 
 pub struct Zeiver;
 
@@ -117,7 +118,9 @@ impl Zeiver {
                         continue;
                     }
                 };
-                println!("Name: {}\nValue: {}\n\n", header_name, header_value.to_str().unwrap());
+                logger::log_split("Name",header_name.as_str());
+                logger::log_split("Value",header_value.to_str().unwrap());
+                logger::new_line();
                 header_map.insert(header_name, header_value);
             }
             builder = builder.default_headers(header_map);

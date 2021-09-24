@@ -1,6 +1,6 @@
 [package]
 name = "downloader"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -14,5 +14,6 @@ scraper = {path = "../scraper"}
 grabber = {path = "../grabber" }
 recorder = {path = "../recorder"}
 asset = {path = "../asset"}
+logger = {path = "../logger"}
 reqwest = "0.11.4"
 tokio = { version = "1.10.1", features = ["fs","io-util"] }

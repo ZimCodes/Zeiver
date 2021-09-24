@@ -5,13 +5,13 @@ use structopt::StructOpt;
 #[structopt(name = "Zeiver", about = "Scrape, record, download & scout content from ODs.")]
 pub struct Opts {
     ///Enable verbose output
-    #[structopt(short, long,default_value_if("scan",None,"true"))]
+    #[structopt(short,long)]
     pub verbose: bool,
     /// Run a quick scrape test
     ///
     /// Use the Scraper without activating the Recorder and Downloader.
     #[structopt(long, conflicts_with_all(&["record-only", "record", "cuts", "no-dirs", "output", "output-record",
-    "no-stats", "input-record"]),default_value_if("scan",None,"true"))]
+    "no-stats", "input-record"]))]
     pub test: bool,
     /// Scan ODs
     ///
@@ -186,6 +186,11 @@ pub struct Opts {
 
 impl Opts {
     pub fn new() -> Opts {
-        Opts::from_args()
+        let mut opts = Opts::from_args();
+        if opts.scan {
+            opts.verbose = true;
+            opts.test = true;
+        }
+        opts
     }
 }

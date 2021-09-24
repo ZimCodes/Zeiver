@@ -114,9 +114,20 @@ dependencies = [
 
 [[package]]
 name = "cmd_opts"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "structopt",
+]
+
+[[package]]
+name = "colored"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3616f750b84d8f0de8a58bda93e08e2a81ad3f523089b05f1dffecab48c6cbd"
+dependencies = [
+ "atty",
+ "lazy_static",
+ "winapi",
 ]
 
 [[package]]
@@ -142,6 +153,7 @@ dependencies = [
  "cmd_opts",
  "downloader",
  "grabber",
+ "logger",
  "recorder",
  "reqwest",
  "scraper",
@@ -149,12 +161,13 @@ dependencies = [
 
 [[package]]
 name = "downloader"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "asset",
  "bytes",
  "grabber",
  "lazy_static",
+ "logger",
  "mime",
  "recorder",
  "regex",
@@ -277,8 +290,9 @@ dependencies = [
 
 [[package]]
 name = "grabber"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
+ "logger",
  "rand 0.8.4",
  "reqwest",
 ]
@@ -472,6 +486,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "logger"
+version = "0.1.0"
+dependencies = [
+ "colored",
 ]
 
 [[package]]
@@ -837,9 +858,10 @@ dependencies = [
 
 [[package]]
 name = "recorder"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "asset",
+ "logger",
  "scraper",
  "tokio",
 ]
@@ -931,11 +953,12 @@ dependencies = [
 
 [[package]]
 name = "scraper"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "asset",
  "grabber",
  "lazy_static",
+ "logger",
  "regex",
  "reqwest",
  "select",
@@ -1451,10 +1474,11 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "cmd_opts",
  "crawler",
+ "logger",
  "reqwest",
  "tokio",
 ]

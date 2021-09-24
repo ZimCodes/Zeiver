@@ -1,6 +1,7 @@
 use reqwest;
 use asset;
 use grabber;
+use logger;
 
 mod parser;
 mod od;
@@ -34,9 +35,9 @@ impl Scraper {
         let mut previous_file = String::new();//variable to check for duplicates
         let mut previous_mod_file = String::new();//variable after modification to check for duplicates
         if is_first_parse {
-            println!("-----First File Parse-----");
+            logger::head("First File Parse");
         } else {
-            println!("-----Parsing File Links-----");
+            logger::head("Parsing File Links");
         }
         let scraped_links = search::filtered_links(res, url, &self.od_type);
         for x in scraped_links {
@@ -78,8 +79,9 @@ impl Scraper {
                 }
             }
         }
-        println!("--->| # of Files: {} |<---\n", files.len());
-        println!("-----End of Parsing File Links-----");
+        logger::info("# of Files", &files.len().to_string());
+        logger::head("End of Parsing File Links");
+        logger::new_line();
         files
     }
     /// Scrape directory URLs present on the current page(URL)
@@ -87,9 +89,9 @@ impl Scraper {
         let mut dirs = Vec::new();
         let mut past_dir = String::new();//variable to check for duplicates
         if is_first_parse {
-            println!("-----First Directory Parse-----");
+            logger::head("First Directory Parse");
         } else {
-            println!("-----Parsing Directory Links-----");
+            logger::head("Parsing Directory Links");
         }
         let scraped_links = search::filtered_links(res, url, &self.od_type);
         for x in scraped_links {
@@ -117,8 +119,9 @@ impl Scraper {
                 }
             }
         }
-        println!("--->| # of Directories: {} |<---\n", dirs.len());
-        println!("-----End of Parsing Directory Links-----");
+        logger::info("# of Directories", &dirs.len().to_string());
+        logger::head("End of Parsing Directory Links");
+        logger::new_line();
         dirs
     }
     pub async fn run(&mut self, client: &reqwest::Client, url: &str, accept: &Option<String>,
@@ -141,11 +144,11 @@ impl Scraper {
         let (res,status_code) = grabber::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
         //Determine od type from html document
         self.od_type_from_document(&*res,client, &url, tries, wait, retry_wait, is_random, verbose).await?;
-
-        println!("*** Status Code: {} ***\n",status_code.as_str());
+        logger::stars_info("Status Code", status_code.as_str());
+        logger::new_line();
         //Determines if webpage is a valid OD
         if self.od_type.eq(&od::ODMethod::None){
-            println!("URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑",url);
+            logger::error(&format!("URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑",url));
             return Ok(());
         }
         let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(), &url, true, verbose)];
@@ -173,7 +176,7 @@ impl Scraper {
 
         if !self.dir_links.contains(&joined_url) {
             if verbose {
-                println!("DIR: {}", joined_url);
+                logger::log_split("DIR",&joined_url);
             }
             self.dir_links.push(joined_url.clone());
             dirs.push(
@@ -197,7 +200,7 @@ impl Scraper {
             parser::url_joiner(url, x)
         };
         if verbose {
-            println!("URI: {}", joined_url);
+            logger::log_split("URI",&joined_url);
         }
         files.push(
             asset::file::File::new(
@@ -205,7 +208,7 @@ impl Scraper {
             ));
     }
     fn od_type_from_url(&mut self, url: &str) {
-        println!("-----Resolving Scrape Method-----");
+        logger::head("Resolving Scrape Method");
         self.od_type = od::od_type_from_url(url);
     }
     async fn od_type_from_document(&mut self, res: &str,client: &reqwest::Client, url: &str, tries: u32, wait: Option<f32>,
@@ -218,7 +221,7 @@ impl Scraper {
             };
             self.od_type = od::od_type_from_document(res, server_name);
         }
-        println!("----->  {:?}  <-----\n", self.od_type);
+        logger::arrows_head(&format!("{:?}",self.od_type));
         Ok(())
     }
     fn od_file_sanitize(x:&str) ->String{
@@ -237,22 +240,24 @@ impl Scraper {
     async fn dir_recursive(&mut self, client: &reqwest::Client, mut dirs_of_dirs: Vec<Vec<asset::directory::Directory>>,
                            accept: &Option<String>, reject: &Option<String>, depth: usize, tries: u32, wait: Option<f32>, retry_wait: f32, is_random: bool, verbose: bool) -> Result<(), reqwest::Error>
     {
-        println!("-----Starting Directory Diving-----");
+        logger::head("Starting Directory Diving");
 
         let mut cur_depth = 1;
         while cur_depth < depth {
             let mut new_dirs = Vec::new();
             for dirs in dirs_of_dirs {
-                println!("-----Checking next set of Directories-----");
+                logger::head("Checking next set of Directories");
 
                 for dir in dirs {
-                    println!("\n-----Current Parsing Directory-----\n{:?}", dir);
+                    logger::head("Current Parsing Directory");
+                    logger::log(&format!("{:?}",dir));
 
                     //Connect to Directory link
                     let url = dir.link.as_str();
 
                     let (res,status_code) = grabber::Http::connect(client, url, tries, wait, retry_wait, is_random, verbose).await?;
-                    println!("*** Status Code: {} ***\n",status_code.as_str());
+                    logger::stars_info("Status Code", status_code.as_str());
+                    logger::new_line();
                     //Retrieve Files from Directory Link
                     let files = self.scrape_files(res.as_str(), url, &accept, &reject, false, verbose);
                     if !files.is_empty() {
@@ -265,19 +270,18 @@ impl Scraper {
                         new_dirs.push(cur_dirs);
                     }
                 }
-
-                println!("-----Finished Checking this set of Directories-----");
+                logger::head("Finished Checking this set of Directories");
             }
 
             // Check if any Directories were found inside any of the previous Directory Links
             // If there aren't any new Directories, stop checking directories
             if !new_dirs.is_empty() {
-                println!("-----Setting up new Directories to check-----");
+                logger::head("Setting up new Directories to check");
 
                 dirs_of_dirs = new_dirs;
                 cur_depth += 1;
             } else {
-                println!("-----Finished Directory Diving-----");
+                logger::head("Finished Directory Diving");
                 break;
             }
         }
@@ -287,7 +291,7 @@ impl Scraper {
     fn single_scrape(&mut self, url: &str, verbose: bool) -> bool {
         if parser::is_uri(url) {
             if verbose {
-                println!("URI: {}", url);
+                logger::log_split("URI",url);
             }
 
             let pages = vec![

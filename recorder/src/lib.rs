@@ -6,6 +6,7 @@ use tokio::io::{AsyncWriteExt,Error,ErrorKind};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use asset;
+use logger;
 
 mod util;
 
@@ -29,7 +30,9 @@ impl Recorder{
     }
     /// Create a file and place the corresponding links from each page.
     pub async fn run(&mut self, output_record:&String, recorder_id:usize, no_stats_list:bool, no_stats:bool){
-        println!("\n-----Recording Links From Scraper-----\n");
+        logger::new_line();
+        logger::head("Recording Links From Scraper");
+        logger::new_line();
         let (file_name_str,new_file_path) = Recorder::file_properties(output_record,recorder_id);
 
         let mut f = fs::File::create(new_file_path).await.expect("Unable to create record file");
@@ -50,7 +53,7 @@ impl Recorder{
                 }
                 let link = format!("{}{}",file.link,line_separator);
                 if self.verbose{
-                    println!("URI: {}",link);
+                    logger::log_split("URI",&file.link);
                 }
                 // Write the link to the page file
                 let link_buf = link.as_bytes();
@@ -62,11 +65,13 @@ impl Recorder{
             Recorder::stat_tasks(file_type_map, file_vec, recorder_id, &file_name_str, self.verbose).await;
         }
 
-        println!("-----End of Recording-----");
+        logger::head("End of Recording");
     }
     /// Create stats based on input file
     async fn run_file(input_record:&Option<PathBuf>,output_record:&String,recorder_id:usize,verbose:bool){
-        println!("\n-----Recording Links From File-----\n");
+        logger::new_line();
+        logger::head("Recording Links From File");
+        logger::new_line();
         let (file_name_str,_) = Recorder::file_properties(output_record,recorder_id);
         let mut file_type_map:HashMap<String,u32> = HashMap::new();//{filetype,total} holds recorder stats
         let mut file_vec = Vec::new();
@@ -74,7 +79,8 @@ impl Recorder{
         for pathbuf in paths{
             let path = pathbuf.as_path();
             if verbose{
-                println!("{}\n",path.display());
+                logger::log(&format!("{}",path.display()));
+                logger::new_line();
             }
             if let Some(ext) = Recorder::pathbuf_to_extension(path){
                 let file_path = pathbuf.to_str().unwrap();
@@ -84,7 +90,6 @@ impl Recorder{
             }
         }
         Recorder::stat_tasks(file_type_map, file_vec, recorder_id, &file_name_str, verbose).await;
-        println!("-----End of Recording-----");
     }
     fn pathbuf_to_extension(path: &Path) -> Option<String> {
         if path.extension().is_none(){
@@ -139,7 +144,7 @@ impl Recorder{
         if !is_save_set{
             if let Err(e) = env::set_current_dir(path){
                 if e.kind() == ErrorKind::NotFound {
-                    println!("Creating Directory: \"{}\"",path);
+                    logger::log(&format!("Creating Directory: \"{}\"",path));
                 }else{
                     eprintln!("{}",e);
                 }
@@ -151,12 +156,13 @@ impl Recorder{
         }
 
         let x = env::current_dir().unwrap();
-        println!("Save Directory: {}",x.display());
+        logger::log_split("Save Directory",&format!("{}",x.display()));
     }
     /// Start stat operations
     async fn stat_tasks(file_type_map:HashMap<String,u32>, file_vec:Vec<String>, recorder_id:usize, file_name:&str, verbose:bool){
         if verbose{
-            println!("{:?}", file_type_map);
+            logger::new_line();
+            logger::log(&format!("{:?}", file_type_map));
         }
 
         let stats_file = format!(r"{}\{}_stats_{}",env::current_dir().unwrap().to_string_lossy(),recorder_id,file_name);

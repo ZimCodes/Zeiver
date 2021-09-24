@@ -3,6 +3,7 @@ use std::thread;
 use std::time::Duration;
 use rand;
 use rand::Rng;
+use logger;
 
 pub struct Http;
 
@@ -19,7 +20,6 @@ impl Http {
     pub async fn get_response(client: &reqwest::Client, url: &str, tries: u32, wait: Option<f32>, retry_wait: f32, is_random: bool,
                               verbose: bool) -> Result<Response, reqwest::Error> {
         // Wait between HTTP requests
-
         if let Some(sec) = wait {
             let mut wait_sec = sec;
             if is_random {
@@ -59,8 +59,8 @@ impl Http {
                               verbose: bool) -> Result<(), reqwest::Error> {
         let response = Http::get_response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
         match response.headers().get(header) {
-            Some(value) => println!("{}: {}", header, value.to_str().unwrap()),
-            None => println!("{} Header is not available:", header)
+            Some(value) => logger::log_split(header,value.to_str().unwrap()),
+            None => logger::log(&format!("{} Header is not available:", header))
         };
         Ok(())
     }
@@ -69,24 +69,26 @@ impl Http {
                                verbose: bool) -> Result<(), reqwest::Error> {
         let response = Http::get_response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
         let headers = response.headers();
-        println!("List of Headers\n================");
+        logger::log_underline("List of Headers");
+        logger::divider();
         for (key, val) in headers.iter() {
-            println!("{:?}: {:?}", key, val);
+            logger::log_split(&format!("{:?}",key),&format!("{:?}",val));
         }
-        println!("================\n");
+        logger::divider();
+        logger::new_line();
         Ok(())
     }
     /// Pauses the thread
     fn pause_thread(wait: f32, verbose: bool) {
         if verbose {
-            println!("Sleeping!");
+            logger::log("Sleeping!");
         }
 
         let wait_dur = Duration::from_secs_f32(wait);
         thread::sleep(wait_dur);
 
         if verbose {
-            println!("Awake!");
+            logger::log("Awake!");
         }
     }
 }

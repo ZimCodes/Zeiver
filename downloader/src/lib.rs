@@ -5,6 +5,7 @@ use scraper::Scraper;
 use asset;
 use grabber;
 use recorder::Recorder;
+use logger;
 mod util;
 pub struct Downloader{
     use_dir:bool,
@@ -49,7 +50,7 @@ impl Downloader {
         let content_type = headers.get(reqwest::header::CONTENT_TYPE);
         match content_type {
             None => {
-                println!("The response does not contain a Content-Type header.");
+                logger::error("The response does not contain a Content-Type header.");
             }
             Some(content) => {
                 let content_type = Mime::from_str(content.to_str().expect("cannot parse header value into &str")).expect("Cannot parse header value into a Mime type");

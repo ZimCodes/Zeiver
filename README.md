@@ -83,7 +83,7 @@ The following code downloads files from _example.com/xms/imgs_, saves them in a 
 __URL*s*...__
 
 Link(*s*) to the OD(*s*) you would like to download content from. 
-*_This is not needed if you are using the `-i, --input-file` option_
+*_This is not needed if you are using `-i, --input-file`._
 
 ---
 ### Options

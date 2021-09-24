@@ -6,6 +6,7 @@ use scraper;
 use downloader;
 use recorder;
 use grabber;
+use logger;
 
 pub struct WebCrawler {
     opts:cmd_opts::Opts
@@ -18,7 +19,7 @@ impl WebCrawler {
     }
     /// Performs task given to the Scraper
     pub async fn scraper_task(&self,client:&reqwest::Client,path:Option<PathBuf>)-> scraper::Scraper{
-        println!("-----Using Scraper-----");
+        logger::head("Using Scraper");
         let path = match path{
             Some(pathbuf)=> pathbuf,
             None=> panic!("No path was specified!")
@@ -34,26 +35,26 @@ impl WebCrawler {
     }
     /// Performs task given to the Downloader
     pub async fn downloader_task(&self,client:&reqwest::Client,scraper:Arc<scraper::Scraper>){
-        println!("-----Using Downloader-----");
+        logger::head("Using Downloader");
         let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
         WebCrawler::run_downloader(&client, scraper, save, self.opts.cut_dirs, self.opts.tries,self.opts.wait,self.opts.retry_wait,self.opts.no_dirs,
                                    self.opts.random_wait,self.opts.verbose).await;
-        println!("-----Downloader Task Completed!-----");
+        logger::head("Downloader Task Completed!");
     }
     /// Activates Recorder using content obtained from Scraper
     pub async fn recorder_task(&self,scraper:Arc<scraper::Scraper>,recorder_id:usize){
-        println!("-----Using Recorder-----");
+        logger::head("Using Recorder");
         let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
         let mut recorder = recorder::Recorder::new(save, scraper, self.opts.verbose).await;
         recorder.run(&self.opts.output_record, recorder_id, self.opts.no_stats_list,self.opts.no_stats).await;
-        println!("-----Recording Task Completed!-----");
+        logger::head("Recording Task Completed!");
     }
     /// Activates Recorder using content obtained from user's file
     pub async fn recorder_file_task(&self){
-        println!("-----Using Recorder-----");
+        logger::head("Using Recorder");
         let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
         recorder::Recorder::run_from_file(&self.opts.input_record,&self.opts.output_record,save,self.opts.verbose).await;
-        println!("-----Recording Task Completed!-----");
+        logger::head("Recording Task Completed!");
     }
     /// Activates the Scraper
     async fn run_scraper(client:&reqwest::Client,path:&str,accept:&Option<String>,reject:&Option<String>,depth:usize,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,verbose:bool)
@@ -63,7 +64,7 @@ impl WebCrawler {
         if let Err(e) = scraper.run(client,path,accept,reject,depth,tries,wait,retry_wait,is_random,verbose).await{
             panic!("{}",e.to_string());
         }
-        println!("-----Scraper Task Completed!-----");
+        logger::head("Scraper Task Completed!");
         scraper
     }
     /// Activates the Downloader

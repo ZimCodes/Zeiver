@@ -5,6 +5,7 @@ use std::env;
 use lazy_static::lazy_static;
 use regex::Regex;
 use asset;
+use logger;
 
 lazy_static!{
     static ref ONE_PATH_REG:Regex = Regex::new(r"/[a-zA-Z0-9\*~\+\-%\?\[\]\$_\.!‘\(\)=]+/").unwrap();
@@ -19,12 +20,12 @@ pub async fn prepare_file(res_content:Box<HttpBodyType>, file:&asset::file::File
     match *res_content {
         HttpBodyType::Text(text) => {
             let file_byte = text.as_bytes();
-            println!("-----Downloading {}-----",file.name);
+            logger::head(&format!("Downloading {}",file.name));
             download_progress(f,file_byte,file.name.as_str()).await;
         },
         HttpBodyType::Binary(data) =>{
             let file_byte = data.as_ref();
-            println!("-----Downloading {}-----",file.name);
+            logger::head(&format!("Downloading {}",file.name));
             download_progress(f,file_byte,file.name.as_str()).await;
         }
     };
@@ -41,8 +42,8 @@ pub async fn download_progress(mut f:fs::File,file_byte:&[u8],name:&str){
             break;
         }
     }
-    println!("File Size: {}",byte_calc(file_length));
-    println!("-----{} Downloaded!-----",name);
+    logger::info("File Size", &byte_calc(file_length));
+    logger::head(&format!("{} Downloaded!",name));
 }
 async fn retrieve_buffer_data(f: &mut fs::File, file_byte:&[u8]) -> Result<usize,()>{
     match f.write(file_byte).await{
@@ -81,7 +82,9 @@ async fn create_file_path(file:&asset::file::File,cuts:u32,use_dir:bool) -> fs::
     let save_dir_path = link_dir_path(file, cur_dir, cuts, use_dir).await;
 
     let save_file_path = file_path_join(file,save_dir_path.as_str());
-    println!("SAVE FILE PATH:{}",save_file_path);
+    logger::new_line();
+    logger::log_split("SAVE FILE PATH",&save_file_path);
+    logger::new_line();
     let f = match fs::File::create(save_file_path).await{
         Ok(f) => f,
         Err(e) => panic!("File cannot be created! Reason: {}",e.to_string())
@@ -109,7 +112,7 @@ async fn link_dir_path(file:&asset::file::File, cur_dir:&str, cuts:u32, use_dir:
 
         if let Err(e) = fs::create_dir_all(&dir_path).await{
             match e.kind(){
-                ErrorKind::AlreadyExists=> println!("{} already exists!", dir_path),
+                ErrorKind::AlreadyExists=> logger::log(&format!("{} already exists!", dir_path)),
                 _=> panic!("{}",e.to_string())
             }
         }
