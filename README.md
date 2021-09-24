@@ -88,7 +88,7 @@ Link(*s*) to the OD(*s*) you would like to download content from.
 ---
 ### Options
 #### General
-**_-h, --help_**
+***-h, --help***
 
 Prints help information.
 
