@@ -22,10 +22,12 @@ dependencies = [
 
 [[package]]
 name = "asset"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "lazy_static",
  "regex",
+ "serde",
+ "serde_json",
  "url",
 ]
 
@@ -858,11 +860,12 @@ dependencies = [
 
 [[package]]
 name = "recorder"
-version = "0.3.2"
+version = "0.4.0"
 dependencies = [
  "asset",
  "logger",
  "scraper",
+ "serde_json",
  "tokio",
 ]
 
@@ -1005,6 +1008,20 @@ name = "serde"
 version = "1.0.130"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f12d06de37cf59146fbdecab66aa99f9fe4f78722e3607577a5375d66bd0c913"
+dependencies = [
+ "serde_derive",
+]
+
+[[package]]
+name = "serde_derive"
+version = "1.0.130"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7bc1a1ab1961464eae040d96713baa5a724a8152c1222492465b54322ec508b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "serde_json"
@@ -1474,7 +1491,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.6.1"
+version = "0.6.2"
 dependencies = [
  "cmd_opts",
  "crawler",

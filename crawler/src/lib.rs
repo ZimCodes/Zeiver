@@ -53,7 +53,7 @@ impl WebCrawler {
     pub async fn recorder_file_task(&self){
         logger::head("Using Recorder");
         let save = self.opts.output.to_str().expect("Cannot parse PathBuf into a &str in downloader task.");
-        recorder::Recorder::run_from_file(&self.opts.input_record,&self.opts.output_record,save,self.opts.verbose).await;
+        recorder::Recorder::run_from_file(&self.opts.input_record,&self.opts.output_record,save,self.opts.no_stats_list,self.opts.verbose).await;
         logger::head("Recording Task Completed!");
     }
     /// Activates the Scraper

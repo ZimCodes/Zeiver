@@ -130,4 +130,10 @@ impl File{
             None
         }
     }
+    pub fn to_json(self)->String{
+        match self.short_name{
+            Some(name) =>format!("{}.json",name),
+            None => format!("{}.json",self.name)
+        }
+    }
 }

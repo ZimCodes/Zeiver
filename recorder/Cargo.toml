@@ -1,6 +1,6 @@
 [package]
 name = "recorder"
-version = "0.3.2"
+version = "0.4.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -10,3 +10,4 @@ scraper = {path = "../scraper"}
 asset = {path = "../asset"}
 logger = {path = "../logger"}
 tokio = { version = "1.10.1", features = ["fs","io-util"] }
+serde_json = "1.0.68"

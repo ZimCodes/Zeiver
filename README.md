@@ -36,7 +36,7 @@ Zeiver currently has 4 major modules:
     * Saves a record of all files that were found in the OD
     * Records are saved to a file called *URL_Records.txt*. Name can be 
       changed using `--output-record`
-    * Creates stat files *(statistical data about what was retrieved)*
+    * Creates stat files *(JSON files containing statistical data about what was retrieved)*
 
 ***All components can be used independently.***
 
@@ -54,10 +54,10 @@ Afterwards, the links are either sent to the
 the files' data from the internet. the **Downloader** then writes the data to a newly created files.
 
 ### More
-1. Uses asynchronous runtime
-2. Random & fixed delays of HTTP requests
-3. Ability to customize how files retrieved or not
-4. Scans an OD for content
+1. Uses asynchronous runtime.
+2. Random & fixed delays of HTTP requests.
+3. Ability to customize how files retrieved or not.
+4. Scans an OD for content while transparently displaying the traversal process.
 
 ## Open Directory Support
 Supported ODs can be found in [OD.md](https://github.com/ZimCodes/Zeiver/blob/main/OD.md).
@@ -192,7 +192,7 @@ for those who have a file filled with random unorganized links to a bunch of oth
 
 ***-o, --output***
 
-Save file location.
+Save Directory.
 
 The local directory path to save files. **Files saved by the *Recorder* are also stored here.**
 _Default: `./`_
@@ -223,9 +223,9 @@ All files will be saved to the current output directory instead.
 #### Grabber
 ***--print-headers***
 
-Prints all Response Headers to terminal
+Prints all Response Headers to the terminal
 
-Prints all available Response headers received from each url to the terminal.
+Prints all available Response headers received from each Request to the terminal.
 **Option takes precedence over all other options**!
 
 ***--print-header***
