@@ -12,6 +12,7 @@
 * OneManager
 * h5ai
 * Microsoft-IIS
+* snif
 
 **May also work with other ODs. So long as they have `<a>`.*
 

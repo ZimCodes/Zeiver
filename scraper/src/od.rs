@@ -9,6 +9,7 @@ pub mod phpbb;
 pub mod onemanager;
 pub mod h5ai;
 pub mod microsoftiis;
+pub mod snif;
 mod none;
 
 #[derive(PartialEq, Debug)]
@@ -25,6 +26,7 @@ pub enum ODMethod {
     OneManager,
     H5AI,
     MicrosoftIIS,
+    Snif,
     Generic,
     None,
 }
@@ -54,6 +56,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::OneManager
     }else if h5ai::H5AI::is_od(res){
         ODMethod::H5AI
+    }else if snif::Snif::is_od(res){
+        ODMethod::Snif
     }else {
         autoindex_type_check(res, server_name)
     }

@@ -15,6 +15,7 @@ lazy_static! {
     static ref WEB_REG:Regex = Regex::new(r"[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)=]+\.(html?|aspx?|php)/?$").unwrap();
     static ref PAGE_QUERY_REG:Regex = Regex::new(r"\?page=([0-9]{1,3})$").unwrap();
     static ref DIR_QUERIES_REG:Regex = Regex::new(r"((/[a-zA-Z]+\.php/?\?dir=)|(/?\?dir=))(\.(/|%2F))?").unwrap();
+    static ref PATH_QUERY_REG:Regex = Regex::new(r"(([a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)=]+\.php/?\?path=)|(/?\?path=))(\.(/|%2F))?").unwrap();
     static ref WWW_REG:Regex = Regex::new(r"www\.").unwrap();
     static ref HTTP_REG:Regex = Regex::new(r"^https?://").unwrap();
 }
@@ -81,7 +82,18 @@ pub fn url_joiner(url: &str, rel: &str) -> String {
             let url = WEB_REG.replace(url.as_str(), rel);
             url.to_string()
         }
-    } else {
+    } else if url.query().is_some() && url.query().unwrap().starts_with("path="){
+        let new_url = PATH_QUERY_REG.replace(url.as_str(),"");
+
+        let mut url_obj = Url::parse(&*new_url).expect("URL joining process interrupted! Unable to parse url");
+        url_obj.path_segments_mut().expect("cannot be base")
+            .pop().pop();
+        if url_obj.as_str().ends_with("/"){
+            format!("{}{}",url_obj,rel).replace("%2F","/")
+        }else{
+            format!("{}/{}",url_obj,rel).replace("%2F","/")
+        }
+    }else {
         if url.as_str().ends_with("/") && rel.starts_with("/") {
             let new_url = remove_last_slash(url.as_str());
             format!("{}{}", new_url, rel)
@@ -325,7 +337,7 @@ pub fn is_rel_url(url: &str, rel: &str) -> bool {
 
 #[cfg(test)]
 mod tests{
-    use super::{is_file_ext,has_dir_queries,QUERY_PATH_REG};
+    use super::{is_file_ext,has_dir_queries,QUERY_PATH_REG,PATH_QUERY_REG};
     #[test]
     fn file_regex_test(){
         assert!(is_file_ext("Example.3gp"));//start num
@@ -341,8 +353,8 @@ mod tests{
     #[test]
     fn dir_query_regex(){
         assert_eq!(has_dir_queries("/index.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("/file.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("help.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(has_dir_queries("/file+cat.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(has_dir_queries("help-file.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
         assert_eq!(has_dir_queries("?dir=Hello+World%2F%2Fthumbnails%2F"),true);
         assert_eq!(has_dir_queries("/?dir=Hello+World%2F%2Fthumbnails%2F"),true);
         assert_eq!(has_dir_queries("/?dir=./Hello+World%2F%2Fthumbnails%2F"),true);
@@ -361,5 +373,20 @@ mod tests{
         assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/./?/ChampionHat/This_Battery_Pack_tut.pdf"),true);
 
         assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/.ChampionHat/This_Battery_Pack_tut.pdf"),false);
+    }
+    #[test]
+    fn path_query_regex_test(){
+        assert_eq!(PATH_QUERY_REG.is_match("/index.php?path=Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("/file+cat.php?path=Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("help-file.php?path=Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("?path=Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("/?path=Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("/?path=./Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("/?path=.%2FHello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("/?path=.Hello+World%2F%2Fthumbnails%2F"),true);
+        assert_eq!(PATH_QUERY_REG.is_match("/?path=/Hello+World%2F%2Fthumbnails%2F"),true);
+
+        assert_eq!(PATH_QUERY_REG.is_match("/path=Hello+World%2F%2Fthumbnails%2F"),false);
+        assert_eq!(PATH_QUERY_REG.is_match("path=Hello+World%2F%2Fthumbnails%2F"),false);
     }
 }

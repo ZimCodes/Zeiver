@@ -7,7 +7,22 @@ use crate::od::directory_listing_script::DirectoryListingScript;
 use crate::od::lighttpd::LightTPD;
 use crate::od::phpbb::PHPBB;
 use crate::od::microsoftiis;
+use crate::od::snif;
 use crate::od::ODMethod;
+/// Parses Snif HTML Documents
+fn snif_documents(res:&str,url:&str)-> Vec<String>{
+    Document::from(res)
+        .find(Name("tr").and(Class("snF"))
+            .descendant(Name("td"))
+            .descendant(Name("a")))
+        .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
+        .filter(|node| !snif::Snif::is_parent(node.attr("title")))
+        .filter(|node| !snif::Snif::is_download(node.attr("href")))
+        .filter_map(|node| {
+            node.attr("href")
+        }).filter(|link| !link.contains("javascript:void"))
+        .map(|link| parser::sanitize_url(link)).collect()
+}
 /// Parses Microsoft-IIS HTML Documents
 fn microsoft_iis_documents(res:&str,url:&str) -> Vec<String>{
     Document::from(res)
@@ -111,7 +126,6 @@ fn phpbb_document(res: &str, url: &str) -> Vec<String> {
 fn lighttpd_document(res: &str, url: &str) -> Vec<String> {
     let full_names = LightTPD::full_file_name(res);
     Document::from(res)
-        //Find all <a> tags
         .find(Name("tr").descendant(Name("td").descendant(Name("a"))))
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter_map(|node| {
@@ -141,20 +155,7 @@ fn directory_listing_script_document(res: &str, url: &str) -> Vec<String> {
         .map(|link| parser::sanitize_url(link)).collect()
 }
 
-/// Parses the nginx HTML Document type ods
-/// Shares qualities with apache
-fn nginx_document(res: &str, url: &str) -> Vec<String> {
-    Document::from(res).find(
-        Name("a")
-    ).filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
-        .filter(|node| !NGINX::has_extra_query(node.attr("href").unwrap()))
-        .filter_map(|node| {
-            node.attr("href")
-        }).filter(|link| !link.contains("javascript:void"))
-        .map(|link| parser::sanitize_url(link)).collect()
-}
-
-/// Parses the Apache HTML Document type ods
+/// Parses the Apache & NGINX HTML Document type ods
 fn apache_document(res: &str, url: &str) -> Vec<String> {
     Document::from(res).find(
         Name("tr").descendant(Name("td").descendant(Name("a")))
@@ -243,9 +244,9 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::OneManager => onemanager_modern_document(res, url),
         ODMethod::H5AI => h5ai_document(res,url),
         ODMethod::MicrosoftIIS => microsoft_iis_documents(res,url),
+        ODMethod::Snif => snif_documents(res,url),
         ODMethod::LightTPD => lighttpd_document(res, url),
-        ODMethod::Apache => apache_document(res, url),
-        ODMethod::NGINX => nginx_document(res, url),
+        ODMethod::Apache | ODMethod::NGINX => apache_document(res, url),
         _ => generic_document(res, url)
     }
 }
