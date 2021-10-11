@@ -102,14 +102,14 @@ Enable verbose output
 
 ***--test***
 
-Run a scrape test without downloading or recording.
+Run a scrape test without downloading or recording. **Deactivates Downloader & Recorder**.
 
 ***--scan***
 
 Scan ODs
 
-Scan ODs displaying their content to the terminal. *A shortcut to activating*
-`--verbose` *&* `--test`.
+Scan ODs displaying their content to the terminal. *A shortcut to enabling*
+`--verbose` *&* `--test`. **Deactivates Downloader & Recorder**.
 
 ---
 #### Download
