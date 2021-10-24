@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use structopt::StructOpt;
 
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "Zeiver", about = "Scrape, record, download & scout content from ODs.")]
 pub struct Opts {
     ///Enable verbose output
@@ -156,7 +156,7 @@ pub struct Opts {
     /// Read URLs from a local or external file
     ///
     /// Read URLs from a file to be sent to the Scraper. *Each line represents a URL to an OD.
-    #[structopt(short, long, requires_ifs(& [("None", "urls"), ("None", "input-record")]))]
+    #[structopt(short, long, requires_ifs(&[("None", "urls"), ("None", "input-record")]))]
     pub input_file: Option<PathBuf>,
     /// Read URLs from a file containing file paths and create a stats file.
     ///
@@ -165,7 +165,7 @@ pub struct Opts {
     /// *Recorder* module.
     /// *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
     ///`--output`, `--output-record`
-    #[structopt(long, conflicts_with_all(& ["record-only", "record", "cuts", "no-dirs", "output", "no-stats",
+    #[structopt(long, conflicts_with_all(&["record-only", "record", "cuts", "no-dirs", "output", "no-stats",
     "depth", "timeout", "wait", "retry-wait", "random-wait", "tries", "redirects", "accept", "reject",
     "U", "headers", "proxy", "proxy-auth", "input-file", "urls", "test"]))]
     pub input_record: Option<PathBuf>,

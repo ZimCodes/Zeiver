@@ -22,7 +22,7 @@ dependencies = [
 
 [[package]]
 name = "asset"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "lazy_static",
  "regex",
@@ -116,7 +116,7 @@ dependencies = [
 
 [[package]]
 name = "cmd_opts"
-version = "0.2.3"
+version = "0.2.3-1"
 dependencies = [
  "structopt",
 ]
@@ -150,7 +150,7 @@ checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
 name = "crawler"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "cmd_opts",
  "downloader",
@@ -957,7 +957,7 @@ dependencies = [
 
 [[package]]
 name = "scraper"
-version = "0.6.1"
+version = "0.6.2"
 dependencies = [
  "asset",
  "grabber",
@@ -1490,7 +1490,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.6.2"
+version = "0.6.3"
 dependencies = [
  "cmd_opts",
  "crawler",

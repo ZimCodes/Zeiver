@@ -120,11 +120,11 @@ impl File{
     /// Get the file extension
     pub fn part_of_name(name:&str, get_ext:bool) -> Option<String>{
         let name_split:Vec<&str> = name.split('.').collect();
-        if name_split.len() == 2{
+        if name_split.len() >= 2{
             if get_ext{
-                Some(String::from(name_split[1]))
+                Some(String::from(name_split[name_split.len() - 1]))
             }else{
-                Some(String::from(name_split[0]))
+                Some(String::from(name_split[name_split.len() - 2]))
             }
         }else{
             None

@@ -170,10 +170,20 @@ impl Scraper {
     fn add_dir(&mut self, url: &str, x: &str, dirs: &mut Vec<asset::directory::Directory>, verbose: bool) {
         let joined_url = if x.starts_with("http") {
             String::from(x)
+        } else if url.ends_with(x){
+            //Evaluates if child directory has the same name as parent
+            //Ex: example.com/folder/folder/
+            //Adds slash to path if necessary
+            if url.ends_with("/") && x.starts_with("/") {
+                format!("{}{}",url,&x[1..])
+            }else if !url.ends_with("/") && !x.starts_with("/") {
+                format!("{}/{}",url,x)
+            }else {
+                format!("{}{}",url,x)
+            }
         } else {
             parser::url_joiner(url, x)
         };
-
         if !self.dir_links.contains(&joined_url) {
             if verbose {
                 logger::log_split("DIR",&joined_url);

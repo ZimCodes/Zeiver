@@ -12,13 +12,13 @@ pub struct WebCrawler {
     opts:cmd_opts::Opts
 }
 impl WebCrawler {
-    pub fn new() -> WebCrawler {
+    pub fn new(opts: cmd_opts::Opts) -> WebCrawler {
         WebCrawler {
-            opts:cmd_opts::Opts::new()
+            opts
         }
     }
     /// Performs task given to the Scraper
-    pub async fn scraper_task(&self,client:&reqwest::Client,path:Option<PathBuf>)-> scraper::Scraper{
+    pub async fn scraper_task(&self,client:&reqwest::Client,path:Option<&PathBuf>) -> scraper::Scraper{
         logger::head("Using Scraper");
         let path = match path{
             Some(pathbuf)=> pathbuf,
@@ -74,13 +74,13 @@ impl WebCrawler {
         downloader.start(client,scraper).await;
     }
     /// Retrieves urls from an input file
-    pub async fn input_file_links(path:Option<PathBuf>) ->Vec<PathBuf>{
-        recorder::Recorder::links_from_file(&path).await
+    pub async fn input_file_links(path: &Option<PathBuf>) ->Vec<PathBuf>{
+        recorder::Recorder::links_from_file(path).await
     }
-    pub async fn print_header(header:String,client:&reqwest::Client,url:PathBuf,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
+    pub async fn print_header(header:&String,client:&reqwest::Client,url:PathBuf,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
                               verbose:bool) -> Result<(),reqwest::Error>{
         let url = url.to_string_lossy();
-        grabber::Http::print_header(&header,client,url.as_ref(),tries,wait,retry_wait,is_random,verbose).await
+        grabber::Http::print_header(header,client,url.as_ref(),tries,wait,retry_wait,is_random,verbose).await
     }
     pub async fn print_all_headers(client:&reqwest::Client,url:PathBuf,tries:u32,wait:Option<f32>,retry_wait:f32,is_random:bool,
                                    verbose:bool) -> Result<(),reqwest::Error>{

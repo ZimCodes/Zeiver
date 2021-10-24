@@ -42,7 +42,7 @@ Zeiver currently has 4 major modules:
 
 ### Normal Workflow
 The **Grabber** module repeatedly grabs a webpage for the Scraper to parse *(based on parameters)*.
-The **Scraper** takes the webpage and recursively scrapes the links from them.
+The **Scraper** identifies the type of scrape method to use from the webpage and recursively scrapes the links from them.
 Afterwards, the links are either sent to the
 **Recorder** (_Disabled by default_), specified with:
 * `--record-only`
@@ -303,8 +303,8 @@ Having trouble entering a long URL in the terminal? Place them inside an input f
 Trying using the `--all-certs` option, but *be wary* with this option.
 
 ### Content from OD exists, however Zeiver isn't scraping/recording/downloading/scouting any of them
-Some ODs will send Zeiver **HTML Documents** without any content *(files/folders)* from the OD.
-This is because Zeiver retrieves an HTML Document without JavaScript & some ODs *will not work* without it.
+Some ODs will send Zeiver **HTML Documents** without any content *(files/folders links)* from the OD.
+This is because Zeiver retrieves an HTML Document **without JavaScript** & some ODs *will not work* without it.
 
 ---
 ## License 
