@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Update Rust
+        run: rustup update
       - name: Test Cargo
         run: |
           cargo fix --edition
