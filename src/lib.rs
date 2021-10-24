@@ -29,24 +29,18 @@ impl Zeiver {
     /// by the user.
     async fn multi_thread(web_crawler: Arc<crawler::WebCrawler>, opts: cmd_opts::Opts) {
         let client = Arc::new(Zeiver::client_creator(opts.clone()).unwrap());
-        let opts_clone = opts.clone();
-        for url in opts_clone.urls {
-            Zeiver::establish_task(url, &opts,web_crawler.clone(), client.clone()).await;
+        for url in opts.urls {
+            Zeiver::establish_task(url, web_crawler.clone(), client.clone(), &opts.print_header, opts.print_headers, opts.record_only, opts.record, opts.test).await;
         }
     }
     /// Execute the task provided by the commandline
-    async fn establish_task(url: PathBuf,opts:&cmd_opts::Opts, web_clone: Arc<WebCrawler>, client_clone: Arc<reqwest::Client>) {
-        if opts.print_headers {
-            WebCrawler::print_all_headers(&client_clone, url,
-                                          opts.tries, opts.wait, opts.retry_wait,
-                                          opts.random_wait, opts.verbose).await.unwrap();
-        } else if opts.print_header.is_some() {
-            let header = opts.print_header.as_ref().unwrap();
-            WebCrawler::print_header(header, &client_clone, url,
-                                     opts.tries, opts.wait, opts.retry_wait,
-                                     opts.random_wait, opts.verbose).await.unwrap();
+    async fn establish_task(url: PathBuf, web_clone: Arc<WebCrawler>, client_clone: Arc<reqwest::Client>, print_header: &Option<String>, print_headers: bool, record_only: bool, record: bool, debug: bool) {
+        if print_headers {
+            web_clone.print_all_headers(&client_clone, url).await.unwrap();
+        } else if print_header.is_some() {
+            web_clone.print_header(&client_clone, url).await.unwrap();
         } else {
-            Zeiver::spawn_thread(url, web_clone, client_clone, opts.record_only, opts.record, opts.test).await;
+            Zeiver::spawn_thread(url, web_clone, client_clone, record_only, record, debug).await;
         }
     }
     /// Spawns a new thread
