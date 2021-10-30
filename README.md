@@ -74,6 +74,8 @@ To **install/update** Zeiver follow these steps:
     
 3. And that's it! To use Zeiver, start each command with `zeiver`.
 
+*To remove Zeiver, open a CLI & type `cargo uninstall zeiver`. 
+
 ## Sample
 The following code downloads files from _example.com/xms/imgs_, saves them in a local directory called _Cool_Content_,
 & sends a request with the ACCEPT-LANGUAGE header.
@@ -93,6 +95,10 @@ Link(*s*) to the OD(*s*) you would like to download content from.
 ***-h, --help***
 
 Prints help information.
+
+***-U, --update***
+
+Update to the *latest* version.
 
 ***-V, --version***
 
@@ -190,7 +196,7 @@ Read URLs from an input file which contains links to other files and create a st
 for those who have a file filled with random unorganized links to a bunch of other files and want to take advantage of Zeiver's
 *Recorder* module.
 *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
-`--output`, `--output-record`
+`--output`, `--output-record`, `--no-stats-list`.
 
 ***-o, --output***
 
@@ -250,7 +256,7 @@ Sets the default headers to use for every request. *_Must use the __'header$valu
 
 Ex: `zeiver -H content-length$128,"accept$ text/html, application/xhtml+xml, image/webp"`
 
-***-U***
+***-u***
 
 The User Agent header to use. _Default: `Zeiver/VERSION`_
 

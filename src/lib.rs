@@ -7,12 +7,26 @@ use crawler;
 use cmd_opts;
 use crawler::WebCrawler;
 use logger;
+use std::process::Command;
 
 pub struct Zeiver;
 
 impl Zeiver {
     /// Activates Zeiver
-    pub async fn crawl(mut opts: cmd_opts::Opts) {
+    pub async fn start(mut opts: cmd_opts::Opts) {
+        if opts.update {
+            logger::arrows_head("Updating Zeiver! Please wait...");
+            Command::new("cargo")
+                .args(["install","--branch","main","--git","https://github.com/ZimCodes/Zeiver"])
+                .output()
+                .expect("Failed to execute update command for Zeiver");
+            logger::arrows_head("Update Completed!");
+        } else {
+            Zeiver::crawl(opts).await;
+        }
+    }
+    ///Begin crawling process
+    async fn crawl(mut opts: cmd_opts::Opts) {
         let web_crawler = Arc::new(crawler::WebCrawler::new(opts.clone()));
         Zeiver::clean_urls_list(&mut opts);
         if !opts.urls.is_empty() {

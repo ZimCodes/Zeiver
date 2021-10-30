@@ -4,6 +4,12 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "Zeiver", about = "Scrape, record, download & scout content from ODs.")]
 pub struct Opts {
+    ///Update Zeiver to latest version.
+    #[structopt(short = "U",long,conflicts_with_all(&["record-only", "record", "cuts", "no-dirs", "output", "no-stats",
+    "depth", "timeout", "wait", "retry-wait", "random-wait", "tries", "redirects", "accept", "reject",
+    "u", "headers", "proxy", "proxy-auth", "input-file", "urls", "test", "scan", "print-header", "print-headers",
+    "all-certs", "https-only","verbose","output","output-record","input-record"]))]
+    pub update:bool,
     ///Enable verbose output
     #[structopt(short,long)]
     pub verbose: bool,
@@ -125,7 +131,7 @@ pub struct Opts {
     #[structopt(short = "R", long, conflicts_with = "accept")]
     pub reject: Option<String>,
     /// The User Agent header to use
-    #[structopt(short = "U")]
+    #[structopt(short)]
     pub user_agent: Option<String>,
     /// Use HTTPS only
     ///
@@ -164,10 +170,11 @@ pub struct Opts {
     /// for those who have a file filled with random unorganized links to a bunch of other files and want to take advantage of Zeiver's
     /// *Recorder* module.
     /// *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
-    ///`--output`, `--output-record`
+    ///`--output`, `--output-record`, `--no-stats-list`
     #[structopt(long, conflicts_with_all(&["record-only", "record", "cuts", "no-dirs", "output", "no-stats",
     "depth", "timeout", "wait", "retry-wait", "random-wait", "tries", "redirects", "accept", "reject",
-    "U", "headers", "proxy", "proxy-auth", "input-file", "urls", "test"]))]
+    "U", "u", "headers", "proxy", "proxy-auth", "input-file", "urls", "test", "scan", "print-header", "print-headers",
+    "all-certs", "https-only"]))]
     pub input_record: Option<PathBuf>,
     /// Save file location
     ///
