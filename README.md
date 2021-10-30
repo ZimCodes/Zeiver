@@ -11,7 +11,7 @@ For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver
    * [Normal Workflow](https://github.com/ZimCodes/Zeiver#normal-workflow)
    * [More](https://github.com/ZimCodes/Zeiver#more)
 * [Open Directory Support](https://github.com/ZimCodes/Zeiver#open-directory-support)
-* [Installation](https://github.com/ZimCodes/Zeiver#installation)
+* [Installation/Update](https://github.com/ZimCodes/Zeiver#installationupdate)
 * [Sample](https://github.com/ZimCodes/Zeiver#sample)
 * [Commands](https://github.com/ZimCodes/Zeiver#commands)
     * [Positional](https://github.com/ZimCodes/Zeiver#positional) 
