@@ -148,7 +148,7 @@ impl Scraper {
         logger::new_line();
         //Determines if webpage is a valid OD
         if self.od_type.eq(&od::ODMethod::None){
-            logger::error(&format!("URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑",url));
+            logger::error(&format!("URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑\n",url));
             return Ok(());
         }
         let dirs_of_dirs = vec![self.scrape_dirs(res.as_str(), &url, true, verbose)];

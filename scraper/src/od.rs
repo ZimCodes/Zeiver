@@ -10,6 +10,7 @@ pub mod onemanager;
 pub mod h5ai;
 pub mod microsoftiis;
 pub mod snif;
+pub mod odindex;
 mod none;
 
 #[derive(PartialEq, Debug)]
@@ -27,6 +28,7 @@ pub enum ODMethod {
     H5AI,
     MicrosoftIIS,
     Snif,
+    OdIndex,
     Generic,
     None,
 }
@@ -58,6 +60,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::H5AI
     }else if snif::Snif::is_od(res){
         ODMethod::Snif
+    }else if odindex::OdIndex::is_od(res){
+        ODMethod::OdIndex
     }else {
         autoindex_type_check(res, server_name)
     }

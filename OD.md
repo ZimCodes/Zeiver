@@ -13,6 +13,7 @@
 * h5ai
 * Microsoft-IIS
 * snif
+* OdIndex
 
 **May also work with other ODs. So long as they have `<a>`.*
 

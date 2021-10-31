@@ -13,7 +13,7 @@ pub struct Zeiver;
 
 impl Zeiver {
     /// Activates Zeiver
-    pub async fn start(mut opts: cmd_opts::Opts) {
+    pub async fn start(opts: cmd_opts::Opts) {
         if opts.update {
             logger::arrows_head("Updating Zeiver! Please wait...");
             Command::new("cargo")

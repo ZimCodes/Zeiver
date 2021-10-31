@@ -2,6 +2,8 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use url::Url;
 use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
+use crate::od::odindex::OdIndex;
+
 
 lazy_static! {
     static ref BACK_REG:Regex = Regex::new(r"(?:\.\./)").unwrap();
@@ -227,6 +229,7 @@ pub fn set_regex(regex: &Option<String>) -> Regex {
 }
 ///Sanitize the url to for easy traversing
 pub fn sanitize_url(url: &str) -> String {
+    let url = OdIndex::sanitize_url(url);
     let url = OLAINDEX::sanitize_url(url);
     let url = remove_preview_query(url.as_ref());
     let url = remove_space_entity(&url);
