@@ -1,16 +1,18 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::borrow::Cow;
 use select::document::Document;
-use select::predicate::{Name, Attr, Predicate};
+use select::predicate::{Attr, Name, Predicate};
+use std::borrow::Cow;
 
-const IDENTIFIER_DESCRIPTION:&str = "OLAINDEX,Another OneDrive Directory Index";
-const IDENTIFIER_KEYWORDS:&str = "OLAINDEX,OneDrive,Index,Microsoft OneDrive,Directory Index";
+const IDENTIFIER_DESCRIPTION: &str = "OLAINDEX,Another OneDrive Directory Index";
+const IDENTIFIER_KEYWORDS: &str = "OLAINDEX,OneDrive,Index,Microsoft OneDrive,Directory Index";
 
 lazy_static! {
-    static ref OLAINDEX_HASH_QUERY:Regex = Regex::new(r"\?hash=[0-9a-zA-Z]{8}(/?|&download=1)$").unwrap();
-    static ref OLAINDEX_QUERIES:Regex = Regex::new(r"\?hash=[0-9a-zA-Z]{8}&download=1$").unwrap();
-    static ref OLAINDEX_EXTRA_PATHS:Regex = Regex::new(r"(/|%2F)(v|view|d|down|home|s|show)(/|%2F)").unwrap();
+    static ref OLAINDEX_HASH_QUERY: Regex =
+        Regex::new(r"\?hash=[0-9a-zA-Z]{8}(/?|&download=1)$").unwrap();
+    static ref OLAINDEX_QUERIES: Regex = Regex::new(r"\?hash=[0-9a-zA-Z]{8}&download=1$").unwrap();
+    static ref OLAINDEX_EXTRA_PATHS: Regex =
+        Regex::new(r"(/|%2F)(v|view|d|down|home|s|show)(/|%2F)").unwrap();
 }
 pub enum OlaindexExtras {
     All,
@@ -21,10 +23,10 @@ pub struct OLAINDEX;
 impl OLAINDEX {
     /// Adds a download query to end of file url
     /// [Transform]
-    pub fn transform_link(x:&str) -> String{
-        if !OLAINDEX::has_dl_query(x){
-            format!("{}?download=1",x)
-        }else{
+    pub fn transform_link(x: &str) -> String {
+        if !OLAINDEX::has_dl_query(x) {
+            format!("{}?download=1", x)
+        } else {
             x.to_string()
         }
     }
@@ -34,7 +36,10 @@ impl OLAINDEX {
         x.ends_with("?download=1")
     }
     ///Custom version for files to Accept/Reject (OLAINDEX)
-    pub fn acc_rej_filters(accept: &Option<String>, reject: &Option<String>) -> (Option<String>, Option<String>) {
+    pub fn acc_rej_filters(
+        accept: &Option<String>,
+        reject: &Option<String>,
+    ) -> (Option<String>, Option<String>) {
         let new_accept = if accept.is_some() {
             Some(format!(r"{}(\?download=1$)", accept.as_ref().unwrap()))
         } else {
@@ -68,10 +73,10 @@ impl OLAINDEX {
                 let is_home = path == &"home";
                 match include {
                     OlaindexExtras::ExcludeHomeAndDownload => is_common_search || is_show_search,
-                    _ => is_common_search || is_down_search || is_show_search || is_home
+                    _ => is_common_search || is_down_search || is_show_search || is_home,
                 }
             }
-            None => false
+            None => false,
         }
     }
     /// Removes extra paths from broken down url
@@ -81,47 +86,85 @@ impl OLAINDEX {
         }
     }
     /// Removes an extra path from an path
-    pub fn remove_path(path:&str)->String{
-        OLAINDEX_EXTRA_PATHS.replace(path,"/").to_string()
+    pub fn remove_path(path: &str) -> String {
+        OLAINDEX_EXTRA_PATHS.replace(path, "/").to_string()
     }
     /// [Identity] Used to determine od type
-    pub fn is_od(res:&str)->bool{
+    pub fn is_od(res: &str) -> bool {
         let has_description_id = Document::from(res)
-            .find(Name("meta").and(Attr("name","description").and(Attr("content", IDENTIFIER_DESCRIPTION))))
+            .find(
+                Name("meta")
+                    .and(Attr("name", "description").and(Attr("content", IDENTIFIER_DESCRIPTION))),
+            )
             .any(|node| node.eq(&node));
-        if !has_description_id{
+        if !has_description_id {
             Document::from(res)
-                .find(Name("meta").and(Attr("name","keywords").and(Attr("content",IDENTIFIER_KEYWORDS))))
+                .find(
+                    Name("meta")
+                        .and(Attr("name", "keywords").and(Attr("content", IDENTIFIER_KEYWORDS))),
+                )
                 .any(|node| node.eq(&node))
-        }else{
+        } else {
             has_description_id
         }
     }
 }
 
-
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::OLAINDEX_EXTRA_PATHS;
     #[test]
-    fn extra_paths_regex(){
-        const HOME:&str = "https://www.example.org";
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/v/",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/v%2F",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Fv/",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Fv%2F",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/s/",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/show/",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/view/",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/home/",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/d/",HOME)),true);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/down/",HOME)),true);
+    fn extra_paths_regex() {
+        const HOME: &str = "https://www.example.org";
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/v/", HOME)), true);
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/v%2F", HOME)),
+            true
+        );
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Fv/", HOME)),
+            true
+        );
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Fv%2F", HOME)),
+            true
+        );
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/s/", HOME)), true);
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/show/", HOME)),
+            true
+        );
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/view/", HOME)),
+            true
+        );
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/home/", HOME)),
+            true
+        );
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/d/", HOME)), true);
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/down/", HOME)),
+            true
+        );
 
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/down",HOME)),false);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/t/",HOME)),false);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t/",HOME)),false);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t",HOME)),false);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t%2F",HOME)),false);
-        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Ftime",HOME)),false);
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/down", HOME)),
+            false
+        );
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}/t/", HOME)),
+            false
+        );
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t/", HOME)), false);
+        assert_eq!(OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t", HOME)), false);
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}t%2F", HOME)),
+            false
+        );
+        assert_eq!(
+            OLAINDEX_EXTRA_PATHS.is_match(&format!("{}%2Ftime", HOME)),
+            false
+        );
     }
 }

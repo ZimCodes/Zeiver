@@ -2,16 +2,19 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug, Clone)]
-#[structopt(name = "Zeiver", about = "Scrape, record, download & scout content from ODs.")]
+#[structopt(
+    name = "Zeiver",
+    about = "Scrape, record, download & scout content from ODs."
+)]
 pub struct Opts {
     ///Update Zeiver to latest version.
     #[structopt(short = "U",long,conflicts_with_all(&["record-only", "record", "cuts", "no-dirs", "output", "no-stats",
     "depth", "timeout", "wait", "retry-wait", "random-wait", "tries", "redirects", "accept", "reject",
     "u", "headers", "proxy", "proxy-auth", "input-file", "urls", "test", "scan", "print-header", "print-headers",
     "all-certs", "https-only","verbose","output","output-record","input-record"]))]
-    pub update:bool,
+    pub update: bool,
     ///Enable verbose output
-    #[structopt(short,long)]
+    #[structopt(short, long)]
     pub verbose: bool,
     /// Run a quick scrape test
     ///
@@ -24,7 +27,7 @@ pub struct Opts {
     /// Scan ODs displaying their content to the terminal. *A shortcut to activating*
     /// `--verbose` *&* `--test`.
     #[structopt(long,conflicts_with_all(&["test","verbose"]))]
-    pub scan:bool,
+    pub scan: bool,
     ///Prints all Response Headers to terminal
     ///
     ///Prints all available Response headers received from each url to the terminal. **This Option

@@ -1,10 +1,10 @@
-use reqwest;
 use asset;
 use grabber;
 use logger;
+use reqwest;
 
-mod parser;
 mod od;
+mod parser;
 mod search;
 
 pub struct Scraper {
@@ -28,12 +28,18 @@ impl Scraper {
         }
     }
     /// Scrape files URLs present on the current page(URL)
-    fn scrape_files(&mut self, res: &str, url: &str, accept: &Option<String>, reject: &Option<String>, is_first_parse: bool, verbose: bool)
-                    -> Vec<asset::file::File>
-    {
+    fn scrape_files(
+        &mut self,
+        res: &str,
+        url: &str,
+        accept: &Option<String>,
+        reject: &Option<String>,
+        is_first_parse: bool,
+        verbose: bool,
+    ) -> Vec<asset::file::File> {
         let mut files: Vec<asset::file::File> = Vec::new();
-        let mut previous_file = String::new();//variable to check for duplicates
-        let mut previous_mod_file = String::new();//variable after modification to check for duplicates
+        let mut previous_file = String::new(); //variable to check for duplicates
+        let mut previous_mod_file = String::new(); //variable after modification to check for duplicates
         if is_first_parse {
             logger::head("First File Parse");
         } else {
@@ -56,9 +62,9 @@ impl Scraper {
                 if ending_check
                     && !x.ends_with("/")
                     && (!x.starts_with("http")
-                    || sub_check
-                    || self.od_type.eq(&od::ODMethod::Apache)
-                    || self.od_type.eq(&od::ODMethod::NGINX))
+                        || sub_check
+                        || self.od_type.eq(&od::ODMethod::Apache)
+                        || self.od_type.eq(&od::ODMethod::NGINX))
                 {
                     if !x.starts_with("?dir=")
                         || (x.starts_with("?dir=") && parser::check_dir_query(url, x.as_str()))
@@ -67,10 +73,20 @@ impl Scraper {
                         x = self.od_file_link_modify(url, &x, res);
                         if previous_mod_file != x {
                             if od::olaindex::OLAINDEX::has_dl_query(&x) {
-                                let (new_accept, new_reject) = od::olaindex::OLAINDEX::acc_rej_filters(&accept, &reject);
-                                Scraper::acc_rej_check(url, &mut files, &x, &new_accept, &new_reject, verbose);
+                                let (new_accept, new_reject) =
+                                    od::olaindex::OLAINDEX::acc_rej_filters(&accept, &reject);
+                                Scraper::acc_rej_check(
+                                    url,
+                                    &mut files,
+                                    &x,
+                                    &new_accept,
+                                    &new_reject,
+                                    verbose,
+                                );
                             } else {
-                                Scraper::acc_rej_check(url, &mut files, &x, accept, reject, verbose);
+                                Scraper::acc_rej_check(
+                                    url, &mut files, &x, accept, reject, verbose,
+                                );
                             }
                             //Assign as the new previously modded file
                             previous_mod_file = x;
@@ -85,9 +101,16 @@ impl Scraper {
         files
     }
     /// Scrape directory URLs present on the current page(URL)
-    fn scrape_dirs(&mut self, res: &str, url: &str, level:usize, is_first_parse: bool, verbose: bool) -> Vec<asset::directory::Directory> {
+    fn scrape_dirs(
+        &mut self,
+        res: &str,
+        url: &str,
+        level: usize,
+        is_first_parse: bool,
+        verbose: bool,
+    ) -> Vec<asset::directory::Directory> {
         let mut dirs = Vec::new();
-        let mut past_dir = String::new();//variable to check for duplicates
+        let mut past_dir = String::new(); //variable to check for duplicates
         if is_first_parse {
             logger::head("First Directory Parse");
         } else {
@@ -99,8 +122,7 @@ impl Scraper {
             let current_dir = format!("{}{}", url, x);
             if past_dir != current_dir {
                 past_dir = current_dir;
-                if (!x.starts_with("http")
-                    || parser::encode_slash_starts_with(x, url))
+                if (!x.starts_with("http") || parser::encode_slash_starts_with(x, url))
                     && !parser::is_back_url(x)
                     && !parser::is_home_url(x)
                     && !parser::unrelated_dir_queries(x)
@@ -113,7 +135,7 @@ impl Scraper {
                         && !parser::is_file_ext(x)
                         || parser::check_dir_query(url, x)
                     {
-                        self.add_dir(url, x, &mut dirs,level+1, verbose);
+                        self.add_dir(url, x, &mut dirs, level + 1, verbose);
                     }
                 }
             }
@@ -123,11 +145,19 @@ impl Scraper {
         logger::new_line();
         dirs
     }
-    pub async fn run(&mut self, client: &reqwest::Client, url: &str, accept: &Option<String>,
-                     reject: &Option<String>, depth: usize, tries: u32, wait: Option<f32>,
-                     retry_wait: f32, is_random: bool, verbose: bool)
-                     -> Result<(), reqwest::Error>
-    {
+    pub async fn run(
+        &mut self,
+        client: &reqwest::Client,
+        url: &str,
+        accept: &Option<String>,
+        reject: &Option<String>,
+        depth: usize,
+        tries: u32,
+        wait: Option<f32>,
+        retry_wait: f32,
+        is_random: bool,
+        verbose: bool,
+    ) -> Result<(), reqwest::Error> {
         let url_string = parser::add_last_slash(url);
         let url = url_string.as_str();
         //Check if URL points to a file
@@ -140,17 +170,25 @@ impl Scraper {
         //Determine od type from url
         let url = parser::sanitize_url(url);
         //Retrieve page
-        let (res, status_code) = grabber::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
+        let (res, status_code) =
+            grabber::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose)
+                .await?;
         //Determine od type from html document
-        self.od_type_from_document(&*res, client, &url, tries, wait, retry_wait, is_random, verbose).await?;
+        self.od_type_from_document(
+            &*res, client, &url, tries, wait, retry_wait, is_random, verbose,
+        )
+        .await?;
         logger::stars_info("Status Code", status_code.as_str());
         logger::new_line();
         //Determines if webpage is a valid OD
         if self.od_type.eq(&od::ODMethod::None) {
-            logger::error(&format!("URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑\n", url));
+            logger::error(&format!(
+                "URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑\n",
+                url
+            ));
             return Ok(());
         }
-        let dirs = self.scrape_dirs(res.as_str(), &url, 0,true, verbose);
+        let dirs = self.scrape_dirs(res.as_str(), &url, 0, true, verbose);
 
         let files = self.scrape_files(res.as_str(), &url, &accept, &reject, true, verbose);
         if !files.is_empty() {
@@ -160,13 +198,23 @@ impl Scraper {
         //Determines whether to start recursive scraping
         let is_dir_empty = dirs.is_empty();
         if !is_dir_empty && depth > 1 {
-            self.dir_recursive(client, dirs, accept, reject, depth, tries, wait, retry_wait, is_random, verbose).await?;
+            self.dir_recursive(
+                client, dirs, accept, reject, depth, tries, wait, retry_wait, is_random, verbose,
+            )
+            .await?;
         }
 
         Ok(())
     }
     /// Adds a URL to the list of directories cycle through
-    fn add_dir(&mut self, url: &str, x: &str, dirs: &mut Vec<asset::directory::Directory>, level:usize, verbose: bool) {
+    fn add_dir(
+        &mut self,
+        url: &str,
+        x: &str,
+        dirs: &mut Vec<asset::directory::Directory>,
+        level: usize,
+        verbose: bool,
+    ) {
         let joined_url = if x.starts_with("http") {
             String::from(x)
         } else if url.ends_with(x) {
@@ -188,12 +236,10 @@ impl Scraper {
                 logger::log_split("DIR", &joined_url);
             }
             self.dir_links.push(joined_url.clone());
-            dirs.push(
-                asset::directory::Directory::new(
-                    format!("{}", joined_url),
-                    level
-                )
-            );
+            dirs.push(asset::directory::Directory::new(
+                format!("{}", joined_url),
+                level,
+            ));
         }
     }
     /// Adds a URL to the list of files to download
@@ -212,22 +258,31 @@ impl Scraper {
         if verbose {
             logger::log_split("URI", &joined_url);
         }
-        files.push(
-            asset::file::File::new(
-                joined_url.as_str()
-            ));
+        files.push(asset::file::File::new(joined_url.as_str()));
     }
     fn od_type_from_url(&mut self, url: &str) {
         logger::head("Resolving Scrape Method");
         self.od_type = od::od_type_from_url(url);
     }
-    async fn od_type_from_document(&mut self, res: &str, client: &reqwest::Client, url: &str, tries: u32, wait: Option<f32>,
-                                   retry_wait: f32, is_random: bool, verbose: bool) -> Result<(), reqwest::Error> {
+    async fn od_type_from_document(
+        &mut self,
+        res: &str,
+        client: &reqwest::Client,
+        url: &str,
+        tries: u32,
+        wait: Option<f32>,
+        retry_wait: f32,
+        is_random: bool,
+        verbose: bool,
+    ) -> Result<(), reqwest::Error> {
         if self.od_type.eq(&od::ODMethod::None) {
-            let response = grabber::Http::get_response(client, &url, tries, wait, retry_wait, is_random, verbose).await?;
+            let response = grabber::Http::get_response(
+                client, &url, tries, wait, retry_wait, is_random, verbose,
+            )
+            .await?;
             let server_name = match response.headers().get("server") {
                 Some(header_value) => header_value.to_str().unwrap(),
-                None => ""
+                None => "",
             };
             self.od_type = od::od_type_from_document(res, server_name);
         }
@@ -247,9 +302,19 @@ impl Scraper {
         }
     }
     /// Recursively scrape file URLs from child directories
-    async fn dir_recursive(&mut self, client: &reqwest::Client, mut dirs: Vec<asset::directory::Directory>,
-                           accept: &Option<String>, reject: &Option<String>, depth: usize, tries: u32, wait: Option<f32>, retry_wait: f32, is_random: bool, verbose: bool) -> Result<(), reqwest::Error>
-    {
+    async fn dir_recursive(
+        &mut self,
+        client: &reqwest::Client,
+        mut dirs: Vec<asset::directory::Directory>,
+        accept: &Option<String>,
+        reject: &Option<String>,
+        depth: usize,
+        tries: u32,
+        wait: Option<f32>,
+        retry_wait: f32,
+        is_random: bool,
+        verbose: bool,
+    ) -> Result<(), reqwest::Error> {
         logger::head("Starting Directory Diving");
         let mut previous_level = 0;
         while !dirs.is_empty() {
@@ -263,7 +328,7 @@ impl Scraper {
             if previous_level != dir.level {
                 logger::head("Checking next set of Directories");
                 let next_depth_level = dir.level + 1;
-                logger::info("Depth Level",&next_depth_level.to_string());
+                logger::info("Depth Level", &next_depth_level.to_string());
                 logger::new_line();
                 previous_level = dir.level;
             }
@@ -274,7 +339,9 @@ impl Scraper {
             //Connect to Directory link
             let url = dir.link.as_str();
 
-            let (res, status_code) = grabber::Http::connect(client, url, tries, wait, retry_wait, is_random, verbose).await?;
+            let (res, status_code) =
+                grabber::Http::connect(client, url, tries, wait, retry_wait, is_random, verbose)
+                    .await?;
             logger::stars_info("Status Code", status_code.as_str());
             logger::new_line();
             //Retrieve Files from Directory Link
@@ -293,7 +360,6 @@ impl Scraper {
         Ok(())
     }
 
-
     /// Scrape the URL that points to a single File.
     fn single_scrape(&mut self, url: &str, verbose: bool) -> bool {
         if parser::is_uri(url) {
@@ -301,11 +367,9 @@ impl Scraper {
                 logger::log_split("URI", url);
             }
 
-            let pages = vec![
-                asset::page::Page::new(
-                    vec![asset::file::File::new(parser::remove_last_slash(url).as_str())]
-                )
-            ];
+            let pages = vec![asset::page::Page::new(vec![asset::file::File::new(
+                parser::remove_last_slash(url).as_str(),
+            )])];
             self.pages = pages;
             true
         } else {
@@ -314,20 +378,29 @@ impl Scraper {
     }
 
     /// Scrape files based on 'accept' and 'reject' option configurations
-    fn acc_rej_check(url: &str, files: &mut Vec<asset::file::File>, x: &String, accept: &Option<String>, reject: &Option<String>, verbose: bool) {
+    fn acc_rej_check(
+        url: &str,
+        files: &mut Vec<asset::file::File>,
+        x: &String,
+        accept: &Option<String>,
+        reject: &Option<String>,
+        verbose: bool,
+    ) {
         //Accept Option
         if accept.is_some() {
             let reg = parser::set_regex(accept);
             if reg.is_match(x.as_str()) {
                 Scraper::add_file(url, x.as_str(), files, verbose);
             }
-        }//Reject Option
+        }
+        //Reject Option
         else if reject.is_some() {
             let reg = parser::set_regex(reject);
             if !reg.is_match(x.as_str()) {
                 Scraper::add_file(url, x.as_str(), files, verbose);
             }
-        }//Neither Option
+        }
+        //Neither Option
         else if accept.is_none() && reject.is_none() {
             Scraper::add_file(url, x.as_str(), files, verbose);
         }

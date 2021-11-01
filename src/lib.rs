@@ -1,13 +1,13 @@
-use std::sync::Arc;
-use std::path::PathBuf;
-use std::str::FromStr;
-use tokio::time::Duration;
-use reqwest;
-use crawler;
 use cmd_opts;
+use crawler;
 use crawler::WebCrawler;
 use logger;
+use reqwest;
+use std::path::PathBuf;
 use std::process::Command;
+use std::str::FromStr;
+use std::sync::Arc;
+use tokio::time::Duration;
 
 pub struct Zeiver;
 
@@ -17,7 +17,13 @@ impl Zeiver {
         if opts.update {
             logger::arrows_head("Updating Zeiver! Please wait...");
             Command::new("cargo")
-                .args(["install","--branch","main","--git","https://github.com/ZimCodes/Zeiver"])
+                .args([
+                    "install",
+                    "--branch",
+                    "main",
+                    "--git",
+                    "https://github.com/ZimCodes/Zeiver",
+                ])
                 .output()
                 .expect("Failed to execute update command for Zeiver");
             logger::arrows_head("Update Completed!");
@@ -44,13 +50,35 @@ impl Zeiver {
     async fn multi_thread(web_crawler: Arc<crawler::WebCrawler>, opts: cmd_opts::Opts) {
         let client = Arc::new(Zeiver::client_creator(opts.clone()).unwrap());
         for url in opts.urls {
-            Zeiver::establish_task(url, web_crawler.clone(), client.clone(), &opts.print_header, opts.print_headers, opts.record_only, opts.record, opts.test).await;
+            Zeiver::establish_task(
+                url,
+                web_crawler.clone(),
+                client.clone(),
+                &opts.print_header,
+                opts.print_headers,
+                opts.record_only,
+                opts.record,
+                opts.test,
+            )
+            .await;
         }
     }
     /// Execute the task provided by the commandline
-    async fn establish_task(url: PathBuf, web_clone: Arc<WebCrawler>, client_clone: Arc<reqwest::Client>, print_header: &Option<String>, print_headers: bool, record_only: bool, record: bool, debug: bool) {
+    async fn establish_task(
+        url: PathBuf,
+        web_clone: Arc<WebCrawler>,
+        client_clone: Arc<reqwest::Client>,
+        print_header: &Option<String>,
+        print_headers: bool,
+        record_only: bool,
+        record: bool,
+        debug: bool,
+    ) {
         if print_headers {
-            web_clone.print_all_headers(&client_clone, url).await.unwrap();
+            web_clone
+                .print_all_headers(&client_clone, url)
+                .await
+                .unwrap();
         } else if print_header.is_some() {
             web_clone.print_header(&client_clone, url).await.unwrap();
         } else {
@@ -58,13 +86,19 @@ impl Zeiver {
         }
     }
     /// Spawns a new thread
-    async fn spawn_thread(url: PathBuf, web_clone: Arc<WebCrawler>, client_clone: Arc<reqwest::Client>,
-                          record_only: bool, record: bool, debug: bool) {
+    async fn spawn_thread(
+        url: PathBuf,
+        web_clone: Arc<WebCrawler>,
+        client_clone: Arc<reqwest::Client>,
+        record_only: bool,
+        record: bool,
+        debug: bool,
+    ) {
         tokio::spawn(async move {
             let scraper = web_clone.scraper_task(&client_clone, Some(&url)).await;
             let arc_scraper = Arc::new(scraper);
             if !debug {
-                let arc_count = Arc::strong_count(&web_clone) - 1;//Total amount of web crawlers sharing a pointer
+                let arc_count = Arc::strong_count(&web_clone) - 1; //Total amount of web crawlers sharing a pointer
                 if record_only {
                     web_clone.recorder_task(arc_scraper, arc_count).await;
                 } else {
@@ -75,7 +109,9 @@ impl Zeiver {
                     web_clone.downloader_task(&client_clone, arc_scraper).await;
                 }
             }
-        }).await.unwrap();
+        })
+        .await
+        .unwrap();
     }
     // Adds configurations to the Client
     fn client_creator(opts: cmd_opts::Opts) -> Result<reqwest::Client, reqwest::Error> {
@@ -116,7 +152,8 @@ impl Zeiver {
                 //Set Header Value
                 let header_value_str = head_arr.next().expect("Header Value not found!").trim();
                 let header_value_lower = header_value_str.to_lowercase();
-                let header_value = reqwest::header::HeaderValue::from_str(header_value_lower.as_str());
+                let header_value =
+                    reqwest::header::HeaderValue::from_str(header_value_lower.as_str());
                 let header_value = match header_value {
                     Ok(value) => value,
                     Err(e) => {
@@ -140,7 +177,7 @@ impl Zeiver {
         // User Agent
         let user_agent = match opts.user_agent {
             Some(agent) => agent,
-            None => format!("Zeiver/{}", env!("CARGO_PKG_VERSION"))
+            None => format!("Zeiver/{}", env!("CARGO_PKG_VERSION")),
         };
         client_builder = client_builder.user_agent(user_agent);
         // Accept all certificates
@@ -160,5 +197,3 @@ impl Zeiver {
         }
     }
 }
-
-

@@ -1,17 +1,17 @@
-pub mod olaindex;
+pub mod apache;
 pub mod autoindex_php;
 pub mod directory_lister;
-pub mod apache;
-pub mod nginx;
 pub mod directory_listing_script;
-pub mod lighttpd;
-pub mod phpbb;
-pub mod onemanager;
 pub mod h5ai;
+pub mod lighttpd;
 pub mod microsoftiis;
-pub mod snif;
-pub mod odindex;
+pub mod nginx;
 mod none;
+pub mod odindex;
+pub mod olaindex;
+pub mod onemanager;
+pub mod phpbb;
+pub mod snif;
 
 #[derive(PartialEq, Debug)]
 pub enum ODMethod {
@@ -52,17 +52,17 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::DirectoryLister
     } else if directory_listing_script::DirectoryListingScript::is_od(res) {
         ODMethod::DirectoryListingScript
-    } else if phpbb::PHPBB::is_od(res){
+    } else if phpbb::PHPBB::is_od(res) {
         ODMethod::PHPBB
-    }else if onemanager::OneManager::is_od(res){
+    } else if onemanager::OneManager::is_od(res) {
         ODMethod::OneManager
-    }else if h5ai::H5AI::is_od(res){
+    } else if h5ai::H5AI::is_od(res) {
         ODMethod::H5AI
-    }else if snif::Snif::is_od(res){
+    } else if snif::Snif::is_od(res) {
         ODMethod::Snif
-    }else if odindex::OdIndex::is_od(res){
+    } else if odindex::OdIndex::is_od(res) {
         ODMethod::OdIndex
-    }else {
+    } else {
         autoindex_type_check(res, server_name)
     }
 }
@@ -81,13 +81,13 @@ fn autoindex_type_check(res: &str, server_name: &str) -> ODMethod {
 
 /// Determine OD Type from `Server` header
 fn od_type_from_header(res: &str, server_name: &str) -> ODMethod {
-    if microsoftiis::MicrosoftIIS::is_od(res,server_name){
+    if microsoftiis::MicrosoftIIS::is_od(res, server_name) {
         ODMethod::MicrosoftIIS
     } else if lighttpd::LightTPD::is_od(res, server_name) {
         ODMethod::LightTPD
     } else if apache::Apache::is_od(res, server_name) {
         ODMethod::Apache
-    } else if nginx::NGINX::is_od(res,server_name) {
+    } else if nginx::NGINX::is_od(res, server_name) {
         ODMethod::NGINX
     } else {
         ODMethod::Generic

@@ -1,7 +1,7 @@
-pub fn get_line_separator() -> String{
-    if cfg!(target_os = "windows"){
+pub fn get_line_separator() -> String {
+    if cfg!(target_os = "windows") {
         String::from("\r\n")
-    }else{
+    } else {
         String::from("\n")
     }
 }

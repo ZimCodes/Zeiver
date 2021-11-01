@@ -1,9 +1,8 @@
+use crate::od::odindex::OdIndex;
+use crate::od::olaindex::{OlaindexExtras, OLAINDEX};
 use lazy_static::lazy_static;
 use regex::Regex;
 use url::Url;
-use crate::od::olaindex::{OLAINDEX, OlaindexExtras};
-use crate::od::odindex::OdIndex;
-
 
 lazy_static! {
     static ref BACK_REG:Regex = Regex::new(r"(?:\.\./)").unwrap();
@@ -34,7 +33,7 @@ pub fn url_joiner(url: &str, rel: &str) -> String {
     let mut url = no_query_path(url.as_ref());
     let dummy_url = if rel.starts_with("./") {
         format!("http://www.example.com{}", &rel[2..])
-    } else if !rel.starts_with("/"){
+    } else if !rel.starts_with("/") {
         format!("http://www.example.com/{}", rel)
     } else {
         format!("http://www.example.com{}", rel)
@@ -44,67 +43,74 @@ pub fn url_joiner(url: &str, rel: &str) -> String {
     let mut url_path_segments = url.path_segments().expect("Cannot be base");
     let mut rel_path_segments = rel_url.path_segments().expect("cannot be base");
 
-    let url_path = url_path_segments.next().expect("First URL path cannot be found!");
-    let rel_path = rel_path_segments.next().expect("First relative URL path cannot be found!");
+    let url_path = url_path_segments
+        .next()
+        .expect("First URL path cannot be found!");
+    let rel_path = rel_path_segments
+        .next()
+        .expect("First relative URL path cannot be found!");
     if url_path == rel_path && !url_path.is_empty() && !rel_path.is_empty() {
         let scheme = url.scheme();
-        let host = url.host().expect("URL does not have a host to be joined with!");
+        let host = url
+            .host()
+            .expect("URL does not have a host to be joined with!");
         let path = rel;
         let path = match path.starts_with("/") {
             true => path.to_string(),
-            false => format!("/{}", path)
+            false => format!("/{}", path),
         };
         match url.port() {
             Some(port) => format!("{}://{}:{}{}", scheme, host, port, path),
-            None => format!("{}://{}{}", scheme, host, path)
+            None => format!("{}://{}{}", scheme, host, path),
         }
-    } else if rel.starts_with("?")
-    {
+    } else if rel.starts_with("?") {
         url.set_query(Some(&rel[1..rel.len()]));
         url.to_string()
     } else if url.query().is_some() && url.query().unwrap().starts_with("dir=") {
         url.set_query(Some(rel));
         let url_query = url.query().unwrap();
-        let text_replace = if url.to_string().contains("index.php?"){
-            format!("index.php?{}",url_query)
-        }else{
-            format!("?{}",url_query)
+        let text_replace = if url.to_string().contains("index.php?") {
+            format!("index.php?{}", url_query)
+        } else {
+            format!("?{}", url_query)
         };
 
-        url.to_string().replace(text_replace.as_str(), if rel.starts_with("/"){
-            &rel[1..]
-        }else{
-            rel
-        })
+        url.to_string().replace(
+            text_replace.as_str(),
+            if rel.starts_with("/") { &rel[1..] } else { rel },
+        )
     } else if WEB_REG.is_match(url.as_str()) {
         if rel.starts_with("./") {
             let url = WEB_REG.replace(url.as_str(), &rel[2..]);
             url.to_string()
-        }else {
+        } else {
             let url = WEB_REG.replace(url.as_str(), rel);
             url.to_string()
         }
-    } else if url.query().is_some() && url.query().unwrap().starts_with("path="){
-        let new_url = PATH_QUERY_REG.replace(url.as_str(),"");
+    } else if url.query().is_some() && url.query().unwrap().starts_with("path=") {
+        let new_url = PATH_QUERY_REG.replace(url.as_str(), "");
 
-        let mut url_obj = Url::parse(&*new_url).expect("URL joining process interrupted! Unable to parse url");
-        url_obj.path_segments_mut().expect("cannot be base")
-            .pop().pop();
-        if url_obj.as_str().ends_with("/"){
-            format!("{}{}",url_obj,rel).replace("%2F","/")
-        }else{
-            format!("{}/{}",url_obj,rel).replace("%2F","/")
+        let mut url_obj =
+            Url::parse(&*new_url).expect("URL joining process interrupted! Unable to parse url");
+        url_obj
+            .path_segments_mut()
+            .expect("cannot be base")
+            .pop()
+            .pop();
+        if url_obj.as_str().ends_with("/") {
+            format!("{}{}", url_obj, rel).replace("%2F", "/")
+        } else {
+            format!("{}/{}", url_obj, rel).replace("%2F", "/")
         }
-    }else {
+    } else {
         if url.as_str().ends_with("/") && rel.starts_with("/") {
             let new_url = remove_last_slash(url.as_str());
             format!("{}{}", new_url, rel)
-        } else if rel.starts_with("./") && url.as_str().ends_with("/"){
-            format!("{}{}",url,&rel[2..])
-        } else if rel.starts_with("./") && !url.as_str().ends_with("/"){
-            format!("{}{}",url,&rel[1..])
-        }
-        else {
+        } else if rel.starts_with("./") && url.as_str().ends_with("/") {
+            format!("{}{}", url, &rel[2..])
+        } else if rel.starts_with("./") && !url.as_str().ends_with("/") {
+            format!("{}{}", url, &rel[1..])
+        } else {
             format!("{}{}", url, rel)
         }
     }
@@ -117,23 +123,23 @@ pub fn check_dir_query(url: &str, rel: &str) -> bool {
     let url = Url::parse(url).unwrap();
     let query = match url.query() {
         Some(query) => query,
-        None => ""
+        None => "",
     };
     let rel = &rel[1..rel.len()];
-    if query.ends_with("/"){
-        let query_encoded_slash = query.replace("/","%2F");
+    if query.ends_with("/") {
+        let query_encoded_slash = query.replace("/", "%2F");
         rel.contains(query_encoded_slash.as_str()) && rel != query && has_dir_query
-    }else{
+    } else {
         rel.contains(query) && rel != query && has_dir_query
     }
 }
 /// Check for navigator queries
-fn has_dir_queries(rel:&str)-> bool{
+fn has_dir_queries(rel: &str) -> bool {
     DIR_QUERIES_REG.is_match(rel)
 }
 /// Replace navigator query
-fn replace_dir_queries(x:&str,repl:&str) -> String{
-    DIR_QUERIES_REG.replace(x,repl).to_string()
+fn replace_dir_queries(x: &str, repl: &str) -> String {
+    DIR_QUERIES_REG.replace(x, repl).to_string()
 }
 /// Determines if the URL is a direct link to a file.
 /// File must not be an `htm(l),php,asp(x)` file type.
@@ -150,7 +156,7 @@ fn no_query_path(url: &str) -> Url {
     url
 }
 /// Removes the /?/ & /./ paths from the URL
-pub fn removes_single_path(path:&str)-> String{
+pub fn removes_single_path(path: &str) -> String {
     QUERY_PATH_REG.replace_all(path, "/").to_string()
 }
 /// Removes the last slash from the URL
@@ -163,11 +169,11 @@ pub fn remove_last_slash(url: &str) -> String {
     }
 }
 /// Removes HTTP scheme from string
-pub fn remove_http(path:&str) ->String{
-    HTTP_REG.replace(path,"").to_string()
+pub fn remove_http(path: &str) -> String {
+    HTTP_REG.replace(path, "").to_string()
 }
 /// Checks if url has an authentic HTTP scheme
-pub fn is_http(url:&str)->bool{
+pub fn is_http(url: &str) -> bool {
     HTTP_REG.is_match(url)
 }
 /// Removes the '?preview' query from an URL
@@ -194,8 +200,7 @@ pub fn add_last_slash(url: &str) -> String {
 /// Adds the http scheme to a URL
 fn add_scheme(url: String) -> String {
     let scheme: &str = "http://";
-    if !url.starts_with("http://")
-        && !url.starts_with("https://") {
+    if !url.starts_with("http://") && !url.starts_with("https://") {
         format!("{}{}", scheme, url)
     } else {
         url
@@ -236,39 +241,39 @@ pub fn sanitize_url(url: &str) -> String {
     String::from(url)
 }
 ///Remove `%20` space HTML Encode at the end of link
-fn remove_space_entity(url:&str)-> &str{
-    if url.ends_with("%20"){
-        &url[..url.len()-3]
-    }else{
+fn remove_space_entity(url: &str) -> &str {
+    if url.ends_with("%20") {
+        &url[..url.len() - 3]
+    } else {
         url
     }
 }
 ///HTML Encode then compare url with relative path
-pub fn encode_slash_starts_with(rel:&str,url:&str)->bool{
-    let url = ready_url_for_checking(url,"/");
-    let rel = ready_url_for_checking(rel,"/");
+pub fn encode_slash_starts_with(rel: &str, url: &str) -> bool {
+    let url = ready_url_for_checking(url, "/");
+    let rel = ready_url_for_checking(rel, "/");
     rel.starts_with(&url)
 }
 /// Lightly HTML encode a string of text
-fn html_encode(txt:&str)-> String{
-    let mut txt = txt.replace("/","%2F");
-    txt = txt.replace("+","%20");
-    txt = txt.replace(" ","%20");
+fn html_encode(txt: &str) -> String {
+    let mut txt = txt.replace("/", "%2F");
+    txt = txt.replace("+", "%20");
+    txt = txt.replace(" ", "%20");
     txt
 }
 /// Modify the url in order for it to be valid for checking
-fn ready_url_for_checking(x:&str,repl:&str)-> String{
+fn ready_url_for_checking(x: &str, repl: &str) -> String {
     let mut x = remove_last_slash(x);
-    x = replace_dir_queries(&x,repl);
-    x = WWW_REG.replace(&x,"").to_string();// Remove `www.` from path
+    x = replace_dir_queries(&x, repl);
+    x = WWW_REG.replace(&x, "").to_string(); // Remove `www.` from path
     x = OLAINDEX::remove_path(&x);
     x = html_encode(&x);
     x
 }
 /// Check if url is the parent directory of the href link
 pub fn sub_dir_check(x: &str, url: &str) -> bool {
-    let x = ready_url_for_checking(x,"%2F");
-    let url = ready_url_for_checking(url,"%2F");
+    let x = ready_url_for_checking(x, "%2F");
+    let url = ready_url_for_checking(url, "%2F");
     if !x.starts_with(&url) {
         let mut rel: Vec<&str> = x.split('/').collect();
         let mut new_url: Vec<&str> = url.split('/').collect();
@@ -289,24 +294,24 @@ pub fn sub_dir_check(x: &str, url: &str) -> bool {
     }
 }
 /// Checks if the path has a page query
-pub fn has_page_query(rel: &str) -> bool{
+pub fn has_page_query(rel: &str) -> bool {
     PAGE_QUERY_REG.is_match(rel)
 }
 /// Keeps url with `?page=` from being traversed backwards
 #[allow(unused_assignments)]
-pub fn within_page_limit(rel:&str,mut current_page:usize)-> bool{
-    if !has_page_query(rel){
+pub fn within_page_limit(rel: &str, mut current_page: usize) -> bool {
+    if !has_page_query(rel) {
         return false;
     }
-    let page_num = match PAGE_QUERY_REG.captures(rel){
+    let page_num = match PAGE_QUERY_REG.captures(rel) {
         Some(captures) => captures.get(1).unwrap().as_str().parse::<usize>().unwrap(),
-        None => 0
+        None => 0,
     };
 
     if current_page < page_num {
         current_page += 1;
         true
-    }else{
+    } else {
         false
     }
 }
@@ -317,9 +322,12 @@ fn ins_contains(rel: &str, text: &str) -> bool {
 /// Queries that is used not need for traversing a directory
 pub fn unrelated_dir_queries(rel: &str) -> bool {
     ins_contains(rel, "sortby")
-        || ins_contains(rel, "&sort_mode=") || ins_contains(rel, "&sort=")
-        || ins_contains(rel, "&file=") || ins_contains(rel, "archive=true")
-        || ins_contains(rel, "&expand=") || ins_contains(rel, "&collapse=")
+        || ins_contains(rel, "&sort_mode=")
+        || ins_contains(rel, "&sort=")
+        || ins_contains(rel, "&file=")
+        || ins_contains(rel, "archive=true")
+        || ins_contains(rel, "&expand=")
+        || ins_contains(rel, "&collapse=")
 }
 
 /// Check if URL is the same as relative path
@@ -337,59 +345,138 @@ pub fn is_rel_url(url: &str, rel: &str) -> bool {
     }
 }
 
-
 #[cfg(test)]
-mod tests{
-    use super::{is_file_ext,has_dir_queries,QUERY_PATH_REG,PATH_QUERY_REG};
+mod tests {
+    use super::{has_dir_queries, is_file_ext, PATH_QUERY_REG, QUERY_PATH_REG};
     #[test]
-    fn file_regex_test(){
-        assert!(is_file_ext("Example.3gp"));//start num
-        assert!(is_file_ext("Example.7z.001"));//Length at 3
-        assert!(!is_file_ext("Example.7z.01"));//Length below 3
-        assert!(is_file_ext("Example.u3i"));//letter #
-        assert!(is_file_ext("Example.PWD"));//caps
-        assert!(is_file_ext("Example.60D"));//2 #s starting
-        assert!(!is_file_ext("Example.87fesf27"));//Length above 7
-        assert!(is_file_ext("Example.H13"));//letter ##
-        assert!(is_file_ext("Example.alpx"));//all letters
+    fn file_regex_test() {
+        assert!(is_file_ext("Example.3gp")); //start num
+        assert!(is_file_ext("Example.7z.001")); //Length at 3
+        assert!(!is_file_ext("Example.7z.01")); //Length below 3
+        assert!(is_file_ext("Example.u3i")); //letter #
+        assert!(is_file_ext("Example.PWD")); //caps
+        assert!(is_file_ext("Example.60D")); //2 #s starting
+        assert!(!is_file_ext("Example.87fesf27")); //Length above 7
+        assert!(is_file_ext("Example.H13")); //letter ##
+        assert!(is_file_ext("Example.alpx")); //all letters
     }
     #[test]
-    fn dir_query_regex(){
-        assert_eq!(has_dir_queries("/index.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("/file+cat.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("help-file.php?dir=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("?dir=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("/?dir=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("/?dir=./Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("/?dir=.%2FHello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("/?dir=.Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(has_dir_queries("/?dir=/Hello+World%2F%2Fthumbnails%2F"),true);
+    fn dir_query_regex() {
+        assert_eq!(
+            has_dir_queries("/index.php?dir=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            has_dir_queries("/file+cat.php?dir=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            has_dir_queries("help-file.php?dir=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(has_dir_queries("?dir=Hello+World%2F%2Fthumbnails%2F"), true);
+        assert_eq!(
+            has_dir_queries("/?dir=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            has_dir_queries("/?dir=./Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            has_dir_queries("/?dir=.%2FHello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            has_dir_queries("/?dir=.Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            has_dir_queries("/?dir=/Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
 
-        assert_eq!(has_dir_queries("/dir=Hello+World%2F%2Fthumbnails%2F"),false);
-        assert_eq!(has_dir_queries("dir=Hello+World%2F%2Fthumbnails%2F"),false);
+        assert_eq!(
+            has_dir_queries("/dir=Hello+World%2F%2Fthumbnails%2F"),
+            false
+        );
+        assert_eq!(has_dir_queries("dir=Hello+World%2F%2Fthumbnails%2F"), false);
     }
     #[test]
-    fn one_non_letter_path(){
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/./ChampionHat/This_Battery_Pack_tut.pdf"),true);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/?/./ChampionHat/This_Battery_Pack_tut.pdf"),true);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/././ChampionHat/This_Battery_Pack_tut.pdf"),true);
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/./?/ChampionHat/This_Battery_Pack_tut.pdf"),true);
+    fn one_non_letter_path() {
+        assert_eq!(
+            QUERY_PATH_REG
+                .is_match("http://cool.example.net/./ChampionHat/This_Battery_Pack_tut.pdf"),
+            true
+        );
+        assert_eq!(
+            QUERY_PATH_REG
+                .is_match("http://cool.example.net/?/./ChampionHat/This_Battery_Pack_tut.pdf"),
+            true
+        );
+        assert_eq!(
+            QUERY_PATH_REG
+                .is_match("http://cool.example.net/././ChampionHat/This_Battery_Pack_tut.pdf"),
+            true
+        );
+        assert_eq!(
+            QUERY_PATH_REG
+                .is_match("http://cool.example.net/./?/ChampionHat/This_Battery_Pack_tut.pdf"),
+            true
+        );
 
-        assert_eq!(QUERY_PATH_REG.is_match("http://cool.example.net/.ChampionHat/This_Battery_Pack_tut.pdf"),false);
+        assert_eq!(
+            QUERY_PATH_REG
+                .is_match("http://cool.example.net/.ChampionHat/This_Battery_Pack_tut.pdf"),
+            false
+        );
     }
     #[test]
-    fn path_query_regex_test(){
-        assert_eq!(PATH_QUERY_REG.is_match("/index.php?path=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("/file+cat.php?path=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("help-file.php?path=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("?path=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("/?path=Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("/?path=./Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("/?path=.%2FHello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("/?path=.Hello+World%2F%2Fthumbnails%2F"),true);
-        assert_eq!(PATH_QUERY_REG.is_match("/?path=/Hello+World%2F%2Fthumbnails%2F"),true);
+    fn path_query_regex_test() {
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/index.php?path=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/file+cat.php?path=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("help-file.php?path=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("?path=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/?path=Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/?path=./Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/?path=.%2FHello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/?path=.Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/?path=/Hello+World%2F%2Fthumbnails%2F"),
+            true
+        );
 
-        assert_eq!(PATH_QUERY_REG.is_match("/path=Hello+World%2F%2Fthumbnails%2F"),false);
-        assert_eq!(PATH_QUERY_REG.is_match("path=Hello+World%2F%2Fthumbnails%2F"),false);
+        assert_eq!(
+            PATH_QUERY_REG.is_match("/path=Hello+World%2F%2Fthumbnails%2F"),
+            false
+        );
+        assert_eq!(
+            PATH_QUERY_REG.is_match("path=Hello+World%2F%2Fthumbnails%2F"),
+            false
+        );
     }
 }
