@@ -66,6 +66,7 @@ impl WebCrawler {
         {
             Ok(is_single_file) => match is_single_file {
                 true => {
+                    logger::head("Scraper Task Completed!");
                     self.downloader_file_task(client, scraper.files.pop().unwrap())
                         .await
                 }

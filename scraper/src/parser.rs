@@ -144,7 +144,7 @@ fn replace_dir_queries(x: &str, repl: &str) -> String {
 /// Determines if the URL is a direct link to a file.
 pub fn is_uri(url: &str) -> bool {
     let new_url = remove_last_slash(url);
-    URL_FILE_EXT_REG.is_match(&new_url)
+    URL_FILE_EXT_REG.is_match(&new_url) && !WEB_REG.is_match(&new_url)
 }
 
 /// Removes the /?/ path from the URL

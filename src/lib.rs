@@ -109,6 +109,9 @@ impl Zeiver {
         debug: bool,
     ) {
         let scraper = web_clone.scraper_task(&client_clone, Some(&url)).await;
+        if scraper.is_single_scrape {
+            return;
+        }
         let rc_scraper = Rc::new(scraper);
         if !debug {
             if record_only {

@@ -9,6 +9,7 @@ mod search;
 
 pub struct Scraper {
     pub files: Vec<asset::file::File>,
+    pub is_single_scrape: bool,
     dir_links: Vec<String>,
     od_type: od::ODMethod,
     current_subpage: usize,
@@ -25,6 +26,7 @@ impl Scraper {
             dir_links,
             od_type,
             current_subpage,
+            is_single_scrape: false,
         }
     }
     /// Scrape files URLs present on the current page(URL)
@@ -367,6 +369,7 @@ impl Scraper {
             self.files = vec![asset::file::File::new(
                 parser::remove_last_slash(url).as_str(),
             )];
+            self.is_single_scrape = true;
             true
         } else {
             false

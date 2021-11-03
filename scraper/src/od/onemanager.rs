@@ -45,7 +45,7 @@ impl OneManager {
         Document::from(res)
             .find(Name("i"))
             .any(|node| node.text().contains(IDENTIFIER_EXPAND_ICON))
-            || Document::from(res)
+            && Document::from(res)
                 .find(Name("i"))
                 .any(|node| node.text().contains(IDENTIFIER_FOLDER_ICON))
     }
