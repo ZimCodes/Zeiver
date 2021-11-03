@@ -130,9 +130,7 @@ impl Scraper {
                     && !parser::has_page_query(x)
                     || parser::within_page_limit(x, self.current_subpage)
                 {
-                    if parser::is_not_symbol(x)
-                        && !od::olaindex::OLAINDEX::has_dl_query(&x)
-                        && !parser::is_file_ext(x)
+                    if !od::olaindex::OLAINDEX::has_dl_query(&x) && !parser::is_file_ext(x)
                         || parser::check_dir_query(url, x)
                     {
                         self.add_dir(url, x, &mut dirs, level + 1, verbose);
@@ -196,8 +194,7 @@ impl Scraper {
         }
 
         //Determines whether to start recursive scraping
-        let is_dir_empty = dirs.is_empty();
-        if !is_dir_empty && depth > 1 {
+        if !dirs.is_empty() && depth > 1 {
             self.dir_recursive(
                 client, dirs, accept, reject, depth, tries, wait, retry_wait, is_random, verbose,
             )

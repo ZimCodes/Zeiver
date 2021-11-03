@@ -77,7 +77,7 @@ fn onmanager_older_sub_document(res: &str, url: &str) -> Vec<String> {
 }
 
 /// Parses Older main OneManager HTML Documents
-fn onmanager_older_main_document(res: &str, url: &str) -> Vec<String> {
+fn one_manager_older_main_document(res: &str, url: &str) -> Vec<String> {
     let links: Vec<String> = Document::from(res)
         .find(
             Name("div")
@@ -99,7 +99,7 @@ fn onmanager_older_main_document(res: &str, url: &str) -> Vec<String> {
 }
 
 /// Parses Modern OneManager HTML Documents
-fn onemanager_modern_document(res: &str, url: &str) -> Vec<String> {
+fn one_manager_modern_document(res: &str, url: &str) -> Vec<String> {
     let links: Vec<String> = Document::from(res)
         .find(
             Name("td")
@@ -114,7 +114,7 @@ fn onemanager_modern_document(res: &str, url: &str) -> Vec<String> {
         .map(|link| parser::sanitize_url(link))
         .collect();
     if links.is_empty() {
-        onmanager_older_main_document(res, url)
+        one_manager_older_main_document(res, url)
     } else {
         links
     }
@@ -271,7 +271,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::DirectoryLister => directory_lister_document(res, url),
         ODMethod::DirectoryListingScript => directory_listing_script_document(res, url),
         ODMethod::PHPBB => phpbb_document(res, url),
-        ODMethod::OneManager => onemanager_modern_document(res, url),
+        ODMethod::OneManager => one_manager_modern_document(res, url),
         ODMethod::H5AI => h5ai_document(res, url),
         ODMethod::MicrosoftIIS => microsoft_iis_documents(res, url),
         ODMethod::Snif => snif_documents(res, url),

@@ -5,8 +5,8 @@ use logger;
 use reqwest;
 use std::path::PathBuf;
 use std::process::Command;
+use std::rc::Rc;
 use std::str::FromStr;
-use std::sync::Arc;
 use tokio::time::Duration;
 
 pub struct Zeiver;
@@ -33,7 +33,7 @@ impl Zeiver {
     }
     ///Begin crawling process
     async fn crawl(mut opts: cmd_opts::Opts) {
-        let web_crawler = Arc::new(crawler::WebCrawler::new(opts.clone()));
+        let web_crawler = Rc::new(crawler::WebCrawler::new(opts.clone()));
         Zeiver::clean_urls_list(&mut opts);
         if !opts.urls.is_empty() {
             Zeiver::multi_thread(web_crawler, opts).await;
@@ -47,13 +47,16 @@ impl Zeiver {
     /// Performs tasks given to the WebCrawler under multi-threading
     /// NOTE: The amount of threads depends on the amount of URLs specified
     /// by the user.
-    async fn multi_thread(web_crawler: Arc<crawler::WebCrawler>, opts: cmd_opts::Opts) {
-        let client = Arc::new(Zeiver::client_creator(opts.clone()).unwrap());
+    async fn multi_thread(web_crawler: Rc<crawler::WebCrawler>, opts: cmd_opts::Opts) {
+        let client = Rc::new(Zeiver::client_creator(opts.clone()).unwrap());
+        let mut recorder_id: usize = 0;
         for url in opts.urls {
+            recorder_id += 1;
             Zeiver::establish_task(
                 url,
                 web_crawler.clone(),
                 client.clone(),
+                recorder_id,
                 &opts.print_header,
                 opts.print_headers,
                 opts.record_only,
@@ -66,8 +69,9 @@ impl Zeiver {
     /// Execute the task provided by the commandline
     async fn establish_task(
         url: PathBuf,
-        web_clone: Arc<WebCrawler>,
-        client_clone: Arc<reqwest::Client>,
+        web_clone: Rc<WebCrawler>,
+        client_clone: Rc<reqwest::Client>,
+        recorder_id: usize,
         print_header: &Option<String>,
         print_headers: bool,
         record_only: bool,
@@ -82,36 +86,41 @@ impl Zeiver {
         } else if print_header.is_some() {
             web_clone.print_header(&client_clone, url).await.unwrap();
         } else {
-            Zeiver::spawn_thread(url, web_clone, client_clone, record_only, record, debug).await;
+            Zeiver::spawn_thread(
+                url,
+                web_clone,
+                client_clone,
+                record_only,
+                record,
+                recorder_id,
+                debug,
+            )
+            .await;
         }
     }
     /// Spawns a new thread
     async fn spawn_thread(
         url: PathBuf,
-        web_clone: Arc<WebCrawler>,
-        client_clone: Arc<reqwest::Client>,
+        web_clone: Rc<WebCrawler>,
+        client_clone: Rc<reqwest::Client>,
         record_only: bool,
         record: bool,
+        recorder_id: usize,
         debug: bool,
     ) {
-        tokio::spawn(async move {
-            let scraper = web_clone.scraper_task(&client_clone, Some(&url)).await;
-            let arc_scraper = Arc::new(scraper);
-            if !debug {
-                let arc_count = Arc::strong_count(&web_clone) - 1; //Total amount of web crawlers sharing a pointer
-                if record_only {
-                    web_clone.recorder_task(arc_scraper, arc_count).await;
-                } else {
-                    let arc_scraper_clone = Arc::clone(&arc_scraper);
-                    if record {
-                        web_clone.recorder_task(arc_scraper_clone, arc_count).await;
-                    }
-                    web_clone.downloader_task(&client_clone, arc_scraper).await;
+        let scraper = web_clone.scraper_task(&client_clone, Some(&url)).await;
+        let rc_scraper = Rc::new(scraper);
+        if !debug {
+            if record_only {
+                web_clone.recorder_task(rc_scraper, recorder_id).await;
+            } else {
+                let rc_scraper_clone = Rc::clone(&rc_scraper);
+                if record {
+                    web_clone.recorder_task(rc_scraper_clone, recorder_id).await;
                 }
+                web_clone.downloader_task(&client_clone, rc_scraper).await;
             }
-        })
-        .await
-        .unwrap();
+        }
     }
     // Adds configurations to the Client
     fn client_creator(opts: cmd_opts::Opts) -> Result<reqwest::Client, reqwest::Error> {

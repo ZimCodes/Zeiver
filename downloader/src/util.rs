@@ -1,11 +1,13 @@
-use asset;
 use bytes::Bytes;
 use lazy_static::lazy_static;
-use logger;
 use regex::Regex;
 use std::env;
 use tokio::fs;
 use tokio::io::{AsyncWriteExt, ErrorKind};
+
+use asset;
+use logger;
+use compat;
 
 lazy_static! {
     static ref ONE_PATH_REG: Regex =
@@ -48,6 +50,7 @@ pub async fn download_progress(mut f: fs::File, file_byte: &[u8], name: &str) {
         }
     }
     logger::info("File Size", &byte_calc(file_length));
+    logger::info("Downloaded", &byte_calc(data_length));
     logger::head(&format!("{} Downloaded!", name));
 }
 async fn retrieve_buffer_data(f: &mut fs::File, file_byte: &[u8]) -> Result<usize, ()> {
@@ -62,6 +65,7 @@ async fn retrieve_buffer_data(f: &mut fs::File, file_byte: &[u8]) -> Result<usiz
         },
     }
 }
+/// Byte formatting
 fn byte_calc(total: usize) -> String {
     let units: [&str; 9] = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
     let total: f32 = total as f32;
@@ -102,9 +106,9 @@ fn file_path_join(file: &asset::file::File, save_dir_path: &str) -> String {
         && !save_dir_path.ends_with(r"\")
         && !save_dir_path.ends_with(r"/")
     {
-        format!(r"{}\{}", save_dir_path, file.name)
+        compat::correct_os_path(&*format!(r"{}\{}", save_dir_path, file.name))
     } else {
-        format!(r"{}{}", save_dir_path, file.name)
+        compat::correct_os_path(&*format!(r"{}{}", save_dir_path, file.name))
     }
 }
 /// Link remote directory path with local save location

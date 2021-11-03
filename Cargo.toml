@@ -20,7 +20,8 @@ members = [
     "grabber",
     "recorder",
     "asset",
-    "logger"
+    "logger",
+    "compat"
 ]
 
 [dependencies]

@@ -1,22 +1,21 @@
 use asset;
+use compat;
 use logger;
 use scraper::{self, Scraper};
 use std::env;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::rc::Rc;
 use tokio::fs;
 use tokio::io::{AsyncWriteExt, Error, ErrorKind};
 
-mod util;
-
 pub struct Recorder {
-    scraper: Arc<Scraper>,
+    scraper: Rc<Scraper>,
     verbose: bool,
 }
 
 impl Recorder {
     /// Creates a new Recorder
-    pub async fn new(save_dir: &str, scraper: Arc<Scraper>, verbose: bool) -> Recorder {
+    pub async fn new(save_dir: &str, scraper: Rc<Scraper>, verbose: bool) -> Recorder {
         Recorder::save_dir(&save_dir).await;
         Recorder { scraper, verbose }
     }
@@ -49,7 +48,7 @@ impl Recorder {
         let mut stat = asset::stat::Stat::new();
         for page in &self.scraper.pages {
             for file in &page.files {
-                let line_separator = util::get_line_separator();
+                let line_separator = compat::get_line_separator();
                 if !no_stats {
                     if let Some(ext) = &file.ext {
                         let file_name = &file.name;
@@ -133,11 +132,8 @@ impl Recorder {
                 }
             },
         };
-        let links = if cfg!(target_os = "windows") {
-            msg.split("\r\n")
-        } else {
-            msg.split("\n")
-        };
+        let separator = compat::get_line_separator();
+        let links = msg.split(&separator);
         let mut link_strings = Vec::new();
         for link in links {
             link_strings.push(PathBuf::from(link))
@@ -146,7 +142,8 @@ impl Recorder {
     }
     /// Setup files
     fn file_properties(output_record: &String, recorder_id: usize) -> (String, String) {
-        let record_path = Path::new(output_record);
+        let correct_record_path = compat::correct_os_path(output_record);
+        let record_path = Path::new(&correct_record_path);
         let file_name = record_path
             .file_name()
             .expect("Path to create recorder file does not exist");
@@ -202,6 +199,9 @@ impl Recorder {
             recorder_id,
             file_name
         );
+
+        let stats_file = compat::correct_os_path(&stats_file);
+
         if let Err(e) = Recorder::create_stats_file(stat, &stats_file).await {
             eprintln!("Cannot make stat file. {}", e);
         }

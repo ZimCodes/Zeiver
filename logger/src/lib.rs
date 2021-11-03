@@ -45,7 +45,7 @@ pub fn head(title: &str) {
 pub fn arrows_head(text: &str) {
     let line = "----->".bright_magenta();
     let other_line = "<-----".bright_magenta();
-    let text = text.bright_yellow().bold().underline();
+    let text = text.bright_cyan().bold().underline();
     log(&format!("{}  {}  {}", line, text, other_line));
     new_line();
 }

@@ -9,7 +9,6 @@ lazy_static! {
     static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])$").unwrap();
     static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])$").unwrap();
     static ref PREVIEW_REG:Regex = Regex::new(r"\?preview$").unwrap();
-    static ref SYMBOLS_REG:Regex = Regex::new(r"/?[a-zA-Z0-9\*~\+\-%\?\[\]\$_\.!‘\(\)=]+/").unwrap();
     static ref QUERY_PATH_REG:Regex = Regex::new(r"/\./").unwrap();
     static ref LAST_SLASH_REG:Regex = Regex::new(r"/$").unwrap();
     static ref DUPLICATE_SLASH_REG:Regex = Regex::new(r"[^:]//\w+").unwrap();
@@ -19,6 +18,7 @@ lazy_static! {
     static ref PATH_QUERY_REG:Regex = Regex::new(r"(([a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)=]+\.php/?\?path=)|(/?\?path=))(\.(/|%2F))?").unwrap();
     static ref WWW_REG:Regex = Regex::new(r"www\.").unwrap();
     static ref HTTP_REG:Regex = Regex::new(r"^https?://").unwrap();
+    static ref FIRST_REG:Regex = Regex::new(r"^.{1}").unwrap();
 }
 /// Joins the relative & original URL together
 /// 1.) If first path of URL matches first path of relative URL,
@@ -125,7 +125,7 @@ pub fn check_dir_query(url: &str, rel: &str) -> bool {
         Some(query) => query,
         None => "",
     };
-    let rel = &rel[1..rel.len()];
+    let rel = &*FIRST_REG.replace(rel, "").to_string();
     if query.ends_with("/") {
         let query_encoded_slash = query.replace("/", "%2F");
         rel.contains(query_encoded_slash.as_str()) && rel != query && has_dir_query
@@ -142,9 +142,9 @@ fn replace_dir_queries(x: &str, repl: &str) -> String {
     DIR_QUERIES_REG.replace(x, repl).to_string()
 }
 /// Determines if the URL is a direct link to a file.
-/// File must not be an `htm(l),php,asp(x)` file type.
 pub fn is_uri(url: &str) -> bool {
-    URL_FILE_EXT_REG.is_match(url) && (!WEB_REG.is_match(url))
+    let new_url = remove_last_slash(url);
+    URL_FILE_EXT_REG.is_match(&new_url)
 }
 
 /// Removes the /?/ path from the URL
@@ -205,12 +205,6 @@ fn add_scheme(url: String) -> String {
     } else {
         url
     }
-}
-/// Checks if relative URL is a symbol
-/// # Example:
-/// ```首页, 驱动器,시간짜리```
-pub fn is_not_symbol(rel_url: &str) -> bool {
-    SYMBOLS_REG.is_match(rel_url)
 }
 
 /// Checks if URL has a file extension
