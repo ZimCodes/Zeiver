@@ -46,29 +46,27 @@ impl Recorder {
             .await
             .expect("Unable to create record file");
         let mut stat = asset::stat::Stat::new();
-        for page in &self.scraper.pages {
-            for file in &page.files {
-                let line_separator = compat::get_line_separator();
-                if !no_stats {
-                    if let Some(ext) = &file.ext {
-                        let file_name = &file.name;
-                        let new_name = String::from(file_name);
-                        if !no_stats_list {
-                            stat.add_file(new_name);
-                        }
-                        stat.add_extension(ext.to_string());
+        for file in &self.scraper.files {
+            let line_separator = compat::get_line_separator();
+            if !no_stats {
+                if let Some(ext) = &file.ext {
+                    let file_name = &file.name;
+                    let new_name = String::from(file_name);
+                    if !no_stats_list {
+                        stat.add_file(new_name);
                     }
+                    stat.add_extension(ext.to_string());
                 }
-                let link = format!("{}{}", file.link, line_separator);
-                if self.verbose {
-                    logger::log_split("URI", &file.link);
-                }
-                // Write the link to the page file
-                let link_buf = link.as_bytes();
-                f.write(link_buf)
-                    .await
-                    .expect("A problem occurred when trying to write to record file");
             }
+            let link = format!("{}{}", file.link, line_separator);
+            if self.verbose {
+                logger::log_split("URI", &file.link);
+            }
+            // Write the link to the page file
+            let link_buf = link.as_bytes();
+            f.write(link_buf)
+                .await
+                .expect("A problem occurred when trying to write to record file");
         }
 
         if !no_stats {

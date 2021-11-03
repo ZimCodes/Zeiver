@@ -1,3 +1,4 @@
+use asset;
 use cmd_opts;
 use downloader;
 use grabber;
@@ -63,10 +64,16 @@ impl WebCrawler {
             )
             .await
         {
-            Ok(request) => println!("hello"),
+            Ok(is_single_file) => match is_single_file {
+                true => {
+                    self.downloader_file_task(client, scraper.files.pop().unwrap())
+                        .await
+                }
+                false => logger::head("Scraper Task Completed!"),
+            },
             Err(e) => panic!("{}", e.to_string()),
-        }
-        logger::head("Scraper Task Completed!");
+        };
+
         scraper
     }
     /// Activates Recorder using content obtained from Scraper
@@ -133,14 +140,15 @@ impl WebCrawler {
         downloader.start(client, scraper).await;
         logger::head("Downloader Task Completed!");
     }
-
-    pub async fn downloader_file_task(&self, client: &reqwest::Client, url: PathBuf) {
+    /// Use Downloader to download a single file
+    pub async fn downloader_file_task(&self, client: &reqwest::Client, file: asset::file::File) {
         logger::head("Using Downloader");
         let save = self
             .opts
             .output
             .to_str()
             .expect("Cannot parse PathBuf into a &str in downloader task.");
+
         let downloader = downloader::Downloader::new(
             save,
             self.opts.cut_dirs,
@@ -153,7 +161,7 @@ impl WebCrawler {
         )
         .await;
 
-        if let Err(e) = downloader.start_file(client, url).await {
+        if let Err(e) = downloader.start_file(client, file).await {
             logger::error(&*format!("Error while downloading: {}", e.to_string()));
         }
         logger::head("Downloader Task Completed!");

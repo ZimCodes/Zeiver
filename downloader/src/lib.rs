@@ -4,7 +4,6 @@ use logger;
 use mime::Mime;
 use recorder::Recorder;
 use scraper::Scraper;
-use std::path::PathBuf;
 use std::rc::Rc;
 use std::str::FromStr;
 mod util;
@@ -41,13 +40,10 @@ impl Downloader {
     }
     /// Start downloading files from the scraper
     pub async fn start(&self, client: &reqwest::Client, scraper: Rc<Scraper>) {
-        let pages = &scraper.pages;
-        for page in pages {
-            if !page.files.is_empty() {
-                for file in &page.files {
-                    if let Err(e) = self.run(client, file).await {
-                        panic!("{}", e.to_string());
-                    }
+        if !scraper.files.is_empty() {
+            for file in &scraper.files {
+                if let Err(e) = self.run(client, file).await {
+                    panic!("{}", e.to_string());
                 }
             }
         }
@@ -56,9 +52,8 @@ impl Downloader {
     pub async fn start_file(
         &self,
         client: &reqwest::Client,
-        url: PathBuf,
+        file: asset::file::File,
     ) -> Result<(), reqwest::Error> {
-        let file = asset::file::File::new(url.to_str().unwrap());
         self.run(client, &file).await
     }
     /// Downloads a File

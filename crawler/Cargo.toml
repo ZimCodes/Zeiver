@@ -10,4 +10,5 @@ cmd_opts = {path = "../cmd_opts"}
 recorder = {path = "../recorder"}
 grabber = {path = "../grabber" }
 logger = {path = "../logger"}
+asset = {path = "../asset"}
 reqwest = "0.11.4"

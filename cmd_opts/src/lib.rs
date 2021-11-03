@@ -26,7 +26,7 @@ pub struct Opts {
     ///
     /// Scan ODs displaying their content to the terminal. *A shortcut to activating*
     /// `--verbose` *&* `--test`.
-    #[structopt(long,conflicts_with_all(&["test","verbose"]))]
+    #[structopt(long,conflicts_with_all(&["test","verbose","record-only"]))]
     pub scan: bool,
     ///Prints all Response Headers to terminal
     ///

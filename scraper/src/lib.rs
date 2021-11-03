@@ -8,7 +8,7 @@ mod parser;
 mod search;
 
 pub struct Scraper {
-    pub pages: Vec<asset::page::Page>,
+    pub files: Vec<asset::file::File>,
     dir_links: Vec<String>,
     od_type: od::ODMethod,
     current_subpage: usize,
@@ -16,12 +16,12 @@ pub struct Scraper {
 
 impl Scraper {
     pub fn new() -> Scraper {
-        let pages = Vec::new();
+        let files = Vec::new();
         let dir_links = Vec::new();
         let od_type = od::ODMethod::Generic;
         let current_subpage = 1;
         Scraper {
-            pages,
+            files,
             dir_links,
             od_type,
             current_subpage,
@@ -155,12 +155,12 @@ impl Scraper {
         retry_wait: f32,
         is_random: bool,
         verbose: bool,
-    ) -> Result<(), reqwest::Error> {
+    ) -> Result<bool, reqwest::Error> {
         let url_string = parser::add_last_slash(url);
         let url = url_string.as_str();
         //Check if URL points to a file
         if self.single_scrape(url, verbose) {
-            return Ok(());
+            return Ok(true);
         }
 
         self.od_type_from_url(url);
@@ -184,13 +184,13 @@ impl Scraper {
                 "URL: {}\n↑⚠ This Open Directory cannot be scraped! ⚠↑\n",
                 url
             ));
-            return Ok(());
+            return Ok(false);
         }
         let dirs = self.scrape_dirs(res.as_str(), &url, 0, true, verbose);
 
-        let files = self.scrape_files(res.as_str(), &url, &accept, &reject, true, verbose);
+        let mut files = self.scrape_files(res.as_str(), &url, &accept, &reject, true, verbose);
         if !files.is_empty() {
-            self.pages.push(asset::page::Page::new(files));
+            self.files.append(&mut files);
         }
 
         //Determines whether to start recursive scraping
@@ -201,7 +201,7 @@ impl Scraper {
             .await?;
         }
 
-        Ok(())
+        Ok(false)
     }
     /// Adds a URL to the list of directories cycle through
     fn add_dir(
@@ -342,9 +342,9 @@ impl Scraper {
             logger::stars_info("Status Code", status_code.as_str());
             logger::new_line();
             //Retrieve Files from Directory Link
-            let files = self.scrape_files(res.as_str(), url, &accept, &reject, false, verbose);
+            let mut files = self.scrape_files(res.as_str(), url, &accept, &reject, false, verbose);
             if !files.is_empty() {
-                self.pages.push(asset::page::Page::new(files));
+                self.files.append(&mut files);
             }
 
             //Retrieve Directories from current Directory Link
@@ -364,10 +364,9 @@ impl Scraper {
                 logger::log_split("URI", url);
             }
 
-            let pages = vec![asset::page::Page::new(vec![asset::file::File::new(
+            self.files = vec![asset::file::File::new(
                 parser::remove_last_slash(url).as_str(),
-            )])];
-            self.pages = pages;
+            )];
             true
         } else {
             false
