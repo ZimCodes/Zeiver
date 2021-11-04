@@ -9,10 +9,19 @@ use crate::od::ODMethod;
 use crate::parser;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Not, Predicate};
+/// Parses the PanIndex type ods
+fn panindex_document(res: &str, url: &str) -> Vec<String> {
+    Document::from(res)
+        .find(Name("div").and(Attr("data-url", ())))
+        .filter(|node| no_parent_dir(url, &node.text(), node.attr("data-url")))
+        .filter_map(|node| node.attr("data-url"))
+        .filter(|link| !link.contains("javascript:"))
+        .map(|link| parser::sanitize_url(link))
+        .collect()
+}
 /// Parses OdIndex HTML Documents
 fn odindex_documents(res: &str, url: &str) -> Vec<String> {
     Document::from(res)
-        //Find all <a> tags
         .find(Name("a").and(Class("item")))
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter(|node| !node.text().ends_with(".."))
@@ -260,6 +269,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::H5AI => h5ai_document(res, url),
         ODMethod::MicrosoftIIS => microsoft_iis_documents(res, url),
         ODMethod::Snif => snif_documents(res, url),
+        ODMethod::PanIndex => panindex_document(res, url),
         ODMethod::OdIndex => odindex_documents(res, url),
         ODMethod::LightTPD => lighttpd_document(res, url),
         ODMethod::Apache | ODMethod::NGINX => apache_document(res, url),

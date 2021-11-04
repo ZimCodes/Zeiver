@@ -11,6 +11,7 @@ pub mod odindex;
 pub mod olaindex;
 pub mod oneindex;
 pub mod onemanager;
+pub mod panindex;
 pub mod phpbb;
 pub mod snif;
 
@@ -31,6 +32,7 @@ pub enum ODMethod {
     Snif,
     OdIndex,
     OneIndex,
+    PanIndex,
     Generic,
     None,
 }
@@ -66,6 +68,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::Snif
     } else if odindex::OdIndex::is_od(res) {
         ODMethod::OdIndex
+    } else if panindex::PanIndex::is_od(res) {
+        ODMethod::PanIndex
     } else {
         autoindex_type_check(res, server_name)
     }

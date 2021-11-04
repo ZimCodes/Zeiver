@@ -15,6 +15,7 @@
 * snif
 * OdIndex
 * OneIndex
+* PanIndex
 
 **May also work with other ODs. So long as they have `<a>`.*
 
