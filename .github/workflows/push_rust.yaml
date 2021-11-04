@@ -12,9 +12,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Update Rust
-        run: rustup update
-      - name: Test Cargo
         run: |
-          cargo fix --edition
-          cargo check
-          cargo test --workspace
+        rustup update
+        cargo fix --edition
+        cargo check
+      - name: Test Cargo
+        run: cargo test --workspace
+  testing_windows_job:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/@checkoutv2
+      - name: Update Rust
+        run: |
+        rustup update
+        cargo fix --edition
+        cargo check
+      - name: Test Cargo
+        run: cargo test --workspace
