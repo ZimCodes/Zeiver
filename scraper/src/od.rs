@@ -9,6 +9,7 @@ pub mod nginx;
 mod none;
 pub mod odindex;
 pub mod olaindex;
+pub mod oneindex;
 pub mod onemanager;
 pub mod phpbb;
 pub mod snif;
@@ -29,6 +30,7 @@ pub enum ODMethod {
     MicrosoftIIS,
     Snif,
     OdIndex,
+    OneIndex,
     Generic,
     None,
 }
@@ -54,6 +56,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::DirectoryListingScript
     } else if phpbb::PHPBB::is_od(res) {
         ODMethod::PHPBB
+    } else if oneindex::OneIndex::is_od(res) {
+        ODMethod::OneIndex
     } else if onemanager::OneManager::is_od(res) {
         ODMethod::OneManager
     } else if h5ai::H5AI::is_od(res) {

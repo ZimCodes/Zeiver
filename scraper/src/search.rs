@@ -17,7 +17,7 @@ fn odindex_documents(res: &str, url: &str) -> Vec<String> {
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter(|node| !node.text().ends_with(".."))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -34,7 +34,7 @@ fn snif_documents(res: &str, url: &str) -> Vec<String> {
         .filter(|node| !snif::Snif::is_parent(node.attr("title")))
         .filter(|node| !snif::Snif::is_download(node.attr("href")))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -44,7 +44,7 @@ fn microsoft_iis_documents(res: &str, url: &str) -> Vec<String> {
         .find(Name("pre").descendant(Name("a")))
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -54,48 +54,32 @@ fn h5ai_document(res: &str, url: &str) -> Vec<String> {
         .find(Name("td").and(Class("fb-n")).descendant(Name("a")))
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
 
-/// Parses Older OneManager HTML Documents
-fn onmanager_older_sub_document(res: &str, url: &str) -> Vec<String> {
+/// Parses OneIndex related HTML Documents
+fn one_manager_oneindex_document(res: &str, url: &str) -> Vec<String> {
     Document::from(res)
         .find(
             Name("div")
                 .and(Class("mdui-container"))
-                .descendant(Name("li").descendant(Name("a").and(Not(Attr("title", "download"))))),
+                .descendant(
+                    Name("li").descendant(
+                        Name("a").and(
+                            Not(Attr("title", "download")).and(Not(Attr("title", "直接下载"))),
+                        ),
+                    ),
+                ),
         )
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter(|node| !node.text().contains("arrow_"))
         .filter_map(|node| node.attr("href"))
         .filter(|link| !link.ends_with("/?/"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
-}
-
-/// Parses Older main OneManager HTML Documents
-fn one_manager_older_main_document(res: &str, url: &str) -> Vec<String> {
-    let links: Vec<String> = Document::from(res)
-        .find(
-            Name("div")
-                .and(Class("mdui-container-fluid"))
-                .descendant(Name("li").descendant(Name("a").and(Not(Attr("title", "download"))))),
-        )
-        .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
-        .filter(|node| !node.text().contains("arrow_"))
-        .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.ends_with("/?/"))
-        .filter(|link| !link.contains("javascript:void"))
-        .map(|link| parser::sanitize_url(link))
-        .collect();
-    if links.is_empty() {
-        onmanager_older_sub_document(res, url)
-    } else {
-        links
-    }
 }
 
 /// Parses Modern OneManager HTML Documents
@@ -110,11 +94,11 @@ fn one_manager_modern_document(res: &str, url: &str) -> Vec<String> {
         .filter(|node| !node.text().contains("arrow_"))
         .filter_map(|node| node.attr("href"))
         .filter(|link| !link.ends_with("/?/"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect();
     if links.is_empty() {
-        one_manager_older_main_document(res, url)
+        one_manager_oneindex_document(res, url)
     } else {
         links
     }
@@ -133,7 +117,7 @@ fn phpbb_document(res: &str, url: &str) -> Vec<String> {
         .filter(|node| !PHPBB::is_a_sort_query(node.attr("href").unwrap()))
         .filter(|node| !PHPBB::is_copy_file(&node.text()))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -157,7 +141,7 @@ fn lighttpd_document(res: &str, url: &str) -> Vec<String> {
             let mut paths: Vec<&str> = link.split("/").collect();
             !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
         })
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(&link))
         .collect()
 }
@@ -172,7 +156,7 @@ fn directory_listing_script_document(res: &str, url: &str) -> Vec<String> {
         )
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -189,7 +173,7 @@ fn apache_document(res: &str, url: &str) -> Vec<String> {
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter(|node| !NGINX::has_extra_query(node.attr("href").unwrap()))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -204,7 +188,7 @@ fn directory_lister_document(res: &str, url: &str) -> Vec<String> {
             !url.contains(link) && no_parent_dir(url, &node.text(), node.attr("href"))
         })
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -216,7 +200,7 @@ fn autoindex_document(res: &str, url: &str) -> Vec<String> {
         .find(Name("tbody").descendant(Class("autoindex_a").or(Class("default_a"))))
         .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
         .filter_map(|node| node.attr("href"))
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -242,7 +226,7 @@ fn olaindex_document(res: &str, url: &str) -> Vec<String> {
             let mut paths: Vec<&str> = link.split("/").collect();
             !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
         })
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -258,7 +242,7 @@ fn generic_document(res: &str, url: &str) -> Vec<String> {
             let mut paths: Vec<&str> = link.split("/").collect();
             !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
         })
-        .filter(|link| !link.contains("javascript:void"))
+        .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
 }
@@ -271,6 +255,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::DirectoryLister => directory_lister_document(res, url),
         ODMethod::DirectoryListingScript => directory_listing_script_document(res, url),
         ODMethod::PHPBB => phpbb_document(res, url),
+        ODMethod::OneIndex => one_manager_oneindex_document(res, url),
         ODMethod::OneManager => one_manager_modern_document(res, url),
         ODMethod::H5AI => h5ai_document(res, url),
         ODMethod::MicrosoftIIS => microsoft_iis_documents(res, url),
