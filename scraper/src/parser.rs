@@ -7,7 +7,7 @@ use url::Url;
 lazy_static! {
     static ref BACK_REG:Regex = Regex::new(r"(?:\.\./)").unwrap();
     static ref REL_FILE_EXT_REG:Regex = Regex::new(r"\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])$").unwrap();
-    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"\w/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])$").unwrap();
+    static ref URL_FILE_EXT_REG:Regex = Regex::new(r"[\w:~\+\-%\[\]\$\.!‘\(\)= ]/[a-zA-Z0-9~\+\-%\[\]\$_\.!‘\(\)= ]+\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])$").unwrap();
     static ref PREVIEW_REG:Regex = Regex::new(r"\?preview$").unwrap();
     static ref QUERY_PATH_REG:Regex = Regex::new(r"/\./").unwrap();
     static ref LAST_SLASH_REG:Regex = Regex::new(r"/$").unwrap();

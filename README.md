@@ -51,7 +51,7 @@ Afterwards, the links are either sent to the
 *AND/OR*
  
 **Downloader** (_Enabled by default_). The **Downloader** uses the **Grabber** to download
-the files' data from the internet. the **Downloader** then writes the data to a newly created files.
+the files' data from the internet. The **Downloader** then writes the data to a newly created files.
 
 ### More
 1. Uses asynchronous runtime.

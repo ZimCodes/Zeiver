@@ -6,8 +6,8 @@ use tokio::fs;
 use tokio::io::{AsyncWriteExt, ErrorKind};
 
 use asset;
-use logger;
 use compat;
+use logger;
 
 lazy_static! {
     static ref ONE_PATH_REG: Regex =
@@ -119,8 +119,7 @@ async fn link_dir_path(
     use_dir: bool,
 ) -> String {
     if use_dir {
-        let dir_path = format!("{}{}", cur_dir, cut_dir(file, cuts));
-
+        let dir_path = format!("{}{}", cur_dir, cut_dir(file, cuts).replace(":", ""));
         if let Err(e) = fs::create_dir_all(&dir_path).await {
             match e.kind() {
                 ErrorKind::AlreadyExists => logger::log(&format!("{} already exists!", dir_path)),
