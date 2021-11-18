@@ -115,7 +115,7 @@ impl Http {
     /// Pauses the thread
     fn pause_thread(wait: f32, verbose: bool) {
         if verbose {
-            logger::log("Sleeping!");
+            logger::log("Waiting.....");
         }
 
         let wait_dur = Duration::from_secs_f32(wait);

@@ -41,29 +41,14 @@ pub async fn prepare_file(
 /// Downloads the file while showing its current progress
 pub async fn download_progress(mut f: fs::File, file_byte: &[u8], name: &str) {
     let file_length = file_byte.len();
-    let mut data_length: usize = 0;
 
-    while let Ok(byte) = retrieve_buffer_data(&mut f, file_byte).await {
-        data_length += byte;
-        if data_length >= file_length {
-            break;
+    if let Err(e) = f.write_all(file_byte).await {
+        if let ErrorKind::Interrupted = e.kind() {
+            eprintln!("{}", format!("Unable to download {}!", name));
         }
     }
     logger::info("File Size", &byte_calc(file_length));
-    logger::info("Downloaded", &byte_calc(data_length));
     logger::head(&format!("{} Downloaded!", name));
-}
-async fn retrieve_buffer_data(f: &mut fs::File, file_byte: &[u8]) -> Result<usize, ()> {
-    match f.write(file_byte).await {
-        Ok(byte) => Ok(byte),
-        Err(e) => match e.kind() {
-            ErrorKind::Interrupted => Ok(0usize),
-            _ => {
-                eprintln!("No bytes in the buffer were written to this File");
-                Err(())
-            }
-        },
-    }
 }
 /// Byte formatting
 fn byte_calc(total: usize) -> String {

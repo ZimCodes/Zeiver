@@ -14,6 +14,7 @@ pub struct WebCrawler {
 }
 
 impl WebCrawler {
+    ///Creates a new webcrawler
     pub fn new(opts: cmd_opts::Opts) -> WebCrawler {
         WebCrawler { opts }
     }
@@ -122,52 +123,40 @@ impl WebCrawler {
     /// Performs task given to the Downloader
     pub async fn downloader_task(&self, client: &reqwest::Client, scraper: Rc<scraper::Scraper>) {
         logger::head("Using Downloader");
-        let save = self
-            .opts
-            .output
-            .to_str()
-            .expect("Cannot parse PathBuf into a &str in downloader task.");
-        let downloader = downloader::Downloader::new(
-            save,
-            self.opts.cut_dirs,
-            self.opts.tries,
-            self.opts.wait,
-            self.opts.retry_wait,
-            self.opts.no_dirs,
-            self.opts.random_wait,
-            self.opts.verbose,
-        )
-        .await;
+        let downloader = self.init_downloader().await;
         downloader.start(client, scraper).await;
         logger::head("Downloader Task Completed!");
     }
     /// Use Downloader to download a single file
     pub async fn downloader_file_task(&self, client: &reqwest::Client, file: asset::file::File) {
         logger::head("Using Downloader");
-        let save = self
-            .opts
-            .output
-            .to_str()
-            .expect("Cannot parse PathBuf into a &str in downloader task.");
 
-        let downloader = downloader::Downloader::new(
-            save,
-            self.opts.cut_dirs,
-            self.opts.tries,
-            self.opts.wait,
-            self.opts.retry_wait,
-            self.opts.no_dirs,
-            self.opts.random_wait,
-            self.opts.verbose,
-        )
-        .await;
-
+        let downloader = self.init_downloader().await;
         if let Err(e) = downloader.start_file(client, file).await {
             logger::error(&*format!("Error while downloading: {}", e.to_string()));
         }
         logger::head("Downloader Task Completed!");
     }
-
+    ///Initialize Downloader
+    async fn init_downloader(&self) -> downloader::Downloader {
+        let save = self
+            .opts
+            .output
+            .to_str()
+            .expect("Cannot parse PathBuf into a &str in downloader task.");
+        downloader::Downloader::new(
+            save,
+            self.opts.cut_dirs,
+            self.opts.tries,
+            self.opts.wait_download,
+            self.opts.retry_wait,
+            self.opts.no_dirs,
+            self.opts.random_download,
+            self.opts.verbose,
+        )
+        .await
+    }
+    /// Print header from a request
     pub async fn print_header(
         &self,
         client: &reqwest::Client,
@@ -187,6 +176,7 @@ impl WebCrawler {
         )
         .await
     }
+    /// Print all headers from a request
     pub async fn print_all_headers(
         &self,
         client: &reqwest::Client,

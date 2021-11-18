@@ -68,12 +68,16 @@ pub struct Opts {
     /// connecting until the response body has finished.
     #[structopt(short = "T", long)]
     pub timeout: Option<u64>,
-    /// The waiting between each scrape & download request (secs)
+    /// Wait between each HTTP request for scraping
     ///
-    /// Wait a specified number of seconds between each scraping
-    /// & download requests.
+    /// Wait a specified number of seconds before sending each scraping request.
     #[structopt(short, long)]
     pub wait: Option<f32>,
+    /// Wait between each HTTP request for download
+    ///
+    /// Wait a specified number of seconds before sending each download request.
+    #[structopt(long)]
+    pub wait_download: Option<f32>,
     /// Save the links only
     ///
     /// After scraping, instead of downloading the files, save the links to them.
@@ -106,13 +110,20 @@ pub struct Opts {
     /// number of seconds before retrying again
     #[structopt(long, default_value = "8")]
     pub retry_wait: f32,
-    /// Wait a random amount of seconds between each request
+    /// Wait a random amount of seconds before each HTTP request for scraping
     ///
-    /// Randomly waits a specified number of seconds between each scraping
-    /// & download requests. The time between requests will vary between
+    /// Randomly waits a specified number of seconds before each scraping
+    /// requests. The time between requests will vary between
     /// 0.5 * [--wait,-w](inclusive) to 1.5 * [--wait,-w](exclusive)
     #[structopt(long)]
     pub random_wait: bool,
+    /// Wait a random amount of seconds before each HTTP request for download
+    ///
+    /// Randomly waits a specified number of seconds before each
+    /// download request. The time between requests will vary between
+    /// 0.5 * [--wait-download](inclusive) to 1.5 * [--wait-download](exclusive)
+    #[structopt(long)]
+    pub random_download: bool,
     /// The amount of times to retry a failed connection/request
     #[structopt(short, long, default_value = "20")]
     pub tries: u32,
