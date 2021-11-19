@@ -18,8 +18,7 @@ impl Http {
         is_random: bool,
         verbose: bool,
     ) -> Result<(String, reqwest::StatusCode), reqwest::Error> {
-        let res =
-            Http::get_response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
+        let res = Http::response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
         let status = res.status();
         let txt = res.text().await;
         Ok((
@@ -28,7 +27,7 @@ impl Http {
         ))
     }
     /// Sends a request to the server & receives a response
-    pub async fn get_response(
+    pub async fn response(
         client: &reqwest::Client,
         url: &str,
         tries: u32,
@@ -83,7 +82,7 @@ impl Http {
         verbose: bool,
     ) -> Result<(), reqwest::Error> {
         let response =
-            Http::get_response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
+            Http::response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
         match response.headers().get(header) {
             Some(value) => logger::log_split(header, value.to_str().unwrap()),
             None => logger::log(&format!("{} Header is not available:", header)),
@@ -101,7 +100,7 @@ impl Http {
         verbose: bool,
     ) -> Result<(), reqwest::Error> {
         let response =
-            Http::get_response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
+            Http::response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
         let headers = response.headers();
         logger::log_underline("List of Headers");
         logger::divider();

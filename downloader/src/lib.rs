@@ -62,7 +62,7 @@ impl Downloader {
         client: &reqwest::Client,
         file: &asset::file::File,
     ) -> Result<(), reqwest::Error> {
-        let res = grabber::Http::get_response(
+        let res = grabber::Http::response(
             client,
             &file.link,
             self.tries,

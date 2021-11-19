@@ -194,4 +194,28 @@ impl WebCrawler {
         )
         .await
     }
+    /// Prints the OD's HTML Document
+    pub async fn print_pages(&self, client: &reqwest::Client, url: PathBuf) {
+        let url = url.to_string_lossy();
+        match grabber::Http::connect(
+            client,
+            url.as_ref(),
+            self.opts.tries,
+            self.opts.wait,
+            self.opts.retry_wait,
+            self.opts.random_wait,
+            self.opts.verbose,
+        )
+        .await
+        {
+            Ok((res, _)) => {
+                logger::divider();
+                logger::info("URL", url.as_ref());
+                logger::log(&res);
+                logger::info("URL", url.as_ref());
+                logger::divider()
+            }
+            Err(e) => logger::error(&format!("Unable to retrieve webpage: {}", e.to_string())),
+        };
+    }
 }

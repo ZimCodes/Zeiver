@@ -1,6 +1,7 @@
 use colored::*;
 
 /// Prints a declarative info text to terminal
+/// --->| TEXT: TEXT |<---
 pub fn info(name: &str, stat: &str) {
     let line = "--->|".bright_magenta();
     let other_line = "|<---".bright_magenta();
@@ -14,6 +15,7 @@ pub fn info(name: &str, stat: &str) {
 }
 
 /// star formatted header
+/// Ex: *** TEXT: TEXT ***
 pub fn stars_info(name: &str, stat: &str) {
     let line = "***".bright_magenta();
     let name = format!("{}:", name);
@@ -28,9 +30,15 @@ pub fn stars_info(name: &str, stat: &str) {
 }
 /// Double horizontal divider
 pub fn divider() {
-    println!("==================");
+    println!(
+        "{}",
+        "=====================================================".bright_magenta()
+    );
 }
 /// Prints a formatted header to the terminal
+/// Ex: -----TEXT-----
+/// Prints a formatted header to the terminal
+/// Ex: -----TEXT-----
 pub fn head(title: &str) {
     let line = "-----".bright_magenta();
     log(&format!(
@@ -42,6 +50,7 @@ pub fn head(title: &str) {
 }
 
 /// Arrow formatted header
+/// Ex: -----> TEXT <-----
 pub fn arrows_head(text: &str) {
     let line = "----->".bright_magenta();
     let other_line = "<-----".bright_magenta();
@@ -54,7 +63,7 @@ pub fn arrows_head(text: &str) {
 pub fn new_line() {
     log("");
 }
-
+/// Ex: TEXT: TEXT
 pub fn log_split(name: &str, val: &str) {
     let name = format!("{}:", name);
     let value = val.bright_cyan();

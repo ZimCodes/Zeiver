@@ -173,6 +173,7 @@ impl Scraper {
         let (res, status_code) =
             grabber::Http::connect(client, &url, tries, wait, retry_wait, is_random, verbose)
                 .await?;
+
         //Determine od type from html document
         self.od_type_from_document(
             &*res, client, &url, tries, wait, retry_wait, is_random, verbose,
@@ -275,10 +276,9 @@ impl Scraper {
         verbose: bool,
     ) -> Result<(), reqwest::Error> {
         if self.od_type.eq(&od::ODMethod::None) {
-            let response = grabber::Http::get_response(
-                client, &url, tries, wait, retry_wait, is_random, verbose,
-            )
-            .await?;
+            let response =
+                grabber::Http::response(client, &url, tries, wait, retry_wait, is_random, verbose)
+                    .await?;
             let server_name = match response.headers().get("server") {
                 Some(header_value) => header_value.to_str().unwrap(),
                 None => "",

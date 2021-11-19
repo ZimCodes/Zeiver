@@ -59,6 +59,7 @@ impl Zeiver {
                 recorder_id,
                 &opts.print_header,
                 opts.print_headers,
+                opts.print_pages,
                 opts.record_only,
                 opts.record,
                 opts.test,
@@ -74,6 +75,7 @@ impl Zeiver {
         recorder_id: usize,
         print_header: &Option<String>,
         print_headers: bool,
+        print_pages: bool,
         record_only: bool,
         record: bool,
         debug: bool,
@@ -85,6 +87,8 @@ impl Zeiver {
                 .unwrap();
         } else if print_header.is_some() {
             web_clone.print_header(&client_clone, url).await.unwrap();
+        } else if print_pages {
+            web_clone.print_pages(&client_clone, url).await;
         } else {
             Zeiver::spawn_thread(
                 url,

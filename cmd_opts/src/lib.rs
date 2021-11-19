@@ -30,16 +30,23 @@ pub struct Opts {
     pub scan: bool,
     ///Prints all Response Headers to terminal
     ///
-    ///Prints all available Response headers received from each url to the terminal. **This Option
+    ///Prints all available Response headers received from each url to the terminal. **This option
     /// takes precedence over all other options**
     #[structopt(long, conflicts_with = "print-header")]
     pub print_headers: bool,
     ///Prints a Response Header to terminal
     ///
-    /// Prints a specified Response Header to the terminal for each url. **This Option takes precedence over all
+    /// Prints a specified Response Header to the terminal for each url. **This option takes
+    /// precedence over all
     /// other options**.
     #[structopt(long)]
     pub print_header: Option<String>,
+    /// Prints the HTML Document to the terminal
+    ///
+    /// Prints the HTML Document of each URL to the terminal for viewing. Allows you to see in
+    /// the eyes of Zeiver. **This option takes precedence over all other options**.
+    #[structopt(long, conflicts_with_all(&["print-header", "print-headers"]))]
+    pub print_pages: bool,
     /// Specify the maximum depth for recursive scraping
     ///
     /// This option is used to determine how far to look into a directory(ies) to retrieve files.
