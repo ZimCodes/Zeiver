@@ -187,8 +187,9 @@ pub struct Opts {
     pub input_file: Option<PathBuf>,
     /// Read URLs from a file containing file paths and create a stats file.
     ///
-    /// Read URLs from an input file which contains links to other files and create a stats file based on the results.This option is
-    /// for those who have a file filled with random unorganized links to a bunch of other files and want to take advantage of Zeiver's
+    /// Read URLs from an input file which contains links to other files and create a stats file
+    /// based on the results. This option is for those who have a file filled with random
+    /// unorganized links to a bunch of other files and want to take advantage of Zeiver's
     /// *Recorder* module.
     /// *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
     ///`--output`, `--output-record`, `--no-stats-list`
@@ -197,7 +198,7 @@ pub struct Opts {
     "U", "u", "headers", "proxy", "proxy-auth", "input-file", "urls", "test", "scan", "print-header", "print-headers",
     "all-certs", "https-only"]))]
     pub input_record: Option<PathBuf>,
-    /// Save file location
+    /// Save Directory
     ///
     /// The local directory path to save files. Files saved by the *Recorder* are also stored here.
     /// Ex: ./downloads/images/dir

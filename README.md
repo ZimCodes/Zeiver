@@ -1,8 +1,10 @@
 # Zeiver
-**Zeiver** is designed to *scrape* and *download* content recursively from ODs _(open directories)_.
-It also provides a means of *recording* links and *scanning* ODs for content.
+**Zeiver** is designed to *scrape* and *download* content recursively from static ODs
+*(open directories)*. It also provides a means of *recording* links and *scanning* ODs for content.
 
 __*Zeiver does not download the entire OD itself, only the files.__
+
+For dynamic ODs *(JavaScript focused Open Directories)* use [Zyod](https://github.com/ZimCodes/Zyod/)
 
 For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver).
 
@@ -124,24 +126,26 @@ Scan ODs displaying their content to the terminal. *A shortcut to enabling*
 
 ***-d, --depth***
 
-Specify the maximum depth for recursive scraping. Can also be used to traverse subpages *(ODs with **previous** & **next** buttons)*.
-_Default: `20`_. **Depth of`1` is current directory.**
+Specify the maximum depth for recursive scraping. 
+
+How far to look into a directory(ies) to retrieve files. Can also be used to traverse subpages 
+*(ODs with **previous** & **next** buttons)*. _Default: `20`_. **Depth of`1` is current directory.**
 
 ***-A, --accept***
 
 Files to accept for scraping
 
-Using Regex, specify which files to accept for scraping. Only the files that matches the regex will be
-acceptable for download. _*This option takes precedence over `--reject, -r`_.
+Using Regex, specify which files to accept for downloading. Only the files that matches the 
+regex will be acceptable for download. _*This option takes precedence over `--reject, -R_.
 
 Ex: `zeiver -A "(mov|mp3|lunchbox_pic1\.jpg|(pic_of_me.gif))"`
 
 ***-R, --reject***
 
-Files to reject for scraping
+Files to reject for downloading
 
-Using Regex, specify which files to reject for scraping. Only the files that match the regex will be
-rejected for download. *_`--accept, -a` takes precedence over this option_.
+Using Regex, specify which files to reject for downloading. Only the files that match the regex 
+will be rejected for download. *_`--accept, -A` takes precedence over this option_.
 
 Ex: `zeiver -R "(jpg|png|3gp|(pic_of_me.gif))"`
 
@@ -152,7 +156,7 @@ Ex: `zeiver -R "(jpg|png|3gp|(pic_of_me.gif))"`
 
 Activates the Recorder
 
-Enables the Recorder which saves the scraped links to a file.
+Enables the Recorder which saves the scraped links to a file. *Disabled by default.*
 *_Option cannot be used with `--record-only`_.
 
 ***--record-only***
@@ -164,7 +168,10 @@ this option is active. Enables Recorder instead._
 
 ***--output-record***
 
-Changes the name of the record file. This file is where the recorder will store the links. *Default: `URL_Records.txt`*
+Name of record file
+
+Changes the name of the record file. This file is where the recorder will store the links. 
+*Default: `URL_Records.txt`*
 
 ***--no-stats***
 
@@ -186,15 +193,19 @@ to stat files.
 
 ***-i, --input-file***
 
+Read URLs from a local or external file
+
 Read URLs from a file to be sent to the Scraper. *Each line represents a URL to an OD.
 
 Ex: `zeiver -i "./dir/urls.txt"`
 
 ***--input-record***
+Read URLs from a file containing file paths and create a stats file.
 
 Read URLs from an input file which contains links to other files and create a stats file based on the results. This option is
 for those who have a file filled with random unorganized links to a bunch of other files and want to take advantage of Zeiver's
 *Recorder* module.
+
 *Each line represents a URL to a file. **Activates Recorder**. Valid with `--verbose`,
 `--output`, `--output-record`, `--no-stats-list`.
 
@@ -223,9 +234,7 @@ New Save Location: `./other/pics`
 ***--no-dirs***
 
 Do not create a hierarchy of directories structured the same as the URL the file came from. 
-All files will be saved to the current output directory instead. 
-
-*_Only available when downloading._
+All files will be saved to the current output directory instead. *_Only available when downloading._
 
 ---
 #### Grabber
@@ -233,7 +242,7 @@ All files will be saved to the current output directory instead.
 
 Prints all Response Headers to the terminal
 
-Prints all available Response headers received from each Request to the terminal.
+Prints all available Response headers received from each url to the terminal.
 **Option takes precedence over all other options**!
 
 ***--print-header***
@@ -242,6 +251,13 @@ Prints a Response Header to terminal
 
 Prints a specified Response Header to the terminal for each url. **This Option takes precedence over all
 other options**.
+
+***--print-pages***
+
+Prints the HTML Document to the terminal
+
+Prints the HTML Document of each URL to the terminal for viewing. Allows you to see in the eyes 
+of Zeiver. **This option takes precedence over all other options**.
 
 ***--https-only***
 
@@ -266,17 +282,37 @@ The amount of times to retry a failed connection/request. _Default: `20`_
  
 ***-w, --wait***
 
-Wait a specified number of seconds between each scraping & download requests.
+Wait between each HTTP request for scraping.
+
+Wait a specified number of *seconds* before sending each scraping request.
+
+***--wait-download***
+
+Wait between each HTTP request for download.
+
+Wait a specified number of seconds before sending each download request.
 
 ***--retry-wait***
 
-The wait time between each failed request. _Default: `10`_
+The wait time between each failed request. 
+
+Whenever a request fails, Zeiver will wait the specified number of seconds before retrying again.
+_Default: `10`_
 
 ***--random-wait***
 
-Wait a random amount of seconds between each request.
+Wait a random amount of seconds before each HTTP request for scraping.
 
-The time between requests will vary between 0.5 * `--wait,-w` (_inclusive_) to 1.5 * `--wait,-w` (_exclusive_)
+Randomly waits a specified number of seconds before each scraping request. The time between 
+requests will vary between 0.5 * `--wait,-w` *(inclusive)* to 1.5 * `--wait,-w` *(exclusive)*
+
+***--random-download***
+
+Wait a random amount of seconds before each HTTP request for download.
+
+Randomly waits a specified number of seconds before each download request. The time between 
+requests will vary between 0.5 * `--wait-download` *(inclusive)* to 1.5 * `--wait-download`
+*(exclusive)*
 
 ***-T, --timeout***
 
