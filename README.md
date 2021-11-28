@@ -8,23 +8,25 @@ For dynamic ODs *(JavaScript focused Open Directories)* use [Zyod](https://githu
 
 For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver).
 
+![build](https://github.com/ZimCodes/Zeiver/actions/workflows/push_rust.yaml/badge.svg)
+
 ## Table of Contents
-* [Features](https://github.com/ZimCodes/Zeiver#features)
-   * [Normal Workflow](https://github.com/ZimCodes/Zeiver#normal-workflow)
-   * [More](https://github.com/ZimCodes/Zeiver#more)
-* [Open Directory Support](https://github.com/ZimCodes/Zeiver#open-directory-support)
-* [Installation/Update](https://github.com/ZimCodes/Zeiver#installationupdate)
-* [Sample](https://github.com/ZimCodes/Zeiver#sample)
-* [Commands](https://github.com/ZimCodes/Zeiver#commands)
-    * [Positional](https://github.com/ZimCodes/Zeiver#positional) 
-    * [Options](https://github.com/ZimCodes/Zeiver#options)
-        * [General](https://github.com/ZimCodes/Zeiver#general)
-        * [Download](https://github.com/ZimCodes/Zeiver#download)
-        * [Recorder](https://github.com/ZimCodes/Zeiver#recorder)
-        * [File/Directory](https://github.com/ZimCodes/Zeiver#filedirectory)
-        * [Grabber](https://github.com/ZimCodes/Zeiver#grabber)
-* [Extra Info](https://github.com/ZimCodes/Zeiver#extra-info)
-* [License](https://github.com/ZimCodes/Zeiver#license)
+* [Features](#features)
+   * [Normal Workflow](#normal-workflow)
+   * [More](#more)
+* [Open Directory Support](#open-directory-support)
+* [Installation/Update](#installationupdate)
+* [Sample](#sample)
+* [Commands](#commands)
+    * [Positional](#positional) 
+    * [Options](#options)
+        * [General](#general)
+        * [Download](#download)
+        * [Recorder](#recorder)
+        * [File/Directory](#filedirectory)
+        * [Grabber](#grabber)
+* [Extra Info](#extra-info)
+* [License](#license)
 
 ## Features
 Zeiver currently has 4 major modules:
@@ -133,19 +135,21 @@ How far to look into a directory(ies) to retrieve files. Can also be used to tra
 
 ***-A, --accept***
 
-Files to accept for scraping
+Files to accept for scraping, downloading, & recording. *(Regex)*
 
-Using Regex, specify which files to accept for downloading. Only the files that matches the 
-regex will be acceptable for download. _*This option takes precedence over `--reject, -R_.
+Using Regex, specify which files to accept for scraping, recording, & downloading. Only the files 
+that matches the regex will be acceptable for scraping, downloading, & recording.
+_*This option takes precedence over `--reject, -R`*_.
 
 Ex: `zeiver -A "(mov|mp3|lunchbox_pic1\.jpg|(pic_of_me.gif))"`
 
 ***-R, --reject***
 
-Files to reject for downloading
+Files to reject for scraping, downloading, & recording. *(Regex)*
 
-Using Regex, specify which files to reject for downloading. Only the files that match the regex 
-will be rejected for download. *_`--accept, -A` takes precedence over this option_.
+Using Regex, specify which files to reject for scraping, downloading, & recording. Only the files 
+that match the regex will be rejected for scraping, downloading, & recording. *_`--accept, -A` 
+takes precedence over this option_*.
 
 Ex: `zeiver -R "(jpg|png|3gp|(pic_of_me.gif))"`
 

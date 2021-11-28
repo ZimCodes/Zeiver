@@ -102,7 +102,7 @@ impl Http {
         let response =
             Http::response(client, url, tries, wait, retry_wait, is_random, verbose).await?;
         let headers = response.headers();
-        logger::log_underline("List of Headers");
+        logger::log_underline(&format!("Headers: {}", url));
         logger::divider();
         for (key, val) in headers.iter() {
             logger::log_split(&format!("{:?}", key), &format!("{:?}", val));

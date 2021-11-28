@@ -137,18 +137,18 @@ pub struct Opts {
     /// Maximum redirects to follow
     #[structopt(short, long, default_value = "10")]
     pub redirects: usize,
-    /// Files to accept for download
+    /// Files to accept for scraping, downloading, & recording (Regex)
     ///
-    /// Using Regex, specify which files to accept for downloading.
+    /// Using Regex, specify which files to accept for downloading & recording.
     /// Only the files that matches the regex will be acceptable
-    /// for download. (This option takes precedence over --reject, -R)
+    /// for scraping, downloading, & recording. (This option takes precedence over --reject, -R)
     #[structopt(short = "A", long)]
     pub accept: Option<String>,
-    /// Files to reject for download
+    /// Files to reject for scraping, downloading, & recording (Regex)
     ///
-    /// Using Regex, specify which files to reject for downloading.
+    /// Using Regex, specify which files to reject for scraping, downloading, & recording.
     /// Only the files that match the regex will be rejected
-    /// for download. (--accept, -A takes precedence over this option)
+    /// for scraping, downloading, & recording. (--accept, -A takes precedence over this option)
     #[structopt(short = "R", long, conflicts_with = "accept")]
     pub reject: Option<String>,
     /// The User Agent header to use
