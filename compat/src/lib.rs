@@ -19,9 +19,6 @@ pub fn get_line_separator() -> String {
 /// Corrects file paths in different environments.
 /// Dependent on current working operating system
 pub fn correct_os_path(path: &str) -> String {
-    if path.starts_with("./") {
-        return path.to_string();
-    }
     if is_windows() {
         NOT_WINDOWS_LINES
             .replace_all(path, MAIN_SEPARATOR.to_string())
