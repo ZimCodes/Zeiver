@@ -1,3 +1,4 @@
+pub mod ab;
 pub mod all;
 pub mod apache;
 pub mod apache_directory_listing;
@@ -40,6 +41,7 @@ pub enum ODMethod {
     ApacheDirectoryListing,
     EyyIndexer,
     FancyIndex,
+    AB,
     Generic,
     None,
 }
@@ -83,6 +85,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::EyyIndexer
     } else if fancyindex::FancyIndex::is_od(res) {
         ODMethod::FancyIndex
+    } else if ab::AB::is_od(res) {
+        ODMethod::AB
     } else {
         autoindex_type_check(res, server_name)
     }

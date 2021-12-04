@@ -1,3 +1,4 @@
+use crate::od::ab::AB;
 use crate::od::all;
 use crate::od::apache::Apache;
 use crate::od::apache_directory_listing::ApacheDirectoryListing;
@@ -36,6 +37,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::ApacheDirectoryListing => ApacheDirectoryListing::search(res, url),
         ODMethod::EyyIndexer => EyyIndexer::search(res, url),
         ODMethod::FancyIndex => FancyIndex::search(res, url),
+        ODMethod::AB => AB::search(res, url),
         ODMethod::LightTPD => LightTPD::search(res, url),
         ODMethod::Apache | ODMethod::NGINX => Apache::search(res, url),
         _ => all::search(res, url),

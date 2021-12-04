@@ -110,6 +110,8 @@ pub fn url_joiner(url: &str, rel: &str) -> String {
             format!("{}{}", url, &rel[2..])
         } else if rel.starts_with("./") && !url.as_str().ends_with("/") {
             format!("{}{}", url, &rel[1..])
+        } else if !url.as_str().ends_with("/") && !rel.starts_with("/") {
+            format!("{}/{}", url, rel)
         } else {
             format!("{}{}", url, rel)
         }

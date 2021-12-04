@@ -19,6 +19,7 @@
 * Apache Directory Listing
 * EyyIndexer
 * FancyIndex
+* A.B.
 
 **May also work with other ODs. So long as they have `<a>`.*
 
