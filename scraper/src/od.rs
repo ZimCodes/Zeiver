@@ -3,6 +3,7 @@ pub mod apache_directory_listing;
 pub mod autoindex_php;
 pub mod directory_lister;
 pub mod directory_listing_script;
+pub mod eyy_indexer;
 pub mod h5ai;
 pub mod lighttpd;
 pub mod microsoftiis;
@@ -35,6 +36,7 @@ pub enum ODMethod {
     OneIndex,
     PanIndex,
     ApacheDirectoryListing,
+    EyyIndexer,
     Generic,
     None,
 }
@@ -74,6 +76,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::PanIndex
     } else if apache_directory_listing::ApacheDirectoryListing::is_od(res) {
         ODMethod::ApacheDirectoryListing
+    } else if eyy_indexer::EyyIndexer::is_od(res) {
+        ODMethod::EyyIndexer
     } else {
         autoindex_type_check(res, server_name)
     }

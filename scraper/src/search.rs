@@ -9,6 +9,22 @@ use crate::od::ODMethod;
 use crate::parser;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Not, Predicate};
+/// Parses the eyyIndexer HTML Document type ods
+fn eyy_indexer_document(res: &str, url: &str) -> Vec<String> {
+    Document::from(res)
+        .find(
+            Name("table").descendant(
+                Name("table")
+                    .and(Not(Class("download")))
+                    .descendant(Name("a")),
+            ),
+        )
+        .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
+        .filter_map(|node| node.attr("href"))
+        .filter(|link| !link.contains("javascript:"))
+        .map(|link| parser::sanitize_url(link))
+        .collect()
+}
 /// Parses Apache Directory Listing HTML Document ods
 fn apache_directory_listing_document(res: &str, url: &str) -> Vec<String> {
     Document::from(res)
@@ -287,8 +303,9 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::Snif => snif_documents(res, url),
         ODMethod::PanIndex => panindex_document(res, url),
         ODMethod::OdIndex => odindex_documents(res, url),
-        ODMethod::LightTPD => lighttpd_document(res, url),
         ODMethod::ApacheDirectoryListing => apache_directory_listing_document(res, url),
+        ODMethod::EyyIndexer => eyy_indexer_document(res, url),
+        ODMethod::LightTPD => lighttpd_document(res, url),
         ODMethod::Apache | ODMethod::NGINX => apache_document(res, url),
         _ => generic_document(res, url),
     }
