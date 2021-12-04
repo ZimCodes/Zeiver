@@ -1,7 +1,9 @@
+use super::all;
+use crate::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
 use select::document::Document;
-use select::predicate::{Name, Predicate};
+use select::predicate::{Attr, Class, Name, Predicate};
 
 const IDENTIFIER_CRUMB: &str = "Directory Listing of";
 const IDENTIFIER_FOOTER: &str = "Web Design Sheffield";
@@ -35,5 +37,19 @@ impl DirectoryListingScript {
     /// Check if url has `index.php?dir=` component at the end
     pub fn is_home_navigator(url: &str) -> bool {
         NAVIGATOR_END_REGEX.is_match(url)
+    }
+    /// Parses the Evoluted Directory Listing Script HTML Document type ods
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(
+                Attr("id", "listingcontainer")
+                    .descendant(Name("a"))
+                    .or(Class("table-container").descendant(Name("a"))),
+            )
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

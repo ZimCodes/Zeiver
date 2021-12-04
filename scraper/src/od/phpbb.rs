@@ -1,3 +1,5 @@
+use super::all;
+use crate::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
 use select::document::Document;
@@ -42,5 +44,22 @@ impl PHPBB {
     ///Filter out `AUTHORS` & `COPYING` files
     pub fn is_copy_file(x: &str) -> bool {
         x == "COPYING" || x == "AUTHORS"
+    }
+    /// Parses phpBB HTML Documents
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(
+                Name("tr")
+                    .descendant(Name("td").descendant(Name("a")))
+                    .or(Name("pre").descendant(Name("a")))
+                    .or(Name("li").descendant(Name("a"))),
+            )
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter(|node| !PHPBB::is_a_sort_query(node.attr("href").unwrap()))
+            .filter(|node| !PHPBB::is_copy_file(&node.text()))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

@@ -1,3 +1,5 @@
+use super::all;
+use crate::parser;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Predicate};
 
@@ -31,5 +33,16 @@ impl OdIndex {
         } else {
             x
         }
+    }
+    /// Parses OdIndex HTML Documents
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(Name("a").and(Class("item")))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter(|node| !node.text().ends_with(".."))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

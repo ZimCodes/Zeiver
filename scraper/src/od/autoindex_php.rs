@@ -1,3 +1,5 @@
+use super::all;
+use crate::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
 use select::document::Document;
@@ -121,5 +123,15 @@ impl AutoIndexPHP {
         } else {
             format!("{}://{}/{}", scheme, host, filtered_rel)
         }
+    }
+    /// Parses the AutoIndex PHP HTML Document type ods
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(Name("tbody").descendant(Class("autoindex_a").or(Class("default_a"))))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

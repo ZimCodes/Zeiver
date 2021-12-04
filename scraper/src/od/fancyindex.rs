@@ -1,3 +1,5 @@
+use super::all;
+use crate::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
 use select::document::Document;
@@ -39,5 +41,14 @@ impl FancyIndex {
                 }
             })
     }
-    //
+    /// Parses FancyIndex HTML Document type ods
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(Name("tbody").descendant(Name("td")).descendant(Name("a")))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
+    }
 }

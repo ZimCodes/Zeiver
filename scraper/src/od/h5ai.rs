@@ -1,3 +1,5 @@
+use super::all;
+use crate::parser;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Predicate};
 
@@ -69,5 +71,15 @@ impl H5AI {
                 Some(src) => src.contains(IDENTIFIER_TWO),
                 None => false,
             })
+    }
+    /// Parses h5ai HTMl Documents
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(Name("td").and(Class("fb-n")).descendant(Name("a")))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

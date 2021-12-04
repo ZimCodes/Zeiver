@@ -1,5 +1,8 @@
+use super::all;
+use crate::parser;
 use select::document::Document;
 use select::predicate::{Name, Predicate};
+
 const IDENTIFIER_PARENT: &str = "[To Parent Directory]";
 const IDENTIFIER_DIR: &str = "<dir>";
 pub const IDENTIFIER: &str = "Microsoft-IIS";
@@ -25,5 +28,15 @@ impl MicrosoftIIS {
     /// Identify by looking at Server header
     fn header_id(server_name: &str) -> bool {
         server_name.contains(IDENTIFIER)
+    }
+    /// Parses Microsoft-IIS HTML Documents
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(Name("pre").descendant(Name("a")))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

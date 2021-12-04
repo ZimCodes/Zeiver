@@ -1,5 +1,7 @@
+use super::all;
+use crate::parser;
 use select::document::Document;
-use select::predicate::{Attr, Class, Name, Predicate};
+use select::predicate::{Attr, Class, Name, Not, Predicate};
 
 const WGET_ID: &str = "[Copy] WGET";
 const IDENTIFIER: &str = "eyy-indexer";
@@ -36,5 +38,21 @@ impl EyyIndexer {
             .any(|node| {
                 node.text().contains("Page generated in") && node.text().contains("Browsing")
             })
+    }
+    /// Parses the eyyIndexer HTML Document type ods
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(
+                Name("table").descendant(
+                    Name("table")
+                        .and(Not(Class("download")))
+                        .descendant(Name("a")),
+                ),
+            )
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

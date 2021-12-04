@@ -1,3 +1,4 @@
+pub mod all;
 pub mod apache;
 pub mod apache_directory_listing;
 pub mod autoindex_php;

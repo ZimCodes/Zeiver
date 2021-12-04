@@ -1,5 +1,8 @@
+use super::all;
+use super::oneindex::OneIndex;
+use crate::parser;
 use select::document::Document;
-use select::predicate::{Attr, Class, Comment, Name, Predicate};
+use select::predicate::{Attr, Class, Comment, Name, Not, Predicate};
 
 const IDENTIFIER: &str = "OneManager";
 const IDENTIFIER_BUTTON: &str = "CopyAllDownloadUrl";
@@ -49,5 +52,26 @@ impl OneManager {
         Document::from(res)
             .find(Name("tr").and(Attr("id", "tr0").descendant(Name("button"))))
             .any(|node| node.text().contains(IDENTIFIER_BUTTON))
+    }
+    /// Parses Modern OneManager HTML Documents
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        let links: Vec<String> = Document::from(res)
+            .find(
+                Name("td")
+                    .and(Class("file"))
+                    .descendant(Name("a").and(Not(Class("download")))),
+            )
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter(|node| !node.text().contains("arrow_"))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.ends_with("/?/"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect();
+        if links.is_empty() {
+            OneIndex::search(res, url)
+        } else {
+            links
+        }
     }
 }

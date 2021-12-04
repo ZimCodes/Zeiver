@@ -1,5 +1,8 @@
+use super::all;
+use crate::parser;
 use select::document::Document;
 use select::predicate::{Class, Name, Predicate};
+
 const IDENTIFIER: &str = "snif";
 pub struct Snif;
 impl Snif {
@@ -31,5 +34,22 @@ impl Snif {
             Some(link) => link.contains("&download="),
             None => false,
         }
+    }
+    /// Parses Snif HTML Documents
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(
+                Name("tr")
+                    .and(Class("snF"))
+                    .descendant(Name("td"))
+                    .descendant(Name("a")),
+            )
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter(|node| !Snif::is_parent(node.attr("title")))
+            .filter(|node| !Snif::is_download(node.attr("href")))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }

@@ -1,3 +1,6 @@
+use super::all;
+use super::olaindex::{OlaindexExtras, OLAINDEX};
+use crate::parser;
 use select::document::Document;
 use select::predicate::{Class, Name, Predicate};
 
@@ -30,6 +33,29 @@ impl LightTPD {
         Document::from(res)
             .find(Name("tr").descendant(Name("td")))
             .filter_map(|node| Some(node.text()))
+            .collect()
+    }
+    /// Parses lighttpd HTML Documents
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        let full_names = LightTPD::full_file_name(res);
+        Document::from(res)
+            .find(Name("tr").descendant(Name("td").descendant(Name("a"))))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| {
+                let href = node.attr("href").unwrap();
+                let new_href = format!("{}/", href);
+                if full_names.contains(&new_href) {
+                    Some(new_href)
+                } else {
+                    Some(href.to_string())
+                }
+            })
+            .filter(|link| {
+                let mut paths: Vec<&str> = link.split("/").collect();
+                !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
+            })
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(&link))
             .collect()
     }
 }

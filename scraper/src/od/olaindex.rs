@@ -1,7 +1,9 @@
+use super::all;
+use crate::parser;
 use lazy_static::lazy_static;
 use regex::Regex;
 use select::document::Document;
-use select::predicate::{Attr, Name, Predicate};
+use select::predicate::{Attr, Class, Name, Predicate};
 use std::borrow::Cow;
 
 const IDENTIFIER_DESCRIPTION: &str = "OLAINDEX,Another OneDrive Directory Index";
@@ -107,6 +109,30 @@ impl OLAINDEX {
         } else {
             has_description_id
         }
+    }
+    /// Parses the OLAINDEX HTML Document type ods
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(
+                Name("div")
+                    .and(Class("mdui-container").or(Class("container")))
+                    .descendant(Name("a").or(Name("li"))),
+            )
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter_map(|node| {
+                if node.attr("data-route").is_some() {
+                    node.attr("data-route")
+                } else {
+                    node.attr("href")
+                }
+            })
+            .filter(|link| {
+                let mut paths: Vec<&str> = link.split("/").collect();
+                !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
+            })
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }
 

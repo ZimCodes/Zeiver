@@ -1,5 +1,8 @@
+use super::all;
+use crate::parser;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Predicate};
+
 const IDENTIFIER: &str = "PanIndex";
 pub struct PanIndex;
 impl PanIndex {
@@ -36,5 +39,15 @@ impl PanIndex {
                     false
                 }
             })
+    }
+    /// Parses the PanIndex type ods
+    pub fn search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(Name("div").and(Attr("data-url", ())))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("data-url")))
+            .filter_map(|node| node.attr("data-url"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect()
     }
 }
