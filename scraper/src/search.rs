@@ -296,7 +296,8 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
 
 /// Check if link leads back to parent directory
 fn no_parent_dir(url: &str, content: &str, href: Option<&str>) -> bool {
-    let content = content.trim().to_lowercase();
+    let trimmed_content = content.trim();
+    let content = trimmed_content.to_lowercase();
     let back_paths = vec![".", "../", "..", "./"];
     //Check for `parent directory` phrase
     let not_parent_dir = (!content.starts_with("parent directory")
