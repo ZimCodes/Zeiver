@@ -18,6 +18,7 @@
 * PanIndex
 * Apache Directory Listing
 * EyyIndexer
+* FancyIndex
 
 **May also work with other ODs. So long as they have `<a>`.*
 
