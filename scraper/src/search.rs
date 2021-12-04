@@ -9,6 +9,22 @@ use crate::od::ODMethod;
 use crate::parser;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Not, Predicate};
+/// Parses Apache Directory Listing HTML Document ods
+fn apache_directory_listing_document(res: &str, url: &str) -> Vec<String> {
+    Document::from(res)
+        .find(
+            Name("table")
+                .and(Attr("id", "indexlist"))
+                .descendant(Name("tr"))
+                .descendant(Name("td").and(Class("indexcolname")))
+                .descendant(Name("a")),
+        )
+        .filter(|node| no_parent_dir(url, &node.text(), node.attr("href")))
+        .filter_map(|node| node.attr("href"))
+        .filter(|link| !link.contains("javascript:"))
+        .map(|link| parser::sanitize_url(link))
+        .collect()
+}
 /// Parses the PanIndex type ods
 fn panindex_document(res: &str, url: &str) -> Vec<String> {
     Document::from(res)
@@ -272,6 +288,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::PanIndex => panindex_document(res, url),
         ODMethod::OdIndex => odindex_documents(res, url),
         ODMethod::LightTPD => lighttpd_document(res, url),
+        ODMethod::ApacheDirectoryListing => apache_directory_listing_document(res, url),
         ODMethod::Apache | ODMethod::NGINX => apache_document(res, url),
         _ => generic_document(res, url),
     }
@@ -282,7 +299,8 @@ fn no_parent_dir(url: &str, content: &str, href: Option<&str>) -> bool {
     let content = content.trim().to_lowercase();
     let back_paths = vec![".", "../", "..", "./"];
     //Check for `parent directory` phrase
-    let not_parent_dir = !content.starts_with("parent directory")
+    let not_parent_dir = (!content.starts_with("parent directory")
+        && !content.starts_with("Parent Directory"))
         && content != microsoftiis::IDENTIFIER.to_lowercase();
     //Check for back paths in href
     let no_back_path_in_href = match href {

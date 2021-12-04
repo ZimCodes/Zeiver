@@ -16,6 +16,7 @@
 * OdIndex
 * OneIndex
 * PanIndex
+* Apache Directory Listing
 
 **May also work with other ODs. So long as they have `<a>`.*
 

@@ -1,4 +1,5 @@
 pub mod apache;
+pub mod apache_directory_listing;
 pub mod autoindex_php;
 pub mod directory_lister;
 pub mod directory_listing_script;
@@ -33,6 +34,7 @@ pub enum ODMethod {
     OdIndex,
     OneIndex,
     PanIndex,
+    ApacheDirectoryListing,
     Generic,
     None,
 }
@@ -70,6 +72,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::OdIndex
     } else if panindex::PanIndex::is_od(res) {
         ODMethod::PanIndex
+    } else if apache_directory_listing::ApacheDirectoryListing::is_od(res) {
+        ODMethod::ApacheDirectoryListing
     } else {
         autoindex_type_check(res, server_name)
     }
