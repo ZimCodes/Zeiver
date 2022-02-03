@@ -362,13 +362,12 @@ impl Scraper {
     /// Scrape the URL that points to a single File.
     fn single_scrape(&mut self, url: &str, verbose: bool) -> bool {
         if parser::is_uri(url) {
+            let single_file_url = parser::remove_last_slash(url);
             if verbose {
-                logger::log_split("URI", url);
+                logger::log_split("URI", &single_file_url);
             }
 
-            self.files = vec![asset::file::File::new(
-                parser::remove_last_slash(url).as_str(),
-            )];
+            self.files = vec![asset::file::File::new(&single_file_url)];
             self.is_single_scrape = true;
             true
         } else {

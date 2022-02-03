@@ -22,13 +22,14 @@ dependencies = [
 
 [[package]]
 name = "asset"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "lazy_static",
  "regex",
  "serde",
  "serde_json",
  "url",
+ "urlencoding",
 ]
 
 [[package]]
@@ -116,7 +117,7 @@ dependencies = [
 
 [[package]]
 name = "cmd_opts"
-version = "0.8.1"
+version = "0.8.2"
 dependencies = [
  "structopt",
 ]
@@ -1032,7 +1033,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "scraper"
-version = "0.6.5"
+version = "0.6.5-1"
 dependencies = [
  "asset",
  "grabber",
@@ -1405,6 +1406,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "urlencoding"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68b90931029ab9b034b300b797048cf23723400aa757e8a2bfb9d748102f9821"
+
+[[package]]
 name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1571,7 +1578,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.8.1"
+version = "0.8.2"
 dependencies = [
  "cmd_opts",
  "crawler",
