@@ -124,10 +124,12 @@ impl File {
     }
     /// Decode URL entities
     fn decode_entities(x: &str) -> String {
-        match urlencoding::decode(x) {
+        let decoded_file_name = match urlencoding::decode(x) {
             Ok(decoded_msg) => decoded_msg.into_owned(),
             Err(_e) => x.to_string(),
-        }
+        };
+        //Change space entities into an actual space character
+        decoded_file_name.replace("%20", " ")
     }
     pub fn to_json(self) -> String {
         match self.short_name {
