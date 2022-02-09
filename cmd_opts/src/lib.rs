@@ -72,9 +72,10 @@ pub struct Opts {
     /// Enables a request timeout (in secs)
     ///
     /// Adds a request timeout (in seconds). The timeout is applied from the time the request starts
-    /// connecting until the response body has finished.
-    #[structopt(short = "T", long)]
-    pub timeout: Option<u64>,
+    /// connecting until the response body has finished. '0' seconds means the connection will
+    /// never timeout.
+    #[structopt(short = "T", long, default_value = "40")]
+    pub timeout: u64,
     /// Wait between each HTTP request for scraping
     ///
     /// Wait a specified number of seconds before sending each scraping request.

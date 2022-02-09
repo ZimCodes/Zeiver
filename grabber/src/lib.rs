@@ -22,7 +22,7 @@ impl Http {
         let status = res.status();
         let txt = res.text().await;
         Ok((
-            txt.expect("Error while transforming response int text"),
+            txt.expect("Error while transforming response body into text"),
             status,
         ))
     }

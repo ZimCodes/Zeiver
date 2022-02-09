@@ -62,6 +62,7 @@ the files' data from the internet. The **Downloader** then writes the data to a 
 2. Random & fixed delays of HTTP requests.
 3. Ability to customize how files retrieved or not.
 4. Scans an OD for content while transparently displaying the traversal process.
+5. Cross-platform support
 
 ## Open Directory Support
 Supported ODs can be found in [OD.md](https://github.com/ZimCodes/Zeiver/blob/main/OD.md).
@@ -320,7 +321,8 @@ requests will vary between 0.5 * `--wait-download` *(inclusive)* to 1.5 * `--wai
 
 ***-T, --timeout***
 
-Adds a request timeout for a specified number of seconds.
+Adds a request timeout for a specified number of seconds. **`0` means to never timeout.** 
+_Default: `40`_
 
 ***-r, --redirects***
 

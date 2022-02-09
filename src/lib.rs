@@ -185,8 +185,8 @@ impl Zeiver {
             client_builder = client_builder.default_headers(header_map);
         }
         // Timeout
-        if opts.timeout.is_some() {
-            let secs = opts.timeout.unwrap();
+        if opts.timeout != 0 {
+            let secs = opts.timeout;
             let duration = Duration::from_secs(secs);
             client_builder = client_builder.timeout(duration);
         }
