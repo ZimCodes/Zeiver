@@ -17,6 +17,7 @@ use crate::od::onemanager::OneManager;
 use crate::od::panindex::PanIndex;
 use crate::od::phpbb::PHPBB;
 use crate::od::snif::Snif;
+use crate::od::windex::Windex;
 use crate::od::ODMethod;
 
 /// Switch to a different way to parse Document type
@@ -34,6 +35,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::Snif => Snif::search(res, url),
         ODMethod::PanIndex => PanIndex::search(res, url),
         ODMethod::OdIndex => OdIndex::search(res, url),
+        ODMethod::Windex => Windex::search(res, url),
         ODMethod::ApacheDirectoryListing => ApacheDirectoryListing::search(res, url),
         ODMethod::EyyIndexer => EyyIndexer::search(res, url),
         ODMethod::FancyIndex => FancyIndex::search(res, url),

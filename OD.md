@@ -20,6 +20,7 @@
 * EyyIndexer
 * FancyIndex
 * A.B.
+* Windex
 
 **May also work with other ODs. So long as they have `<a>`.*
 

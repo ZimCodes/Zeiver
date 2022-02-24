@@ -19,6 +19,7 @@ pub mod onemanager;
 pub mod panindex;
 pub mod phpbb;
 pub mod snif;
+pub mod windex;
 
 #[derive(PartialEq, Debug)]
 pub enum ODMethod {
@@ -44,6 +45,7 @@ pub enum ODMethod {
     AB,
     Generic,
     None,
+    Windex,
 }
 
 /// Determine the od type from URL
@@ -79,6 +81,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::OdIndex
     } else if panindex::PanIndex::is_od(res) {
         ODMethod::PanIndex
+    } else if windex::Windex::is_od(res) {
+        ODMethod::Windex
     } else if apache_directory_listing::ApacheDirectoryListing::is_od(res) {
         ODMethod::ApacheDirectoryListing
     } else if eyy_indexer::EyyIndexer::is_od(res) {
