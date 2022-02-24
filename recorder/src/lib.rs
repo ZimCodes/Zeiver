@@ -162,7 +162,7 @@ impl Recorder {
         if !is_save_set {
             if let Err(e) = env::set_current_dir(path) {
                 if e.kind() == ErrorKind::NotFound {
-                    logger::log(&format!("Creating Directory: \"{}\"", path));
+                    logger::log_split("Creating Directory", path);
                 } else {
                     eprintln!("{}", e);
                 }

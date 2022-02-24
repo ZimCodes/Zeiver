@@ -89,6 +89,7 @@ impl Downloader {
                     mime::TEXT => Box::new(util::HttpBodyType::Text(res.text().await?)),
                     _ => Box::new(util::HttpBodyType::Binary(res.bytes().await?)),
                 };
+                logger::head(&format!("Downloading {}", file.name));
                 util::prepare_file(res_content, file, self.cuts, self.use_dir).await;
             }
         };

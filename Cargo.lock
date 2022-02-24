@@ -117,7 +117,7 @@ dependencies = [
 
 [[package]]
 name = "cmd_opts"
-version = "0.8.2-1"
+version = "0.8.3"
 dependencies = [
  "structopt",
 ]
@@ -159,7 +159,7 @@ checksum = "5827cebf4670468b8772dd191856768aedcb1b0278a04f989f7766351917b9dc"
 
 [[package]]
 name = "crawler"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "asset",
  "cmd_opts",
@@ -173,7 +173,7 @@ dependencies = [
 
 [[package]]
 name = "downloader"
-version = "0.4.0"
+version = "0.4.0-1"
 dependencies = [
  "asset",
  "bytes",
@@ -921,7 +921,7 @@ dependencies = [
 
 [[package]]
 name = "recorder"
-version = "0.5.0"
+version = "0.5.0-1"
 dependencies = [
  "asset",
  "compat",
@@ -1026,7 +1026,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "scraper"
-version = "0.6.5-1"
+version = "0.6.5-2"
 dependencies = [
  "asset",
  "grabber",
@@ -1572,7 +1572,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.8.2-1"
+version = "0.8.3"
 dependencies = [
  "cmd_opts",
  "crawler",

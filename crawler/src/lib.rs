@@ -127,6 +127,13 @@ impl WebCrawler {
         downloader.start(client, scraper).await;
         logger::head("Downloader Task Completed!");
     }
+    /// Use Downloader to download a single file using an URL
+    pub async fn downloader_url_task(&self, client: &reqwest::Client, link: PathBuf) {
+        let url = link.to_string_lossy();
+        let file_url = url.as_ref();
+        let file = asset::file::File::new(file_url);
+        self.downloader_file_task(client, file).await;
+    }
     /// Use Downloader to download a single file
     pub async fn downloader_file_task(&self, client: &reqwest::Client, file: asset::file::File) {
         logger::head("Using Downloader");

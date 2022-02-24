@@ -154,6 +154,13 @@ takes precedence over this option_*.
 
 Ex: `zeiver -R "(jpg|png|3gp|(pic_of_me.gif))"`
 
+***--download-only***
+
+Use Downloader only
+
+Use only the Downloader to download all resources from links provided by `--input-file, -i` or the 
+command line. *_This option takes precedence over all recorder and scraper options._*
+
 ---
 #### Recorder
 

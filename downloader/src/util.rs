@@ -28,12 +28,10 @@ pub async fn prepare_file(
     match *res_content {
         HttpBodyType::Text(text) => {
             let file_byte = text.as_bytes();
-            logger::head(&format!("Downloading {}", file.name));
             download_progress(f, file_byte, file.name.as_str()).await;
         }
         HttpBodyType::Binary(data) => {
             let file_byte = data.as_ref();
-            logger::head(&format!("Downloading {}", file.name));
             download_progress(f, file_byte, file.name.as_str()).await;
         }
     };

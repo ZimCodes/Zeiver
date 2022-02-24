@@ -61,6 +61,7 @@ impl Zeiver {
                 opts.print_headers,
                 opts.print_pages,
                 opts.record_only,
+                opts.download_only,
                 opts.record,
                 opts.test,
             )
@@ -77,6 +78,7 @@ impl Zeiver {
         print_headers: bool,
         print_pages: bool,
         record_only: bool,
+        download_only: bool,
         record: bool,
         debug: bool,
     ) {
@@ -95,6 +97,7 @@ impl Zeiver {
                 web_clone,
                 client_clone,
                 record_only,
+                download_only,
                 record,
                 recorder_id,
                 debug,
@@ -108,24 +111,29 @@ impl Zeiver {
         web_clone: Rc<WebCrawler>,
         client_clone: Rc<reqwest::Client>,
         record_only: bool,
+        download_only: bool,
         record: bool,
         recorder_id: usize,
         debug: bool,
     ) {
-        let scraper = web_clone.scraper_task(&client_clone, Some(&url)).await;
-        if scraper.is_single_scrape {
-            return;
-        }
-        let rc_scraper = Rc::new(scraper);
-        if !debug {
-            if record_only {
-                web_clone.recorder_task(rc_scraper, recorder_id).await;
-            } else {
-                let rc_scraper_clone = Rc::clone(&rc_scraper);
-                if record {
-                    web_clone.recorder_task(rc_scraper_clone, recorder_id).await;
+        if download_only {
+            web_clone.downloader_url_task(&client_clone, url).await;
+        } else {
+            let scraper = web_clone.scraper_task(&client_clone, Some(&url)).await;
+            if scraper.is_single_scrape {
+                return;
+            }
+            let rc_scraper = Rc::new(scraper);
+            if !debug {
+                if record_only {
+                    web_clone.recorder_task(rc_scraper, recorder_id).await;
+                } else {
+                    let rc_scraper_clone = Rc::clone(&rc_scraper);
+                    if record {
+                        web_clone.recorder_task(rc_scraper_clone, recorder_id).await;
+                    }
+                    web_clone.downloader_task(&client_clone, rc_scraper).await;
                 }
-                web_clone.downloader_task(&client_clone, rc_scraper).await;
             }
         }
     }

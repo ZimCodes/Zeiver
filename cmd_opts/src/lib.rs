@@ -11,7 +11,7 @@ pub struct Opts {
     #[structopt(short = "U",long,conflicts_with_all(&["record-only", "record", "cuts", "no-dirs", "output", "no-stats",
     "depth", "timeout", "wait", "retry-wait", "random-wait", "tries", "redirects", "accept", "reject",
     "u", "headers", "proxy", "proxy-auth", "input-file", "urls", "test", "scan", "print-header", "print-headers",
-    "all-certs", "https-only","verbose","output","output-record","input-record"]))]
+    "all-certs", "https-only","verbose","download-only","output","output-record","input-record"]))]
     pub update: bool,
     ///Enable verbose output
     #[structopt(short, long)]
@@ -26,7 +26,7 @@ pub struct Opts {
     ///
     /// Scan ODs displaying their content to the terminal. *A shortcut to activating*
     /// `--verbose` *&* `--test`.
-    #[structopt(long,conflicts_with_all(&["test","verbose","record-only"]))]
+    #[structopt(long,conflicts_with_all(&["test","verbose","record-only","download-only"]))]
     pub scan: bool,
     ///Prints all Response Headers to terminal
     ///
@@ -86,6 +86,12 @@ pub struct Opts {
     /// Wait a specified number of seconds before sending each download request.
     #[structopt(long)]
     pub wait_download: Option<f32>,
+    /// Use Downloader only
+    ///
+    /// Use only the Downloader to download all resources from links provided by an input file or
+    /// command line.
+    #[structopt(long,conflicts_with_all(&["output-record","record","record-only"]))]
+    pub download_only: bool,
     /// Save the links only
     ///
     /// After scraping, instead of downloading the files, save the links to them.
