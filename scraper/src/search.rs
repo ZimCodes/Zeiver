@@ -8,6 +8,7 @@ use crate::od::directory_listing_script::DirectoryListingScript;
 use crate::od::eyy_indexer::EyyIndexer;
 use crate::od::fancyindex::FancyIndex;
 use crate::od::h5ai::H5AI;
+use crate::od::indices::Indices;
 use crate::od::lighttpd::LightTPD;
 use crate::od::microsoftiis::MicrosoftIIS;
 use crate::od::odindex::OdIndex;
@@ -37,6 +38,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::OdIndex => OdIndex::search(res, url),
         ODMethod::Windex => Windex::search(res, url),
         ODMethod::ApacheDirectoryListing => ApacheDirectoryListing::search(res, url),
+        ODMethod::Indices => Indices::search(res, url),
         ODMethod::EyyIndexer => EyyIndexer::search(res, url),
         ODMethod::FancyIndex => FancyIndex::search(res, url),
         ODMethod::AB => AB::search(res, url),

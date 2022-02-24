@@ -48,10 +48,9 @@ impl Windex {
                 }
             })
     }
-    /// Parses the usual HTML Document type ods
+    /// Parses the Windex HTML Document type ods
     pub fn search(res: &str, url: &str) -> Vec<String> {
         Document::from(res)
-            //Find all <a> tags
             .find(
                 Name("tr").descendant(
                     Name("td")

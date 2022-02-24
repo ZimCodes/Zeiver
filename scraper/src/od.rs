@@ -8,6 +8,7 @@ pub mod directory_listing_script;
 pub mod eyy_indexer;
 pub mod fancyindex;
 pub mod h5ai;
+pub mod indices;
 pub mod lighttpd;
 pub mod microsoftiis;
 pub mod nginx;
@@ -46,6 +47,7 @@ pub enum ODMethod {
     Generic,
     None,
     Windex,
+    Indices,
 }
 
 /// Determine the od type from URL
@@ -81,6 +83,8 @@ pub fn od_type_from_document(res: &str, server_name: &str) -> ODMethod {
         ODMethod::OdIndex
     } else if panindex::PanIndex::is_od(res) {
         ODMethod::PanIndex
+    } else if indices::Indices::is_od(res) {
+        ODMethod::Indices
     } else if windex::Windex::is_od(res) {
         ODMethod::Windex
     } else if apache_directory_listing::ApacheDirectoryListing::is_od(res) {

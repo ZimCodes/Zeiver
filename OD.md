@@ -21,6 +21,7 @@
 * FancyIndex
 * A.B.
 * Windex
+* Indices 1.1
 
 **May also work with other ODs. So long as they have `<a>`.*
 
