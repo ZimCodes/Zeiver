@@ -353,15 +353,18 @@ Accepts all certificates even invalid ones. **Use this option at your own risk!*
 
 ---
 ## Extra Info
-### URL is too long
+### URL is too long?
 Having trouble entering a long URL in the terminal? Place them inside an input file and use `--input-file` instead.
 
-### Can't access an OD because of certificates
+### Can't access an OD because of certificates?
 Trying using the `--all-certs` option, but *be wary* with this option.
 
-### Content from OD exists, however Zeiver isn't scraping/recording/downloading/scouting any of them
-Some ODs will send Zeiver **HTML Documents** without any content *(files/folders links)* from the OD.
+### Content exists, however Zeiver isn't scraping/recording/downloading/scouting any of them.
+Some ODs will send Zeiver **HTML Documents** without any content *(links to files/folders)* from 
+the OD.
 This is because Zeiver retrieves an HTML Document **without JavaScript** & some ODs *will not work* without it.
+
+Use [Zyod](https://github.com/ZimCodes/Zyod/) instead.
 
 ---
 ## License 
