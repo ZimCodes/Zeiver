@@ -10,5 +10,5 @@ scraper = {path = "../scraper"}
 asset = {path = "../asset"}
 logger = {path = "../logger"}
 compat = {path = "../compat"}
-tokio = { version = "1.10.1", features = ["fs","io-util"] }
-serde_json = "1.0.68"
+tokio = { version = "1.*", features = ["fs","io-util"] }
+serde_json = ">=1.0.68"
