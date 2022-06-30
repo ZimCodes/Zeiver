@@ -10,7 +10,7 @@ jobs:
   testing_job:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Update Rust
         run: |
           rustup update
@@ -21,7 +21,7 @@ jobs:
   testing_windows_job:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Update Rust
         run: |
           rustup update
