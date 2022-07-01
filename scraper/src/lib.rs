@@ -135,7 +135,17 @@ impl Scraper {
                     if !od::olaindex::OLAINDEX::has_dl_query(&x) && !parser::is_file_ext(x)
                         || parser::check_dir_query(url, x)
                     {
-                        self.add_dir(url, x, &mut dirs, level + 1, verbose);
+                        if self.od_type.eq(&od::ODMethod::AutoIndexPHP) {
+                            self.add_dir(
+                                url,
+                                &od::autoindex_php::AutoIndexPHP::transform_dir_link_html(url, &x),
+                                &mut dirs,
+                                level + 1,
+                                verbose,
+                            );
+                        } else {
+                            self.add_dir(url, x, &mut dirs, level + 1, verbose);
+                        }
                     }
                 }
             }
