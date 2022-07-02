@@ -20,6 +20,7 @@ lazy_static! {
     static ref HTTP_REG:Regex = Regex::new(r"^https?://").unwrap();
     static ref FIRST_REG:Regex = Regex::new(r"^.{1}").unwrap();
     static ref QUERY_REG:Regex = Regex::new(r"\?[^/\?][^\?]*$").unwrap();
+    static ref PERIOD_REG:Regex = Regex::new(r"\.$").unwrap();
 }
 /// Joins the relative & original URL together
 /// 1.) If first path of URL matches first path of relative URL,
@@ -249,7 +250,8 @@ fn remove_space_entity(url: &str) -> &str {
 pub fn encode_slash_starts_with(rel: &str, url: &str) -> bool {
     let url = ready_url_for_checking(url, "/");
     let rel = ready_url_for_checking(rel, "/");
-    rel.starts_with(&url)
+    let l = rel.starts_with(&url);
+    l
 }
 /// Lightly HTML encode a string of text
 fn html_encode(txt: &str) -> String {
@@ -260,12 +262,13 @@ fn html_encode(txt: &str) -> String {
 }
 /// Modify the url in order for it to be valid for checking
 fn ready_url_for_checking(x: &str, repl: &str) -> String {
-    let mut x = remove_last_slash(x);
-    x = replace_dir_queries(&x, repl);
-    x = WWW_REG.replace(&x, "").to_string(); // Remove `www.` from path
-    x = OLAINDEX::remove_path(&x);
-    x = html_encode(&x);
-    x
+    let mut d = remove_last_slash(x);
+    d = replace_dir_queries(&d, repl);
+    d = WWW_REG.replace(&d, "").to_string(); // Remove `www.` from path
+    d = OLAINDEX::remove_path(&d);
+    d = html_encode(&d);
+    d = String::from(PERIOD_REG.replace(&d, ""));
+    d
 }
 /// Check if url is the parent directory of the href link
 pub fn sub_dir_check(x: &str, url: &str) -> bool {

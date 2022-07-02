@@ -4,12 +4,14 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use select::document::Document;
 use select::predicate::{Attr, Class, Name, Predicate};
+use url::Url;
 
 const IDENTIFIER_CRUMB: &str = "Directory Listing of";
 const IDENTIFIER_FOOTER: &str = "Web Design Sheffield";
 const IDENTIFIER_TITLE: &str = "Evoluted Directory Listing Script";
 lazy_static! {
     static ref NAVIGATOR_END_REGEX: Regex = Regex::new(r"/[a-zA-Z]+\.php/?\?dir=$").unwrap();
+    static ref PHP_REGEX: Regex = Regex::new(r"/[a-zA-Z]+\.php/?$").unwrap();
 }
 pub struct DirectoryListingScript;
 impl DirectoryListingScript {
@@ -38,6 +40,33 @@ impl DirectoryListingScript {
     pub fn is_home_navigator(url: &str) -> bool {
         NAVIGATOR_END_REGEX.is_match(url)
     }
+    /// [Transform] Transforms file links into a valid one
+    pub fn transform_dir_link(rel: &str) -> String {
+        rel.replace("%2F%2F", "%2F")
+    }
+    /// [Transform] Transforms file links into a valid one
+    pub fn transform_link(url: &str, rel: &str) -> String {
+        let url = Url::parse(url).expect(
+            format!(
+                "Cannot parse url for transformation into download link: {}",
+                url
+            )
+            .as_str(),
+        );
+        let host = url.host_str().unwrap();
+        if rel.contains(host) {
+            return rel.to_string();
+        }
+        let scheme = url.scheme();
+        let path = PHP_REGEX.replace(url.path(), "");
+        if path.ends_with("/") && rel.starts_with("/") {
+            format!("{}://{}{}{}", scheme, host, path, &rel[1..])
+        } else if !path.ends_with("/") && !rel.starts_with("/") {
+            format!("{}://{}{}/{}", scheme, host, path, rel)
+        } else {
+            format!("{}://{}{}{}", scheme, host, path, rel)
+        }
+    }
     /// Parses the Evoluted Directory Listing Script HTML Document type ods
     pub fn search(res: &str, url: &str) -> Vec<String> {
         Document::from(res)
@@ -49,7 +78,8 @@ impl DirectoryListingScript {
             .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
             .filter_map(|node| node.attr("href"))
             .filter(|link| !link.contains("javascript:"))
-            .map(|link| parser::sanitize_url(link))
+            .map(|link| link.replacen("?dir=.%2F", "?dir=./", 1))
+            .map(|link| parser::sanitize_url(&link))
             .collect()
     }
 }
