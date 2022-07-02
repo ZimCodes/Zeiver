@@ -19,6 +19,7 @@ lazy_static! {
     static ref WWW_REG:Regex = Regex::new(r"www\.").unwrap();
     static ref HTTP_REG:Regex = Regex::new(r"^https?://").unwrap();
     static ref FIRST_REG:Regex = Regex::new(r"^.{1}").unwrap();
+    static ref QUERY_REG:Regex = Regex::new(r"\?[^/\?][^\?]*$").unwrap();
 }
 /// Joins the relative & original URL together
 /// 1.) If first path of URL matches first path of relative URL,
@@ -325,6 +326,10 @@ pub fn unrelated_dir_queries(rel: &str) -> bool {
         || ins_contains(rel, "&expand=")
         || ins_contains(rel, "&collapse=")
 }
+/// Check if query is at the end of text
+pub fn ends_with_any_query(x: &str) -> bool {
+    QUERY_REG.is_match(x)
+}
 
 /// Check if URL is the same as relative path
 /// in order to prevent traversing the home directory twice.
@@ -473,6 +478,42 @@ mod tests {
         assert_eq!(
             PATH_QUERY_REG.is_match("path=Hello+World%2F%2Fthumbnails%2F"),
             false
+        );
+    }
+    use super::ends_with_any_query;
+    #[test]
+    fn ends_with_query() {
+        const EXAMPLE_URL: &str = "https://exmaple.com/pub/new%20driver/";
+        assert_eq!(ends_with_any_query(&format!("{}?/", EXAMPLE_URL)), false);
+        assert_eq!(ends_with_any_query(&format!("{}?/A", EXAMPLE_URL)), false);
+        assert_eq!(ends_with_any_query(&format!("{}?", EXAMPLE_URL)), false);
+        assert_eq!(ends_with_any_query(&format!("{}??", EXAMPLE_URL)), false);
+
+        assert_eq!(ends_with_any_query(&format!("{}?a?", EXAMPLE_URL)), false);
+        assert_eq!(
+            ends_with_any_query(&format!("{}?=6634632&B42?", EXAMPLE_URL)),
+            false
+        );
+        assert_eq!(ends_with_any_query(&format!("{}?A", EXAMPLE_URL)), true);
+        assert_eq!(ends_with_any_query(&format!("{}??A", EXAMPLE_URL)), true);
+        assert_eq!(ends_with_any_query(&format!("{}?A/", EXAMPLE_URL)), true);
+        assert_eq!(ends_with_any_query(&format!("{}?Afe=", EXAMPLE_URL)), true);
+        assert_eq!(
+            ends_with_any_query(&format!("{}?Afe=32", EXAMPLE_URL)),
+            true
+        );
+        assert_eq!(ends_with_any_query(&format!("{}?A=32&", EXAMPLE_URL)), true);
+        assert_eq!(
+            ends_with_any_query(&format!("{}?66346=32&B=42", EXAMPLE_URL)),
+            true
+        );
+        assert_eq!(
+            ends_with_any_query(&format!("{}?6634632&B42", EXAMPLE_URL)),
+            true
+        );
+        assert_eq!(
+            ends_with_any_query(&format!("{}?=6634632&B42", EXAMPLE_URL)),
+            true
         );
     }
 }

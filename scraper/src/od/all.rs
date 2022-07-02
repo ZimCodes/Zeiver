@@ -15,6 +15,7 @@ pub fn search(res: &str, url: &str) -> Vec<String> {
             let mut paths: Vec<&str> = link.split("/").collect();
             !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
         })
+        .filter(|link| !parser::ends_with_any_query(link))
         .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
