@@ -1,4 +1,4 @@
-use crate::od::odindex::OdIndex;
+use crate::od::nginx::NGINX;
 use crate::od::olaindex::{OlaindexExtras, OLAINDEX};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -232,12 +232,13 @@ pub fn set_regex(regex: &Option<String>) -> Regex {
 }
 ///Sanitize the url to for easy traversing
 pub fn sanitize_url(url: &str) -> String {
-    let url = OdIndex::sanitize_url(url);
     let url = OLAINDEX::sanitize_url(url);
     let url = remove_preview_query(url.as_ref());
     let url = remove_space_entity(&url);
-    String::from(url)
+    let url = NGINX::sanitize_url(url);
+    url
 }
+
 ///Remove `%20` space HTML Encode at the end of link
 fn remove_space_entity(url: &str) -> &str {
     if url.ends_with("%20") {
