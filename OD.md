@@ -1,4 +1,5 @@
 ### Supported
+
 * OLAINDEX
 * Directory Lister
 * AutoIndex PHP
@@ -22,9 +23,11 @@
 * A.B.
 * Windex
 * Indices 1.1
+* Caddy
 
 **May also work with other ODs. So long as they have `<a>`.*
 
 ### Unsupported
+
 * ZFile
 * and other JavaScript only ODs

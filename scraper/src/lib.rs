@@ -135,7 +135,19 @@ impl Scraper {
                     if !od::olaindex::OLAINDEX::has_dl_query(&x) && !parser::is_file_ext(x)
                         || parser::check_dir_query(url, x)
                     {
-                        self.add_dir(url, x, &mut dirs, level + 1, verbose);
+                        let mut x = String::from(x);
+                        x = self.od_dir_link_modify(&x);
+                        if self.od_type.eq(&od::ODMethod::AutoIndexPHP) {
+                            self.add_dir(
+                                url,
+                                &od::autoindex_php::AutoIndexPHP::transform_dir_link_html(url, &x),
+                                &mut dirs,
+                                level + 1,
+                                verbose,
+                            );
+                        } else {
+                            self.add_dir(url, &x, &mut dirs, level + 1, verbose);
+                        }
                     }
                 }
             }
@@ -296,6 +308,15 @@ impl Scraper {
             od::olaindex::OLAINDEX::transform_link(&x)
         } else if self.od_type.eq(&od::ODMethod::AutoIndexPHP) {
             od::autoindex_php::AutoIndexPHP::transform_dl_link(url, &x, res)
+        } else if self.od_type.eq(&od::ODMethod::DirectoryListingScript) {
+            od::directory_listing_script::DirectoryListingScript::transform_link(url, &x)
+        } else {
+            x.to_string()
+        }
+    }
+    fn od_dir_link_modify(&self, x: &String) -> String {
+        if self.od_type.eq(&od::ODMethod::DirectoryListingScript) {
+            od::directory_listing_script::DirectoryListingScript::transform_dir_link(&x)
         } else {
             x.to_string()
         }

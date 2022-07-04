@@ -1,9 +1,10 @@
 use super::all;
 use crate::parser;
+use asset::file;
 use lazy_static::lazy_static;
 use regex::Regex;
 use select::document::Document;
-use select::predicate::{Attr, Class, Name, Predicate};
+use select::predicate::{Attr, Class, Name, Or, Predicate};
 use std::borrow::Cow;
 
 const IDENTIFIER_DESCRIPTION: &str = "OLAINDEX,Another OneDrive Directory Index";
@@ -110,29 +111,50 @@ impl OLAINDEX {
             has_description_id
         }
     }
+
     /// Parses the OLAINDEX HTML Document type ods
     pub fn search(res: &str, url: &str) -> Vec<String> {
-        Document::from(res)
-            .find(
-                Name("div")
-                    .and(Class("mdui-container").or(Class("container")))
-                    .descendant(Name("a").or(Name("li"))),
-            )
-            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
-            .filter_map(|node| {
-                if node.attr("data-route").is_some() {
-                    node.attr("data-route")
-                } else {
-                    node.attr("href")
-                }
-            })
-            .filter(|link| {
-                let mut paths: Vec<&str> = link.split("/").collect();
-                !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
-            })
-            .filter(|link| !link.contains("javascript:"))
-            .map(|link| parser::sanitize_url(link))
-            .collect()
+        let base = Name("div").and(Class("mdui-container").or(Class("container")));
+        let table_row_base = base.descendant(Name("tr").and(Attr("data-route", ())));
+        let nav_type_a = base.descendant(Name("div").child(Name("a").and(Attr("title", ()))));
+        let nav_type_b = table_row_base.descendant(Name("a").and(Attr("title", ())));
+        let nav_type_c = base
+            .descendant(Name("li").and(Attr("data-route", ())))
+            .descendant(Name("a"));
+
+        let is_unique_type = Document::from(res)
+            .find(Or(nav_type_a, Or(nav_type_b, nav_type_c)))
+            .any(|node| node.eq(&node));
+
+        if is_unique_type {
+            Document::from(res)
+                .find(Or(nav_type_a, Or(nav_type_b, nav_type_c)))
+                .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+                .filter_map(|node| {
+                    if node.attr("data-name").is_some() {
+                        node.attr("data-name")
+                    } else {
+                        node.attr("title")
+                    }
+                })
+                .filter(|link| !link.contains("javascript:"))
+                .map(|link| parser::sanitize_url(link))
+                .collect()
+        } else {
+            Document::from(res)
+                .find(table_row_base)
+                .filter(|node| {
+                    all::no_parent_dir(
+                        url,
+                        file::File::get_file_name(node.attr("data-route")),
+                        node.attr("data-route"),
+                    )
+                })
+                .map(|node| file::File::get_file_name(node.attr("data-route")))
+                .filter(|link| !link.trim().contains("javascript:"))
+                .map(|link| parser::sanitize_url(link.trim()))
+                .collect()
+        }
     }
 }
 

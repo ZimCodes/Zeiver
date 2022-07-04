@@ -3,6 +3,7 @@ use crate::od::all;
 use crate::od::apache::Apache;
 use crate::od::apache_directory_listing::ApacheDirectoryListing;
 use crate::od::autoindex_php::AutoIndexPHP;
+use crate::od::caddy::Caddy;
 use crate::od::directory_lister::DirectoryLister;
 use crate::od::directory_listing_script::DirectoryListingScript;
 use crate::od::eyy_indexer::EyyIndexer;
@@ -43,6 +44,7 @@ pub fn filtered_links(res: &str, url: &str, od_type: &ODMethod) -> Vec<String> {
         ODMethod::FancyIndex => FancyIndex::search(res, url),
         ODMethod::AB => AB::search(res, url),
         ODMethod::LightTPD => LightTPD::search(res, url),
+        ODMethod::Caddy => Caddy::search(res, url),
         ODMethod::Apache | ODMethod::NGINX => Apache::search(res, url),
         _ => all::search(res, url),
     }

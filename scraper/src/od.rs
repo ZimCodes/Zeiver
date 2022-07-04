@@ -3,6 +3,7 @@ pub mod all;
 pub mod apache;
 pub mod apache_directory_listing;
 pub mod autoindex_php;
+pub mod caddy;
 pub mod directory_lister;
 pub mod directory_listing_script;
 pub mod eyy_indexer;
@@ -10,6 +11,7 @@ pub mod fancyindex;
 pub mod h5ai;
 pub mod indices;
 pub mod lighttpd;
+pub mod lite_speed;
 pub mod microsoftiis;
 pub mod nginx;
 mod none;
@@ -48,6 +50,8 @@ pub enum ODMethod {
     None,
     Windex,
     Indices,
+    LiteSpeed,
+    Caddy,
 }
 
 /// Determine the od type from URL
@@ -118,6 +122,10 @@ fn od_type_from_header(res: &str, server_name: &str) -> ODMethod {
         ODMethod::MicrosoftIIS
     } else if lighttpd::LightTPD::is_od(res, server_name) {
         ODMethod::LightTPD
+    } else if lite_speed::LiteSpeed::is_od(res, server_name) {
+        ODMethod::LiteSpeed
+    } else if caddy::Caddy::is_od(res, server_name) {
+        ODMethod::Caddy
     } else if apache::Apache::is_od(res, server_name) {
         ODMethod::Apache
     } else if nginx::NGINX::is_od(res, server_name) {

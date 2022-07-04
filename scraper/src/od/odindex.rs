@@ -27,13 +27,6 @@ impl OdIndex {
                 None => false,
             })
     }
-    pub fn sanitize_url(x: &str) -> &str {
-        if x.ends_with("?p=t") {
-            &x[..x.len() - 4]
-        } else {
-            x
-        }
-    }
     /// Parses OdIndex HTML Documents
     pub fn search(res: &str, url: &str) -> Vec<String> {
         Document::from(res)

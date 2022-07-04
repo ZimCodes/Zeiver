@@ -10,6 +10,7 @@ lazy_static! {
         Regex::new(r"/.+\.(?:[a-zA-Z0-9]{3,7}|[a-zA-Z][a-zA-Z0-9]|[0-9][a-zA-Z])/?$").unwrap();
     static ref QUERY_REG: Regex = Regex::new(r"/\?\w+=\w+/").unwrap();
     static ref QUERY_PATH_REG: Regex = Regex::new(r"/\?/").unwrap();
+    static ref LAST_URL_PATH: Regex = Regex::new(r"/([^/]+)$").unwrap();
 }
 #[derive(Debug)]
 pub struct File {
@@ -109,8 +110,8 @@ impl File {
             None => None,
         }
     }
-    /// Get the file extension
-    pub fn part_of_name(name: &str, get_ext: bool) -> Option<String> {
+    /// Get the file name or extension
+    fn part_of_name(name: &str, get_ext: bool) -> Option<String> {
         let name_split: Vec<&str> = name.split('.').collect();
         if name_split.len() >= 2 {
             if get_ext {
@@ -131,6 +132,17 @@ impl File {
         //Change space entities into an actual space character
         decoded_file_name.replace("%20", " ")
     }
+
+    // Retrieve file/directory name from the URL
+    pub fn get_file_name(href: Option<&str>) -> &str {
+        let link = href.unwrap();
+        let capt_opt = LAST_URL_PATH.captures(link);
+        let captures = capt_opt.unwrap();
+        let t = captures.get(1).map_or("", |m| m.as_str());
+
+        t
+    }
+
     pub fn to_json(self) -> String {
         match self.short_name {
             Some(name) => format!("{}.json", name),

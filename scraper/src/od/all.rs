@@ -15,6 +15,7 @@ pub fn search(res: &str, url: &str) -> Vec<String> {
             let mut paths: Vec<&str> = link.split("/").collect();
             !OLAINDEX::has_extra_paths(&mut paths, OlaindexExtras::ExcludeHomeAndDownload)
         })
+        .filter(|link| !parser::ends_with_any_query(link))
         .filter(|link| !link.contains("javascript:"))
         .map(|link| parser::sanitize_url(link))
         .collect()
@@ -28,6 +29,7 @@ pub fn no_parent_dir(url: &str, content: &str, href: Option<&str>) -> bool {
     let not_parent_dir = (!content.starts_with("parent directory")
         && !content.starts_with("Parent Directory"))
         && content != microsoftiis::IDENTIFIER.to_lowercase();
+    let no_back_path_in_content = !back_paths.iter().any(|back| back == &trimmed_content);
     //Check for back paths in href
     let no_back_path_in_href = match href {
         Some(link) => !back_paths.iter().any(|back| back == &link),
@@ -50,7 +52,11 @@ pub fn no_parent_dir(url: &str, content: &str, href: Option<&str>) -> bool {
         }
         None => false,
     };
-    not_parent_dir && no_back_path_in_href && no_home_navigator && no_home_url
+    not_parent_dir
+        && no_back_path_in_href
+        && no_home_navigator
+        && no_home_url
+        && no_back_path_in_content
 }
 
 #[cfg(test)]

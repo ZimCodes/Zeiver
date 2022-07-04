@@ -25,13 +25,43 @@ impl Apache {
 
     /// Parses the Apache & NGINX HTML Document type ods
     pub fn search(res: &str, url: &str) -> Vec<String> {
-        Document::from(res)
+        let elements: Vec<String> = Document::from(res)
             .find(
                 Name("tr")
                     .descendant(Name("td").descendant(Name("a")))
-                    .or(Name("pre").descendant(Name("a")))
-                    .or(Name("li").descendant(Name("a"))),
+                    .or(Name("pre").descendant(Name("a"))),
             )
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter(|node| !NGINX::has_extra_query(node.attr("href").unwrap()))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect();
+        if !elements.is_empty() {
+            elements
+        } else {
+            Apache::new_table_search(res, url)
+        }
+    }
+
+    fn new_table_search(res: &str, url: &str) -> Vec<String> {
+        let elements: Vec<String> = Document::from(res)
+            .find(Name("tr").descendant(Name("a")))
+            .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
+            .filter(|node| !NGINX::has_extra_query(node.attr("href").unwrap()))
+            .filter_map(|node| node.attr("href"))
+            .filter(|link| !link.contains("javascript:"))
+            .map(|link| parser::sanitize_url(link))
+            .collect();
+        if !elements.is_empty() {
+            elements
+        } else {
+            Apache::list_search(res, url)
+        }
+    }
+    fn list_search(res: &str, url: &str) -> Vec<String> {
+        Document::from(res)
+            .find(Name("li").descendant(Name("a")))
             .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
             .filter(|node| !NGINX::has_extra_query(node.attr("href").unwrap()))
             .filter_map(|node| node.attr("href"))

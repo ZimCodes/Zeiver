@@ -1,4 +1,4 @@
-use crate::od::odindex::OdIndex;
+use crate::od::nginx::NGINX;
 use crate::od::olaindex::{OlaindexExtras, OLAINDEX};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -19,6 +19,8 @@ lazy_static! {
     static ref WWW_REG:Regex = Regex::new(r"www\.").unwrap();
     static ref HTTP_REG:Regex = Regex::new(r"^https?://").unwrap();
     static ref FIRST_REG:Regex = Regex::new(r"^.{1}").unwrap();
+    static ref QUERY_REG:Regex = Regex::new(r"\?[^/\?][^\?]*$").unwrap();
+    static ref PERIOD_REG:Regex = Regex::new(r"\.$").unwrap();
 }
 /// Joins the relative & original URL together
 /// 1.) If first path of URL matches first path of relative URL,
@@ -32,7 +34,7 @@ pub fn url_joiner(url: &str, rel: &str) -> String {
     let url = DUPLICATE_SLASH_REG.replace(url, "/");
     let mut url = no_query_path(url.as_ref());
     let dummy_url = if rel.starts_with("./") {
-        format!("http://www.example.com{}", &rel[2..])
+        format!("http://www.example.com{}", &rel[1..])
     } else if !rel.starts_with("/") {
         format!("http://www.example.com/{}", rel)
     } else {
@@ -230,12 +232,13 @@ pub fn set_regex(regex: &Option<String>) -> Regex {
 }
 ///Sanitize the url to for easy traversing
 pub fn sanitize_url(url: &str) -> String {
-    let url = OdIndex::sanitize_url(url);
     let url = OLAINDEX::sanitize_url(url);
     let url = remove_preview_query(url.as_ref());
     let url = remove_space_entity(&url);
-    String::from(url)
+    let url = NGINX::sanitize_url(url);
+    url
 }
+
 ///Remove `%20` space HTML Encode at the end of link
 fn remove_space_entity(url: &str) -> &str {
     if url.ends_with("%20") {
@@ -248,7 +251,8 @@ fn remove_space_entity(url: &str) -> &str {
 pub fn encode_slash_starts_with(rel: &str, url: &str) -> bool {
     let url = ready_url_for_checking(url, "/");
     let rel = ready_url_for_checking(rel, "/");
-    rel.starts_with(&url)
+    let l = rel.starts_with(&url);
+    l
 }
 /// Lightly HTML encode a string of text
 fn html_encode(txt: &str) -> String {
@@ -259,12 +263,13 @@ fn html_encode(txt: &str) -> String {
 }
 /// Modify the url in order for it to be valid for checking
 fn ready_url_for_checking(x: &str, repl: &str) -> String {
-    let mut x = remove_last_slash(x);
-    x = replace_dir_queries(&x, repl);
-    x = WWW_REG.replace(&x, "").to_string(); // Remove `www.` from path
-    x = OLAINDEX::remove_path(&x);
-    x = html_encode(&x);
-    x
+    let mut d = remove_last_slash(x);
+    d = replace_dir_queries(&d, repl);
+    d = WWW_REG.replace(&d, "").to_string(); // Remove `www.` from path
+    d = OLAINDEX::remove_path(&d);
+    d = html_encode(&d);
+    d = String::from(PERIOD_REG.replace(&d, ""));
+    d
 }
 /// Check if url is the parent directory of the href link
 pub fn sub_dir_check(x: &str, url: &str) -> bool {
@@ -324,6 +329,10 @@ pub fn unrelated_dir_queries(rel: &str) -> bool {
         || ins_contains(rel, "archive=true")
         || ins_contains(rel, "&expand=")
         || ins_contains(rel, "&collapse=")
+}
+/// Check if query is at the end of text
+pub fn ends_with_any_query(x: &str) -> bool {
+    QUERY_REG.is_match(x)
 }
 
 /// Check if URL is the same as relative path
@@ -473,6 +482,42 @@ mod tests {
         assert_eq!(
             PATH_QUERY_REG.is_match("path=Hello+World%2F%2Fthumbnails%2F"),
             false
+        );
+    }
+    use super::ends_with_any_query;
+    #[test]
+    fn ends_with_query() {
+        const EXAMPLE_URL: &str = "https://exmaple.com/pub/new%20driver/";
+        assert_eq!(ends_with_any_query(&format!("{}?/", EXAMPLE_URL)), false);
+        assert_eq!(ends_with_any_query(&format!("{}?/A", EXAMPLE_URL)), false);
+        assert_eq!(ends_with_any_query(&format!("{}?", EXAMPLE_URL)), false);
+        assert_eq!(ends_with_any_query(&format!("{}??", EXAMPLE_URL)), false);
+
+        assert_eq!(ends_with_any_query(&format!("{}?a?", EXAMPLE_URL)), false);
+        assert_eq!(
+            ends_with_any_query(&format!("{}?=6634632&B42?", EXAMPLE_URL)),
+            false
+        );
+        assert_eq!(ends_with_any_query(&format!("{}?A", EXAMPLE_URL)), true);
+        assert_eq!(ends_with_any_query(&format!("{}??A", EXAMPLE_URL)), true);
+        assert_eq!(ends_with_any_query(&format!("{}?A/", EXAMPLE_URL)), true);
+        assert_eq!(ends_with_any_query(&format!("{}?Afe=", EXAMPLE_URL)), true);
+        assert_eq!(
+            ends_with_any_query(&format!("{}?Afe=32", EXAMPLE_URL)),
+            true
+        );
+        assert_eq!(ends_with_any_query(&format!("{}?A=32&", EXAMPLE_URL)), true);
+        assert_eq!(
+            ends_with_any_query(&format!("{}?66346=32&B=42", EXAMPLE_URL)),
+            true
+        );
+        assert_eq!(
+            ends_with_any_query(&format!("{}?6634632&B42", EXAMPLE_URL)),
+            true
+        );
+        assert_eq!(
+            ends_with_any_query(&format!("{}?=6634632&B42", EXAMPLE_URL)),
+            true
         );
     }
 }

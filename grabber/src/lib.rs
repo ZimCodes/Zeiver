@@ -54,7 +54,7 @@ impl Http {
                 Ok(response) => return Ok(response),
                 Err(e) => {
                     if e.is_request() {
-                        panic!("Error found with request: {}", e);
+                        eprintln!("Error found with request: {}", e);
                     } else if e.is_builder() {
                         panic!("Invalid domain: [{:?}]. Please check URLs in your input file to make sure they are entered line by line or \
                         check URLs entered in terminal.", e.url());
