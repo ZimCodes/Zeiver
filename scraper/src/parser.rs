@@ -34,7 +34,7 @@ pub fn url_joiner(url: &str, rel: &str) -> String {
     let url = DUPLICATE_SLASH_REG.replace(url, "/");
     let mut url = no_query_path(url.as_ref());
     let dummy_url = if rel.starts_with("./") {
-        format!("http://www.example.com{}", &rel[2..])
+        format!("http://www.example.com{}", &rel[1..])
     } else if !rel.starts_with("/") {
         format!("http://www.example.com/{}", rel)
     } else {
