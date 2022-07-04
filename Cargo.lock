@@ -22,7 +22,7 @@ dependencies = [
 
 [[package]]
 name = "asset"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "lazy_static",
  "regex",
@@ -1029,7 +1029,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "scraper"
-version = "0.6.5-2"
+version = "0.6.6"
 dependencies = [
  "asset",
  "grabber",
@@ -1626,7 +1626,7 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.8.3"
+version = "0.8.4"
 dependencies = [
  "cmd_opts",
  "crawler",
