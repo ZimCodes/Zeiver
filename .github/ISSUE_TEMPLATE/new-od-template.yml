@@ -1,0 +1,40 @@
+name: New OD request
+description: Suggest support for a new Open Directory
+title: "New OD"
+labels: ["new od"]
+assignees:
+  - ZimCodes
+body:
+  - type: input
+    id: od_name
+    attributes:
+      label: OD Name
+      description: What is the name of the OD you would like to see supported?
+      placeholder: Leave blank if you do not know
+    validations:
+      required: false
+  - type: textarea
+    id: characteristics
+    attributes:
+      label: Characteristics
+      description: What make this OD unique from the ODs Zeiver supports? What are some distinguishable features?
+      placeholder: "Example: A `Powered by xxx` located on top of navigation bar. The OD also 
+      displays each resource on the page as a graph."
+    validations:
+      required: false
+  - type: textarea
+    id: od_source
+    attributes:
+      label: Source(s)
+      description: Please provide screenshot(s)/link(s) of the OD.
+    validations:
+      required: true
+  - type: textarea
+    id: comments
+    attributes:
+      label: Additional Comments
+      description: Please provide any other comments you may have.
+    validations:
+      required: false
+
+

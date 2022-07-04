@@ -364,7 +364,7 @@ Some ODs will send Zeiver **HTML Documents** without any content *(links to file
 the OD.
 This is because Zeiver retrieves an HTML Document **without JavaScript** & some ODs *will not work* without it.
 
-Use [Zyod](https://github.com/ZimCodes/Zyod/) instead.
+[Use Zyod instead!](https://github.com/ZimCodes/Zyod/) 
 
 ---
 ## License 
