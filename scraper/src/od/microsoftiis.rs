@@ -1,7 +1,7 @@
 use super::all;
 use crate::parser;
 use select::document::Document;
-use select::predicate::{Name, Predicate};
+use select::predicate::{Name, Or, Predicate};
 
 const IDENTIFIER_PARENT: &str = "[To Parent Directory]";
 const IDENTIFIER_DIR: &str = "<dir>";
@@ -32,7 +32,10 @@ impl MicrosoftIIS {
     /// Parses Microsoft-IIS HTML Documents
     pub fn search(res: &str, url: &str) -> Vec<String> {
         Document::from(res)
-            .find(Name("pre").descendant(Name("a")))
+            .find(Or(
+                Name("pre").descendant(Name("a")),
+                Name("tr").descendant(Name("td").descendant(Name("a"))),
+            ))
             .filter(|node| all::no_parent_dir(url, &node.text(), node.attr("href")))
             .filter_map(|node| node.attr("href"))
             .filter(|link| !link.contains("javascript:"))
