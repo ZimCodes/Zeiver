@@ -117,7 +117,7 @@ dependencies = [
 
 [[package]]
 name = "cmd_opts"
-version = "0.8.3"
+version = "0.8.5"
 dependencies = [
  "structopt",
 ]
@@ -1626,8 +1626,9 @@ dependencies = [
 
 [[package]]
 name = "zeiver"
-version = "0.8.4"
+version = "0.8.5"
 dependencies = [
+ "base64",
  "cmd_opts",
  "crawler",
  "logger",

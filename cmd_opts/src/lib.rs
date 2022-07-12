@@ -161,6 +161,12 @@ pub struct Opts {
     /// The User Agent header to use
     #[structopt(short)]
     pub user_agent: Option<String>,
+    /// Basic Authentication to use. 'username:password' format
+    ///
+    /// The basic authentication needed to use a (closed) directory. Must use the
+    /// 'username:password' format.
+    #[structopt(long)]
+    pub auth: Option<String>,
     /// Use HTTPS only
     ///
     /// Restrict Zeiver to send all requests through HTTPS connections only.

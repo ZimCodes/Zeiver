@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest an idea for this project
 title: "New Feature"
-labels: ["enhancement"]
+labels: [ "enhancement" ]
 body:
   - type: input
     id: summary
@@ -10,24 +10,25 @@ body:
       description: Provide a clear and concise description of the issue.
     validations:
       required: true
-- type: textarea
-  id: details
-  attributes:
-    label: Details
-    description: Provide a detailed description of the issue as well as how to reproduce it.
-  validations:
-    required: true
-- type: textarea
-  id: sources
-  attributes:
-    label: Screenshots/Links
-    description: If applicable, add screenshots and/or a link to help explain your problem.'
-  validations:
-    required: false
-- type: textarea
-  id: comments
-  attributes:
-    label: Comments
-    description: Any other information you would like to add?
-  validations:
-    required: false
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Provide a detailed description of the issue as well as how to reproduce it.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: References
+      description: If applicable, add references (such as screenshots, links) to help explain your
+      problem.
+    validations:
+      required: false
+  - type: textarea
+    id: comments
+    attributes:
+      label: Comments
+      description: Any other information you would like to add?
+    validations:
+      required: false

@@ -1,7 +1,7 @@
 name: New OD request
 description: Suggest support for a new Open Directory
 title: "New OD"
-labels: ["new od"]
+labels: [ "new od" ]
 assignees:
   - ZimCodes
 body:
