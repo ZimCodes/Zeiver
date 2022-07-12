@@ -5,7 +5,8 @@ use std::path::PathBuf;
 #[derive(Parser, Debug, Clone)]
 #[clap(
     name = "Zeiver",
-    about = "Scrape, record, download & scout content from ODs."
+    about = "Scrape, record, download & scout content from ODs.",
+    version
 )]
 #[clap(bin_name = "zeiver")]
 pub struct Opts {
