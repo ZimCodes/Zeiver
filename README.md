@@ -279,10 +279,10 @@ Restrict Zeiver to send all requests through HTTPS connections only.
 
 ***-H, --headers***
 
-Sets the default headers to use for every request. *_Must use the __'header$value'__ format. Each header must also be
-**separated by a comma**._ 
+Sets the default headers to use for every request. *_Must use the __'header$value'__ format. 
+**Can be used multiple times!**
 
-Ex: `zeiver -H content-length$128,"accept$ text/html, application/xhtml+xml, image/webp"`
+Ex: `zeiver -H "accept$ text/html, application/xhtml+xml, image/webp" -H "content-length$128"`
 
 ***--auth***
 
