@@ -9,10 +9,10 @@ body:
   - type: checkboxes
     id: support_check
     attributes:
-      label: OD Support
+      label: Is OD Support
       description: Is the OD part of the currently supported list?
       options:
-        - label: OD
+        - label: Is supported
           required: true
   - type: input
     id: summary
@@ -31,8 +31,9 @@ body:
   - type: textarea
     id: sources
     attributes:
-      label: Screenshots/Links
-      description: If applicable, add screenshots and/or a link to help explain your problem.'
+      label: References
+      description: If applicable, add references (such as screenshots, links) to help
+      explain your problem.
     validations:
       required: false
   - type: textarea

@@ -85,7 +85,7 @@ To **install/update** Zeiver follow these steps:
 The following code downloads files from _example.com/xms/imgs_, saves them in a local directory called _Cool_Content_,
 & sends a request with the ACCEPT-LANGUAGE header.
 
-`zeiver -h "accept-language$fr-CH, en;q=0.8, de;q=0.7" -o "./Cool_Content" example.com/xms/imgs`
+`zeiver -H "accept-language$fr-CH, en;q=0.8, de;q=0.7" -o "./Cool_Content" https://example.com/xms/imgs`
 
 ## Commands 
 ### Positional
@@ -279,10 +279,19 @@ Restrict Zeiver to send all requests through HTTPS connections only.
 
 ***-H, --headers***
 
-Sets the default headers to use for every request. *_Must use the __'header$value'__ format. Each header must also be
-**separated by a comma**._ 
+Sets the default headers to use for every request. *_Must use the __'header$value'__ format. 
+**Can be used multiple times!**
 
-Ex: `zeiver -H content-length$128,"accept$ text/html, application/xhtml+xml, image/webp"`
+Ex: `zeiver -H "accept$ text/html, application/xhtml+xml, image/webp" -H "content-length$128"`
+
+***--auth***
+
+The Basic Authentication to use.
+
+The basic authentication needed to use a _closed_ directory. This is a shortcut for using the
+`Authorization: Basic` header. _Must use the_ `username:password` _format._
+
+Ex: `zeiver --auth "demo:say it"`
 
 ***-u***
 

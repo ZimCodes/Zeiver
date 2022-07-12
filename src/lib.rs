@@ -1,5 +1,5 @@
+use base64;
 use cmd_opts;
-use crawler;
 use crawler::WebCrawler;
 use logger;
 use reqwest;
@@ -33,12 +33,12 @@ impl Zeiver {
     }
     ///Begin crawling process
     async fn crawl(mut opts: cmd_opts::Opts) {
-        let web_crawler = Rc::new(crawler::WebCrawler::new(opts.clone()));
+        let web_crawler = Rc::new(WebCrawler::new(opts.clone()));
         Zeiver::clean_urls_list(&mut opts);
         if !opts.urls.is_empty() {
             Zeiver::multi_thread(web_crawler, opts).await;
         } else if opts.input_file.is_some() {
-            opts.urls = crawler::WebCrawler::input_file_links(&opts.input_file).await;
+            opts.urls = WebCrawler::input_file_links(&opts.input_file).await;
             Zeiver::multi_thread(web_crawler, opts).await;
         } else {
             web_crawler.recorder_file_task().await;
@@ -47,7 +47,7 @@ impl Zeiver {
     /// Performs tasks given to the WebCrawler under multi-threading
     /// NOTE: The amount of threads depends on the amount of URLs specified
     /// by the user.
-    async fn multi_thread(web_crawler: Rc<crawler::WebCrawler>, opts: cmd_opts::Opts) {
+    async fn multi_thread(web_crawler: Rc<WebCrawler>, opts: cmd_opts::Opts) {
         let client = Rc::new(Zeiver::client_creator(opts.clone()).unwrap());
         let mut recorder_id: usize = 0;
         for url in opts.urls {
@@ -154,44 +154,62 @@ impl Zeiver {
             }
             client_builder = client_builder.proxy(proxy);
         }
-        // Headers
-        if opts.headers.is_some() {
+
+        if opts.headers.is_some() || opts.auth.is_some() {
             let mut header_map = reqwest::header::HeaderMap::new();
-            let headers = opts.headers.unwrap();
-            for header in headers {
-                let mut head_arr = header.split("$");
+            logger::head("Headers");
+            // Basic Authorization Header shortcut
+            if opts.auth.is_some() {
+                let header_name =
+                    reqwest::header::HeaderName::from_str(reqwest::header::AUTHORIZATION.as_str())
+                        .unwrap();
+                let user_pass = opts.auth.unwrap();
+                let user_pass_base64 = base64::encode(user_pass.as_bytes());
+                let auth_value = format!("Basic {}", user_pass_base64);
+                let header_val = reqwest::header::HeaderValue::from_str(&auth_value)
+                    .expect("Unable to obtain header value for basic authorization.");
 
-                //Set Header Name
-                let header_name_str = head_arr.next().expect("Header Name not found!").trim();
-                let header_name_lower = header_name_str.to_lowercase();
-                let header_name = reqwest::header::HeaderName::from_str(header_name_lower.as_str());
-                let header_name = match header_name {
-                    Ok(name) => name,
-                    Err(e) => {
-                        eprintln!("{}", e.to_string());
-                        continue;
-                    }
-                };
-
-                //Set Header Value
-                let header_value_str = head_arr.next().expect("Header Value not found!").trim();
-                let header_value_lower = header_value_str.to_lowercase();
-                let header_value =
-                    reqwest::header::HeaderValue::from_str(header_value_lower.as_str());
-                let header_value = match header_value {
-                    Ok(value) => value,
-                    Err(e) => {
-                        eprintln!("{}", e.to_string());
-                        continue;
-                    }
-                };
                 logger::log_split("Name", header_name.as_str());
-                logger::log_split("Value", header_value.to_str().unwrap());
+                logger::log_split("Value", header_val.to_str().unwrap());
                 logger::new_line();
-                header_map.insert(header_name, header_value);
+                header_map.insert(header_name, header_val);
+            }
+            // Headers
+            if opts.headers.is_some() {
+                let headers = opts.headers.unwrap();
+                for header in headers {
+                    let mut head_arr = header.split("$");
+
+                    //Set Header Name
+                    let header_name_str = head_arr.next().expect("Header Name not found!").trim();
+                    let header_name = reqwest::header::HeaderName::from_str(header_name_str);
+                    let header_name = match header_name {
+                        Ok(name) => name,
+                        Err(e) => {
+                            eprintln!("{}", e.to_string());
+                            continue;
+                        }
+                    };
+
+                    //Set Header Value
+                    let header_value_str = head_arr.next().expect("Header Value not found!").trim();
+                    let header_value = reqwest::header::HeaderValue::from_str(header_value_str);
+                    let header_value = match header_value {
+                        Ok(value) => value,
+                        Err(e) => {
+                            eprintln!("{}", e.to_string());
+                            continue;
+                        }
+                    };
+                    logger::log_split("Name", header_name.as_str());
+                    logger::log_split("Value", header_value.to_str().unwrap());
+                    logger::new_line();
+                    header_map.insert(header_name, header_value);
+                }
             }
             client_builder = client_builder.default_headers(header_map);
         }
+
         // Timeout
         if opts.timeout != 0 {
             let secs = opts.timeout;
