@@ -1,6 +1,6 @@
 [package]
 name = "downloader"
-version = "0.4.0-1"
+version = "0.4.0-2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,5 +16,5 @@ bytes = ">=1.1.0"
 lazy_static = ">=1.4.0"
 regex = ">=1.5.4"
 mime = ">=0.3.16"
-reqwest = ">=0.11.4"
-tokio = { version = "1.*", features = ["fs","io-util"] }
+reqwest = "~0.11.4"
+tokio = { version = "^1.10.1", features = ["fs","io-util"] }

@@ -1,6 +1,6 @@
 [package]
 name = "zeiver"
-version = "0.8.5"
+version = "0.8.5-1"
 authors = ["ZimCodes <23222943+ZimCodes@users.noreply.github.com>"]
 edition = "2021"
 description = "Web crawler designed to scrape, record, download, & scan content from ODs"
@@ -29,5 +29,5 @@ crawler = {path = "./crawler"}
 cmd_opts = {path = "./cmd_opts"}
 logger = {path = "./logger"}
 reqwest = "~0.11.4"
-tokio = { version = "1.10.1", features = ["time","rt","macros","rt-multi-thread"] }
+tokio = { version = "^1.10.1", features = ["time","rt","macros","rt-multi-thread"] }
 base64 = "~0.13.0"
