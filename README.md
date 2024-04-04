@@ -6,7 +6,7 @@ __*Zeiver does not download the entire OD itself, only the files.__
 
 For dynamic ODs *(JavaScript focused Open Directories)* use [Zyod!](https://github.com/ZimCodes/Zyod/)
 
-For ease of use, check out the [Zeiver configurator](https://zimtools.xyz/zeiver).
+For ease of use, check out the [Zeiver configurator](https://zimtools.vercel.app/zeiver).
 
 ![Build](https://github.com/ZimCodes/Zeiver/actions/workflows/build.yaml/badge.svg)
 
